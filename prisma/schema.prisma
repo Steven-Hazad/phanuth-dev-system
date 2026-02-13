@@ -1,0 +1,30 @@
+// This is your Database Schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  fullName  String
+  title     String
+  tagline   String
+  bioKh     String   @db.Text
+  bioEn     String   @db.Text
+  gpa       Float
+}
+
+model Education {
+  id           Int      @id @default(autoincrement())
+  degree       String
+  university   String
+  startDate    DateTime
+  endDate      DateTime?
+  gpa          Float
+  achievements String   @db.Text
+}
