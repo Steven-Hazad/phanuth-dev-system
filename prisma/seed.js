@@ -69,6 +69,17 @@ await prisma.skill.createMany({
     { name: "System Design", level: 70, category: "Tools" },
   ]
 });
+const bcrypt = require("bcryptjs");
+// ... inside main()
+const hashedPassword = await bcrypt.hash("phanuth14", 10);
+await prisma.admin.upsert({
+  where: { username: "phanuth_admin" },
+  update: {},
+  create: {
+    username: "phanuth_admin",
+    password: hashedPassword,
+  },
+});
 console.log("✅ Skill Intelligence Seeded!");
 }
 

@@ -1,138 +1,90 @@
 "use client";
 import { useEffect, useState } from "react";
+import { translations } from "@/lib/translations";
 
 export default function Home() {
-  const [profile, setProfile] = useState(null);
-  const [education, setEducation] = useState([]);
-const [projects, setProjects] = useState([]);
-const [skills, setSkills] = useState([]);
+  const [data, setData] = useState({ profile: null, education: [], projects: [], skills: [] });
+  const [lang, setLang] = useState("en");
+  const t = translations[lang];
+
   useEffect(() => {
-    fetch("/api/profile").then(res => res.json()).then(data => setProfile(data));
-    fetch("/api/education").then(res => res.json()).then(data => setEducation(data));
-    fetch("/api/projects").then(res => res.json()).then(data => setProjects(data));
-    fetch("/api/skills").then(res => res.json()).then(data => setSkills(data));
+    async function fetchData() {
+      const [p, e, pr, s] = await Promise.all([
+        fetch("/api/profile").then(res => res.json()),
+        fetch("/api/education").then(res => res.json()),
+        fetch("/api/projects").then(res => res.json()),
+        fetch("/api/skills").then(res => res.json())
+      ]);
+      setData({ profile: p, education: e, projects: pr, skills: s });
+    }
+    fetchData();
   }, []);
 
-  if (!profile) return <div className="p-10 text-center font-mono">Loading Academic System...</div>;
+  if (!data.profile) return <div className="h-screen flex items-center justify-center font-mono">SYSTEM_LOADING...</div>;
 
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900 pb-20">
-      {/* HEADER & HERO (From Step 3) */}
-      <section className="max-w-4xl mx-auto pt-20 px-6">
-        <div className="bg-white border border-slate-200 rounded-3xl p-10 shadow-sm">
-          <h1 className="text-5xl font-black tracking-tight">{profile.fullName}</h1>
-          <p className="text-xl text-blue-600 font-semibold mt-2">{profile.title}</p>
-          <div className="grid grid-cols-2 gap-6 mt-10 pt-10 border-t border-slate-100">
-             <div>
-                <p className="text-[10px] font-bold text-slate-400 uppercase">Current GPA</p>
-                <p className="text-2xl font-black">{profile.gpa}</p>
-             </div>
+    <div className="bg-[#fcfcfc] text-[#1a1a1a] min-h-screen pb-20">
+      {/* 🟢 NAVBAR */}
+      <nav className="max-w-5xl mx-auto p-8 flex justify-between items-center">
+        <div className="text-2xl font-black tracking-tighter">PHANUTH<span className="text-blue-600">.DEV</span></div>
+        <button onClick={() => setLang(lang === "en" ? "kh" : "en")} className="font-bold text-sm bg-white border border-slate-200 px-4 py-2 rounded-full shadow-sm">
+          {lang === "en" ? "🇰🇭 KH" : "🇺🇸 EN"}
+        </button>
+      </nav>
+
+      {/* 🟢 HERO SECTION */}
+      <header className="max-w-5xl mx-auto px-8 pt-12 text-center md:text-left">
+        <h1 className="text-6xl md:text-8xl font-black tracking-tight leading-none mb-6">
+          {data.profile.fullName}
+        </h1>
+        <div className="flex flex-col md:flex-row md:items-center gap-6">
+          <p className="text-xl md:text-2xl font-medium text-slate-500 max-w-2xl">
+            {lang === "en" ? data.profile.bioEn : data.profile.bioKh}
+          </p>
+          <div className="bg-blue-600 text-white p-8 rounded-3xl shrink-0">
+             <p className="text-xs font-bold uppercase tracking-widest opacity-70 mb-1">{t.statsGpa}</p>
+             <p className="text-4xl font-black">{data.profile.gpa}</p>
           </div>
         </div>
-      </section>
+      </header>
 
-      {/* 🎓 STEP 4: EDUCATION TIMELINE */}
-      <section className="max-w-4xl mx-auto mt-16 px-6">
-        <h2 className="text-2xl font-black mb-10 flex items-center gap-3">
-          <span className="w-8 h-8 bg-slate-900 text-white flex items-center justify-center rounded-lg text-sm">🎓</span>
-          Academic Timeline
+      {/* 🟢 PROJECTS GRID */}
+      <section className="max-w-5xl mx-auto px-8 mt-32">
+        <h2 className="text-3xl font-black mb-12 flex items-center gap-4">
+          <span className="h-px flex-1 bg-slate-200"></span>
+          {t.projectsTitle}
         </h2>
-
-        <div className="space-y-8 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-300 before:to-transparent">
-          {education.map((edu) => (
-            <div key={edu.id} className="relative pl-12">
-              {/* The Timeline Dot */}
-              <div className="absolute left-0 mt-1.5 w-10 h-10 flex items-center justify-center">
-                <div className="w-3 h-3 bg-blue-600 rounded-full ring-4 ring-white"></div>
-              </div>
-              
-              {/* The Card */}
-              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm transition-all hover:border-blue-200">
-                <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-2">
-                  <div>
-                    <span className="text-blue-600 text-xs font-bold uppercase tracking-widest">
-                      {edu.startDate} — {edu.endDate}
-                    </span>
-                    <h3 className="text-xl font-bold text-slate-900 mt-1">{edu.degree}</h3>
-                    <p className="text-slate-500 font-medium">{edu.university}</p>
-                  </div>
-                  <div className="bg-slate-50 px-3 py-1 rounded-md border border-slate-100">
-                    <span className="text-sm font-bold text-slate-700">GPA: {edu.gpa}</span>
-                  </div>
-                </div>
-                <p className="mt-4 text-slate-600 text-sm leading-relaxed border-t pt-4 border-slate-50 italic">
-                  "{edu.achievements}"
-                </p>
+        <div className="grid md:grid-cols-2 gap-8">
+          {data.projects.map(p => (
+            <div key={p.id} className="group bg-white border border-slate-200 p-8 rounded-[2rem] hover:border-blue-500 transition-all shadow-sm">
+              <span className="text-[10px] font-bold bg-slate-100 px-3 py-1 rounded-full uppercase mb-4 inline-block">{p.category}</span>
+              <h3 className="text-2xl font-black mb-3 group-hover:text-blue-600">{p.title}</h3>
+              <p className="text-slate-500 leading-relaxed mb-6">{p.description}</p>
+              <div className="flex flex-wrap gap-2">
+                {p.techStack.split(',').map(s => <span key={s} className="text-[10px] font-bold text-slate-400 border border-slate-200 px-2 py-1 rounded">{s.trim()}</span>)}
               </div>
             </div>
           ))}
         </div>
       </section>
-      <section className="max-w-4xl mx-auto mt-24 px-6">
-  <h2 className="text-2xl font-black mb-10 flex items-center gap-3">
-    <span className="w-8 h-8 bg-blue-600 text-white flex items-center justify-center rounded-lg text-sm">💻</span>
-    Featured Systems
-  </h2>
 
-  <div className="grid md:grid-cols-2 gap-6">
-    {projects.map((project) => (
-      <div key={project.id} className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col hover:shadow-xl transition-all group">
-        <div className="flex justify-between items-start mb-4">
-          <span className="text-[10px] font-bold bg-slate-100 text-slate-500 px-2 py-1 rounded uppercase tracking-widest">
-            {project.category}
-          </span>
-          <span className={`text-[10px] font-bold px-2 py-1 rounded uppercase ${project.status === 'Completed' ? 'bg-green-100 text-green-600' : 'bg-orange-100 text-orange-600'}`}>
-            {project.status}
-          </span>
+      {/* 🟢 SKILLS BAR */}
+      <section className="max-w-5xl mx-auto px-8 mt-32">
+        <h2 className="text-3xl font-black mb-12">{t.skillsTitle}</h2>
+        <div className="grid md:grid-cols-3 gap-6 bg-slate-900 p-10 rounded-[2.5rem] text-white">
+          {data.skills.map(s => (
+            <div key={s.id} className="space-y-3">
+              <div className="flex justify-between text-xs font-bold uppercase opacity-60">
+                <span>{s.name}</span>
+                <span>{s.level}%</span>
+              </div>
+              <div className="h-1 w-full bg-slate-800 rounded-full">
+                <div className="h-full bg-blue-500" style={{width: `${s.level}%`}}></div>
+              </div>
+            </div>
+          ))}
         </div>
-        
-        <h3 className="text-xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
-          {project.title}
-        </h3>
-        
-        <p className="text-slate-500 text-sm mt-3 leading-relaxed flex-grow">
-          {project.description}
-        </p>
-        
-        <div className="mt-6 pt-6 border-t border-slate-50">
-          <p className="text-[10px] font-bold text-slate-400 uppercase mb-2">Technologies Used</p>
-          <div className="flex flex-wrap gap-2">
-            {project.techStack.split(',').map((tech, index) => (
-              <span key={index} className="text-xs font-medium text-slate-600 bg-slate-50 border border-slate-100 px-2 py-1 rounded">
-                {tech.trim()}
-              </span>
-            ))}
-          </div>
-        </div>
-      </div>
-    ))}
-  </div>
-</section>
-<section className="max-w-4xl mx-auto mt-24 px-6 mb-20">
-  <h2 className="text-2xl font-black mb-10 flex items-center gap-3">
-    <span className="w-8 h-8 bg-slate-900 text-white flex items-center justify-center rounded-lg text-sm">🧠</span>
-    Skill Intelligence
-  </h2>
-
-  <div className="grid md:grid-cols-2 gap-x-12 gap-y-8 bg-white border border-slate-200 rounded-3xl p-10 shadow-sm">
-    {skills.map((skill) => (
-      <div key={skill.id} className="space-y-2">
-        <div className="flex justify-between items-end">
-          <span className="text-sm font-bold text-slate-700">{skill.name}</span>
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{skill.category}</span>
-        </div>
-        
-        {/* Simple & Clean Progress Bar */}
-        <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-          <div 
-            className="h-full bg-blue-600 rounded-full transition-all duration-1000"
-            style={{ width: `${skill.level}%` }}
-          ></div>
-        </div>
-      </div>
-    ))}
-  </div>
-</section>
-    </main>
+      </section>
+    </div>
   );
 }

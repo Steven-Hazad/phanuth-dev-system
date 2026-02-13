@@ -47,3 +47,8 @@ model Skill {
   level     Int     // 1 to 100
   category  String  // e.g., "Frontend", "Backend", "Database"
 }
+model Admin {
+  id       Int    @id @default(autoincrement())
+  username String @unique
+  password String // This will be hashed for security
+}
