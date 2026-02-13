@@ -56,7 +56,20 @@ await prisma.project.createMany({
     }
   ]
 });
-  console.log("✅ Database Seeded!")
+// Add this inside the main() function in prisma/seed.js
+await prisma.skill.createMany({
+  data: [
+    { name: "JavaScript", level: 90, category: "Programming" },
+    { name: "Next.js", level: 85, category: "Frontend" },
+    { name: "Tailwind CSS", level: 95, category: "Frontend" },
+    { name: "MySQL", level: 88, category: "Backend" },
+    { name: "Prisma ORM", level: 80, category: "Backend" },
+    { name: "Node.js", level: 75, category: "Backend" },
+    { name: "Git & GitHub", level: 85, category: "Tools" },
+    { name: "System Design", level: 70, category: "Tools" },
+  ]
+});
+console.log("✅ Skill Intelligence Seeded!");
 }
 
 main()

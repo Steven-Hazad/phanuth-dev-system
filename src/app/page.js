@@ -5,10 +5,12 @@ export default function Home() {
   const [profile, setProfile] = useState(null);
   const [education, setEducation] = useState([]);
 const [projects, setProjects] = useState([]);
+const [skills, setSkills] = useState([]);
   useEffect(() => {
     fetch("/api/profile").then(res => res.json()).then(data => setProfile(data));
     fetch("/api/education").then(res => res.json()).then(data => setEducation(data));
     fetch("/api/projects").then(res => res.json()).then(data => setProjects(data));
+    fetch("/api/skills").then(res => res.json()).then(data => setSkills(data));
   }, []);
 
   if (!profile) return <div className="p-10 text-center font-mono">Loading Academic System...</div>;
@@ -101,6 +103,31 @@ const [projects, setProjects] = useState([]);
               </span>
             ))}
           </div>
+        </div>
+      </div>
+    ))}
+  </div>
+</section>
+<section className="max-w-4xl mx-auto mt-24 px-6 mb-20">
+  <h2 className="text-2xl font-black mb-10 flex items-center gap-3">
+    <span className="w-8 h-8 bg-slate-900 text-white flex items-center justify-center rounded-lg text-sm">🧠</span>
+    Skill Intelligence
+  </h2>
+
+  <div className="grid md:grid-cols-2 gap-x-12 gap-y-8 bg-white border border-slate-200 rounded-3xl p-10 shadow-sm">
+    {skills.map((skill) => (
+      <div key={skill.id} className="space-y-2">
+        <div className="flex justify-between items-end">
+          <span className="text-sm font-bold text-slate-700">{skill.name}</span>
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{skill.category}</span>
+        </div>
+        
+        {/* Simple & Clean Progress Bar */}
+        <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+          <div 
+            className="h-full bg-blue-600 rounded-full transition-all duration-1000"
+            style={{ width: `${skill.level}%` }}
+          ></div>
         </div>
       </div>
     ))}
