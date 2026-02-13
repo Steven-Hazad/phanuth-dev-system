@@ -1,5 +1,3 @@
-// This is your Database Schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,33 +8,36 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  fullName  String
-  title     String
-  tagline   String
-  bioKh     String   @db.Text
-  bioEn     String   @db.Text
-  gpa       Float
+  id       Int    @id @default(autoincrement())
+  fullName String
+  title    String
+  tagline  String
+  bioKh    String @db.Text
+  bioEn    String @db.Text
+  gpa      Float
 }
 
 model Education {
-  id           Int      @id @default(autoincrement())
-  degree       String
-  university   String
-  startDate    DateTime
-  endDate      DateTime?
-  gpa          Float
-  achievements String   @db.Text
+  id          Int      @id @default(autoincrement())
+  degree      String
+  university  String?
+  logoUrl     String?  
+  startDate   String?  
+  endDate     String?  
+  gpa         Float?
+  achievement String?  @db.Text
+  createdAt   DateTime @default(now())
 }
+
 model Project {
   id          Int      @id @default(autoincrement())
   title       String
   category    String
   description String   @db.Text
   techStack   String
-  imageUrl    String?  // URL to your project screenshot
-  liveLink    String?  // URL to the actual running app
-  githubLink  String?  // URL to the source code
+  imageUrl    String?
+  liveLink    String?
+  githubLink  String?
   createdAt   DateTime @default(now())
 }
 
@@ -49,15 +50,16 @@ model Message {
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
 }
-// We'll also add a Skill table for later
+
 model Skill {
-  id        Int     @id @default(autoincrement())
-  name      String
-  level     Int     // 1 to 100
-  category  String  // e.g., "Frontend", "Backend", "Database"
+  id       Int    @id @default(autoincrement())
+  name     String
+  level    Int    
+  category String 
 }
+
 model Admin {
   id       Int    @id @default(autoincrement())
   username String @unique
-  password String // This will be hashed for security
+  password String 
 }

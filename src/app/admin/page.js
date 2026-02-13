@@ -1,604 +1,146 @@
-"use client";
-
+"use client"
 import { useState, useEffect, useMemo } from "react";
 import { signOut } from "next-auth/react";
+import { FolderKanban, GraduationCap, Cpu, MessageSquare, LogOut, Plus, Search, Trophy, Globe } from "lucide-react";
 
 export default function AdminDashboard() {
-
-  /* ================= STATES ================= */
   const [tab, setTab] = useState("project");
   const [items, setItems] = useState([]);
   const [editingItem, setEditingItem] = useState(null);
-  const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
 
-
-  /* ================= FETCH ================= */
   const refreshData = async () => {
-
-    setLoading(true);
-
-    try {
-
-      const res = await fetch(`/api/admin?type=${tab}`);
-      const data = await res.json();
-
-      setItems(Array.isArray(data) ? data : []);
-
-    } catch (err) {
-
-      console.error("Fetch error:", err);
-      setItems([]);
-
-    } finally {
-
-      setLoading(false);
-
-    }
+    const res = await fetch(`/api/admin?type=${tab}`);
+    const data = await res.json();
+    setItems(Array.isArray(data) ? data : []);
   };
 
+  useEffect(() => { refreshData(); setEditingItem(null); }, [tab]);
 
-  useEffect(() => {
-    refreshData();
-    setEditingItem(null);
-  }, [tab]);
+  const filteredItems = useMemo(() => items.filter(i => 
+    (i.title || i.degree || i.name || "").toLowerCase().includes(search.toLowerCase())
+  ), [items, search]);
 
-
-  /* ================= SEARCH ================= */
-  const filteredItems = useMemo(() => {
-
-    return items.filter((item) =>
-      (
-        item.title ||
-        item.degree ||
-        item.name ||
-        item.subject ||
-        ""
-      ).toLowerCase().includes(search.toLowerCase())
-    );
-
-  }, [items, search]);
-
-
-  /* ================= SUBMIT ================= */
   const handleSubmit = async (e) => {
-
     e.preventDefault();
-
-    const formData = new FormData(e.target);
-    const data = Object.fromEntries(formData.entries());
-
-    if (data.gpa) data.gpa = parseFloat(data.gpa);
-    if (data.level) data.level = parseInt(data.level);
-
-    const method = editingItem ? "PUT" : "POST";
-
+    const data = Object.fromEntries(new FormData(e.target));
     const res = await fetch("/api/admin", {
-
-      method,
+      method: editingItem ? "PUT" : "POST",
       headers: { "Content-Type": "application/json" },
-
-      body: JSON.stringify({
-        type: tab,
-        id: editingItem?.id,
-        data,
-      }),
-
+      body: JSON.stringify({ type: tab, id: editingItem?.id, data }),
     });
-
-    if (res.ok) {
-
-      setEditingItem(null);
-      e.target.reset();
-      refreshData();
-
-    }
+    if (res.ok) { e.target.reset(); setEditingItem(null); refreshData(); }
   };
-
-
-  /* ================= DELETE ================= */
-  const handleDelete = async (id) => {
-
-    if (!confirm("Delete permanently?")) return;
-
-    await fetch(`/api/admin?type=${tab}&id=${id}`, {
-      method: "DELETE",
-    });
-
-    refreshData();
-  };
-
-
-  /* ================= MARK READ ================= */
-  const markAsRead = async (id) => {
-
-    await fetch("/api/admin", {
-
-      method: "PUT",
-
-      headers: { "Content-Type": "application/json" },
-
-      body: JSON.stringify({
-        type: "message",
-        id,
-        data: { isRead: true },
-      }),
-
-    });
-
-    refreshData();
-  };
-
 
   return (
-    <div className="min-h-screen bg-[#f1f5f9] flex font-sans text-slate-900">
-
-
-      {/* ================= SIDEBAR ================= */}
+    <div className="min-h-screen bg-slate-50 flex text-slate-900 font-sans">
       <aside className="w-72 bg-slate-900 text-white p-8 fixed h-full flex flex-col shadow-2xl">
-
-        <div className="mb-10">
-          <h1 className="text-2xl font-black italic text-blue-500">
-            PHANUTH.SYSTEM
-          </h1>
-
-          <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">
-            Admin v3.0
-          </p>
-        </div>
-
-
-        <nav className="flex-1 space-y-3">
-
-          {["project", "education", "skill", "message"].map((t) => (
-
-            <button
-              key={t}
-
-              onClick={() => setTab(t)}
-
-              className={`w-full px-6 py-4 rounded-2xl font-bold capitalize text-left transition-all
-                ${
-                  tab === t
-                    ? "bg-blue-600 text-white shadow-lg translate-x-2"
-                    : "text-slate-400 hover:bg-slate-800"
-                }`}
-            >
-              Manage {t}s
-            </button>
-
-          ))}
-
+        <h1 className="text-2xl font-black italic text-blue-500 mb-10">PHANUTH.SYS</h1>
+        <nav className="flex-1 space-y-2">
+          <NavBtn active={tab==="project"} onClick={()=>setTab("project")} icon={<FolderKanban size={20}/>} label="Projects"/>
+          <NavBtn active={tab==="education"} onClick={()=>setTab("education")} icon={<GraduationCap size={20}/>} label="Education"/>
+          <NavBtn active={tab==="skill"} onClick={()=>setTab("skill")} icon={<Cpu size={20}/>} label="Skills"/>
+          <NavBtn active={tab==="message"} onClick={()=>setTab("message")} icon={<MessageSquare size={20}/>} label="Inbox"/>
         </nav>
-
-
-        <button
-          onClick={() => signOut()}
-          className="mt-auto py-4 text-slate-500 hover:text-red-400 font-bold border-t border-slate-800"
-        >
-          Logout
+        <button onClick={()=>signOut()} className="mt-auto flex items-center gap-2 text-slate-500 hover:text-red-400 font-bold p-4 border-t border-slate-800 transition-colors">
+          <LogOut size={18}/> Logout
         </button>
-
       </aside>
 
-
-
-      {/* ================= MAIN ================= */}
-      <main className="flex-1 ml-72 p-12">
-
-
-        {/* ================= STATS ================= */}
-        <section className="grid md:grid-cols-3 gap-6 mb-10">
-
-          <div className="bg-white p-8 rounded-[2.5rem] border shadow-sm">
-            <h4 className="text-[10px] uppercase text-slate-400 font-black mb-2">
-              Database
-            </h4>
-
-            <div className="text-green-500 text-3xl font-black flex gap-2">
-              <span className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
-              Synced
-            </div>
+      <main className="ml-72 flex-1 p-12">
+        <header className="flex justify-between items-center mb-10">
+          <h2 className="text-4xl font-black capitalize italic tracking-tight">{tab}s</h2>
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18}/>
+            <input onChange={(e)=>setSearch(e.target.value)} placeholder="Quick search..." className="pl-12 pr-6 py-3 rounded-2xl border-none shadow-sm w-64 focus:ring-2 ring-blue-500"/>
           </div>
+        </header>
 
-
-          <div className="bg-white p-8 rounded-[2.5rem] border shadow-sm">
-            <h4 className="text-[10px] uppercase text-slate-400 font-black mb-2">
-              Total {tab}s
-            </h4>
-
-            <div className="text-4xl font-black">
-              {items.length}
-            </div>
-          </div>
-
-
-          <div className="bg-blue-600 p-8 rounded-[2.5rem] shadow-lg text-white">
-            <h4 className="text-[10px] uppercase text-blue-200 font-black mb-2">
-              Language
-            </h4>
-
-            <div className="text-3xl font-black">
-              Khmer / English
-            </div>
-          </div>
-
-        </section>
-
-
-
-        {/* ================= HEADER ================= */}
-        <div className="flex justify-between items-center mb-8">
-
-          <h2 className="text-4xl font-black capitalize">
-            {tab}s
-          </h2>
-
-          <input
-            type="text"
-            placeholder={`Search ${tab}s...`}
-            className="px-6 py-3 border rounded-2xl w-64 bg-white"
-            onChange={(e) => setSearch(e.target.value)}
-          />
-
-        </div>
-
-
-
-        <div className="grid xl:grid-cols-5 gap-10">
-
-
-          {/* ================= FORM ================= */}
+        <div className="grid lg:grid-cols-12 gap-10">
           {tab !== "message" && (
-
-            <div className="xl:col-span-2">
-
-              <div className="bg-white p-8 rounded-[2.5rem] border shadow-sm sticky top-12">
-
-                <h3 className="text-xl font-black mb-6">
-                  {editingItem ? "Edit Entry" : "Add Entry"}
+            <div className="lg:col-span-4">
+              <form onSubmit={handleSubmit} key={editingItem?.id || "new"} className="bg-white p-8 rounded-[2.5rem] shadow-xl border border-slate-100 sticky top-10 space-y-4">
+                <h3 className="text-xl font-black mb-4 flex items-center gap-2">
+                   {editingItem ? <Trophy className="text-orange-500"/> : <Plus className="text-blue-500"/>}
+                   {editingItem ? "Update Item" : "New Entry"}
                 </h3>
-
-
-                <form
-                  onSubmit={handleSubmit}
-                  key={editingItem?.id || "new"}
-                  className="space-y-4"
-                >
-
-                  {/* PROJECT */}
-                  {tab === "project" && (
-                    <>
-                      <input name="title" defaultValue={editingItem?.title} placeholder="Title" required className="form-input" />
-
-                      <input name="category" defaultValue={editingItem?.category} placeholder="Category" className="form-input" />
-
-                      <textarea name="description" defaultValue={editingItem?.description} placeholder="Description" className="form-input h-28" />
-
-                      <input name="techStack" defaultValue={editingItem?.techStack} placeholder="Tech Stack" className="form-input" />
-
-                      <input name="imageUrl" defaultValue={editingItem?.imageUrl} placeholder="Image URL" className="form-input" />
-
-                      <input name="liveLink" defaultValue={editingItem?.liveLink} placeholder="Live Website URL" className="form-input" />
-
-                      <input name="githubLink" defaultValue={editingItem?.githubLink} placeholder="GitHub Repo URL" className="form-input" />
-                    </>
-                  )}
-
-
-                  {/* EDUCATION */}
-                  {tab === "education" && (
-                    <>
-                      <input name="degree" defaultValue={editingItem?.degree} placeholder="Degree" required className="form-input" />
-
-                      <input name="university" defaultValue={editingItem?.university} placeholder="University" className="form-input" />
-
-                      <div className="flex gap-3">
-                        <input name="startDate" defaultValue={editingItem?.startDate} placeholder="Start" className="form-input" />
-                        <input name="endDate" defaultValue={editingItem?.endDate} placeholder="End" className="form-input" />
-                      </div>
-
-                      <input name="gpa" defaultValue={editingItem?.gpa} type="number" step="0.01" placeholder="GPA" className="form-input" />
-                    </>
-                  )}
-
-
-                  {/* SKILL */}
-                  {tab === "skill" && (
-                    <>
-                      <input name="name" defaultValue={editingItem?.name} placeholder="Skill Name" required className="form-input" />
-
-                      <input name="category" defaultValue={editingItem?.category} placeholder="Category" className="form-input" />
-
-                      <input name="level" defaultValue={editingItem?.level} type="number" placeholder="Level %" className="form-input" />
-                    </>
-                  )}
-
-
-                  <button
-                    type="submit"
-                    className={`w-full py-4 rounded-2xl font-black text-white
-                      ${editingItem ? "bg-orange-500" : "bg-slate-900"}`}
-                  >
-                    {editingItem ? "Update" : "Save"}
-                  </button>
-
-                </form>
-
-              </div>
-
-            </div>
-
-          )}
-
-
-
-          {/* ================= DATA ================= */}
-          <div className="xl:col-span-3">
-
-
-            {/* ================= MESSAGES ================= */}
-           {/* ================= MESSAGES ================= */}
-{tab === "message" && (
-
-  <div className="space-y-6">
-
-    {/* Empty State */}
-    {items.length === 0 && (
-      <div className="bg-white p-20 rounded-3xl border text-center text-slate-400 font-bold italic">
-        No messages yet 📭
-      </div>
-    )}
-
-
-    {/* Message Cards */}
-    {items.map((m) => (
-
-      <div
-        key={m.id}
-        className="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm hover:shadow-md transition-all"
-      >
-
-        {/* Header */}
-        <div className="flex justify-between items-start mb-4">
-
-          <div>
-            <h4 className="text-xl font-black text-slate-800">
-              {m.subject || "No Subject"}
-            </h4>
-
-            <p className="text-sm font-bold text-blue-600 uppercase tracking-tighter">
-              From: {m.name} ({m.email})
-            </p>
-          </div>
-
-
-          <span className="text-[10px] font-black text-slate-400 bg-slate-50 px-3 py-1 rounded-full border italic">
-            {new Date(m.createdAt).toLocaleDateString()}
-          </span>
-
-        </div>
-
-
-        {/* Content */}
-        <div className="bg-slate-50 p-5 rounded-2xl text-slate-600 font-medium leading-relaxed italic">
-          “{m.content}”
-        </div>
-
-
-        {/* Actions */}
-        <div className="mt-4 flex gap-4 justify-end">
-
-          {/* Mark Read */}
-          {!m.isRead && (
-            <button
-              onClick={() => markAsRead(m.id)}
-              className="text-[10px] font-black text-blue-500 hover:text-blue-700 uppercase tracking-widest"
-            >
-              Mark Read
-            </button>
-          )}
-
-
-          {/* Delete */}
-          <button
-            onClick={() => handleDelete(m.id)}
-            className="text-[10px] font-black text-red-400 hover:text-red-600 uppercase tracking-widest"
-          >
-            Delete Message
-          </button>
-
-        </div>
-
-      </div>
-
-    ))}
-
-  </div>
-
-)}
-
-
-
-            {/* ================= TABLE ================= */}
-            {tab !== "message" && (
-
-              <div className="bg-white rounded-[2.5rem] border shadow-sm overflow-hidden">
-
-
-                <table className="w-full text-left">
-
-
-                  <thead className="bg-slate-50 border-b">
-
-                    <tr>
-                      <th className="p-6 text-[10px] uppercase font-bold text-slate-400">
-                        Details
-                      </th>
-
-                      <th className="p-6 text-[10px] uppercase font-bold text-slate-400 text-right">
-                        Actions
-                      </th>
-                    </tr>
-
-                  </thead>
-
-
-
-                  <tbody className="divide-y">
-
-
-                    {filteredItems.map((item) => (
-
-                      <tr key={item.id} className="hover:bg-slate-50">
-
-
-                        {/* PROJECT */}
-                        {tab === "project" ? (
-
-                          <td className="p-6 flex items-center gap-4">
-
-
-                            <div className="w-16 h-12 bg-slate-100 rounded-lg overflow-hidden border shadow-inner">
-
-                              {item.imageUrl ? (
-                                <img
-                                  src={item.imageUrl}
-                                  className="w-full h-full object-cover"
-                                />
-                              ) : (
-                                <div className="w-full h-full flex items-center justify-center text-[10px] text-slate-300 font-bold">
-                                  NO IMG
-                                </div>
-                              )}
-
-                            </div>
-
-
-                            <div>
-
-                              <p className="font-bold text-slate-800">
-                                {item.title}
-                              </p>
-
-                              <p className="text-xs text-slate-400 uppercase">
-                                {item.category}
-                              </p>
-
-
-                              <div className="flex gap-2 mt-1">
-
-                                {item.liveLink && (
-                                  <a
-                                    href={item.liveLink}
-                                    target="_blank"
-                                    className="text-[8px] bg-green-100 text-green-600 px-1.5 py-0.5 rounded font-black uppercase"
-                                  >
-                                    Live
-                                  </a>
-                                )}
-
-                                {item.githubLink && (
-                                  <a
-                                    href={item.githubLink}
-                                    target="_blank"
-                                    className="text-[8px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-black uppercase"
-                                  >
-                                    GitHub
-                                  </a>
-                                )}
-
-                              </div>
-
-                            </div>
-
-                          </td>
-
-                        ) : (
-
-                          <td className="p-6">
-
-                            <p className="font-bold text-lg">
-                              {item.degree || item.name}
-                            </p>
-
-                            <p className="text-xs text-slate-400 uppercase">
-                              {item.university || item.category}
-                            </p>
-
-                          </td>
-
-                        )}
-
-
-
-                        {/* ACTIONS */}
-                        <td className="p-6 text-right">
-
-                          <button
-                            onClick={() => {
-                              setEditingItem(item);
-                              window.scrollTo({ top: 0, behavior: "smooth" });
-                            }}
-                            className="text-blue-600 font-black text-xs mr-4"
-                          >
-                            Edit
-                          </button>
-
-                          <button
-                            onClick={() => handleDelete(item.id)}
-                            className="text-red-400 font-black text-xs"
-                          >
-                            Delete
-                          </button>
-
-                        </td>
-
-                      </tr>
-
-                    ))}
-
-                  </tbody>
-
-                </table>
-
-
-
-                {loading && (
-                  <div className="p-10 text-center animate-pulse text-slate-300 font-bold">
-                    Syncing MySQL...
-                  </div>
+                
+                {tab === "education" && (
+                  <>
+                    <input name="degree" defaultValue={editingItem?.degree} placeholder="Degree Name" required className="form-input" />
+                    <input name="university" defaultValue={editingItem?.university} placeholder="University Name" className="form-input" />
+                    <input name="logoUrl" defaultValue={editingItem?.logoUrl} placeholder="Logo URL (Clearbit etc.)" className="form-input" />
+                    <div className="grid grid-cols-2 gap-2">
+                      <input name="startDate" defaultValue={editingItem?.startDate} placeholder="Start Year" className="form-input" />
+                      <input name="endDate" defaultValue={editingItem?.endDate} placeholder="End Year" className="form-input" />
+                    </div>
+                    <input name="gpa" defaultValue={editingItem?.gpa} step="0.01" type="number" placeholder="GPA" className="form-input" />
+                    <textarea name="achievement" defaultValue={editingItem?.achievement} placeholder="Key Achievements..." className="form-input h-24" />
+                  </>
                 )}
 
+                {tab === "project" && (
+                  <>
+                    <input name="title" defaultValue={editingItem?.title} placeholder="Project Title" required className="form-input" />
+                    <input name="category" defaultValue={editingItem?.category} placeholder="Category" className="form-input" />
+                    <input name="imageUrl" defaultValue={editingItem?.imageUrl} placeholder="Image URL" className="form-input" />
+                    <textarea name="description" defaultValue={editingItem?.description} placeholder="Description" className="form-input h-24" />
+                    <input name="techStack" defaultValue={editingItem?.techStack} placeholder="Tech Stack (React, MySQL...)" className="form-input" />
+                    <input name="liveLink" defaultValue={editingItem?.liveLink} placeholder="Live Link" className="form-input" />
+                  </>
+                )}
+
+                {tab === "skill" && (
+                  <>
+                    <input name="name" defaultValue={editingItem?.name} placeholder="Skill Name" required className="form-input" />
+                    <input name="category" defaultValue={editingItem?.category} placeholder="Category" className="form-input" />
+                    <input name="level" type="number" defaultValue={editingItem?.level} placeholder="Level %" className="form-input" />
+                  </>
+                )}
+
+                <button type="submit" className={`w-full py-4 rounded-2xl font-black text-white shadow-lg transition-all active:scale-95 ${editingItem ? 'bg-orange-500 shadow-orange-200' : 'bg-blue-600 shadow-blue-200'}`}>
+                  {editingItem ? "SAVE CHANGES" : "CREATE ENTRY"}
+                </button>
+              </form>
+            </div>
+          )}
+
+          <div className={`${tab === "message" ? "lg:col-span-12" : "lg:col-span-8"} space-y-4`}>
+            {filteredItems.map(item => (
+              <div key={item.id} className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 flex items-center justify-between group hover:border-blue-200 transition-all">
+                <div className="flex items-center gap-5">
+                  <div className="w-16 h-16 bg-slate-50 rounded-2xl overflow-hidden flex items-center justify-center p-2 border">
+                    {(item.logoUrl || item.imageUrl) ? (
+                      <img src={item.logoUrl || item.imageUrl} className="w-full h-full object-contain" />
+                    ) : <Globe className="text-slate-300"/>}
+                  </div>
+                  <div>
+                    <h4 className="font-black text-lg text-slate-800">{item.title || item.degree || item.name}</h4>
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">{item.university || item.category}</p>
+                  </div>
+                </div>
+                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                  <button onClick={() => setEditingItem(item)} className="p-3 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white font-bold text-xs uppercase transition-colors">Edit</button>
+                  <button onClick={async () => { if(confirm("Delete?")) { await fetch(`/api/admin?type=${tab}&id=${item.id}`, {method: 'DELETE'}); refreshData(); } }} className="p-3 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white font-bold text-xs uppercase transition-colors">Delete</button>
+                </div>
               </div>
-
-            )}
-
+            ))}
           </div>
-
         </div>
       </main>
 
-
-
-      {/* ================= STYLES ================= */}
       <style jsx>{`
-        .form-input {
-          width: 100%;
-          padding: 1rem;
-          background: #f8fafc;
-          border: 2px solid #f1f5f9;
-          border-radius: 1.25rem;
-          outline: none;
-          font-weight: 600;
-        }
-
-        .form-input:focus {
-          border-color: #3b82f6;
-          background: white;
-        }
+        .form-input { width: 100%; padding: 1rem; background: #f8fafc; border: 2px solid #f1f5f9; border-radius: 1.25rem; font-weight: 700; outline: none; transition: 0.2s; font-size: 0.85rem; }
+        .form-input:focus { border-color: #3b82f6; background: white; }
       `}</style>
-
     </div>
+  );
+}
+
+function NavBtn({active, onClick, icon, label}) {
+  return (
+    <button onClick={onClick} className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all ${active ? "bg-blue-600 text-white shadow-xl translate-x-2" : "text-slate-400 hover:bg-slate-800"}`}>
+      {icon} {label}
+    </button>
   );
 }

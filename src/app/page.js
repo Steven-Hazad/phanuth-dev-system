@@ -1,178 +1,247 @@
 "use client";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Sun, Moon, Cpu, Code2, Terminal, User, Briefcase, GraduationCap, Mail, Trophy } from "lucide-react";
 
 export default function Home() {
   const [data, setData] = useState({ projects: [], education: [], skills: [] });
   const [lang, setLang] = useState("en");
-  const [filter, setFilter] = useState("All");
+  const [isDark, setIsDark] = useState(true);
   const [loading, setLoading] = useState(true);
-
-  // 📩 Handle Contact Form
-  const handleMessage = async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const res = await fetch('/api/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(Object.fromEntries(formData)),
-    });
-    if(res.ok) {
-      alert("System: Message transmitted successfully.");
-      e.target.reset();
-    }
-  };
 
   useEffect(() => {
     const fetchData = async () => {
-      const [p, e, s] = await Promise.all([
-        fetch("/api/admin?type=project").then(res => res.json()),
-        fetch("/api/admin?type=education").then(res => res.json()),
-        fetch("/api/admin?type=skill").then(res => res.json()),
-      ]);
-      setData({ projects: p, education: e, skills: s });
-      setLoading(false);
+      try {
+        const [p, e, s] = await Promise.all([
+          fetch("/api/admin?type=project").then(res => res.json()),
+          fetch("/api/admin?type=education").then(res => res.json()),
+          fetch("/api/admin?type=skill").then(res => res.json()),
+        ]);
+        setData({ 
+          projects: Array.isArray(p) ? p : [], 
+          education: Array.isArray(e) ? e : [], 
+          skills: Array.isArray(s) ? s : [] 
+        });
+      } catch (err) {
+        console.error("Fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchData();
   }, []);
 
   const t = {
-    en: { name: "PHANUTH", role: "Full Stack Engineer", projects: "Projects", edu: "Education", skills: "Skills", contact: "Inquire System Access" },
-    kh: { name: "ផានុត", role: "អ្នកអភិវឌ្ឍកម្មវិធី", projects: "គម្រោង", edu: "ការសិក្សា", skills: "ជំនាញ", contact: "ទំនាក់ទំនងមកកាន់ខ្ញុំ" }
+    en: { 
+      name: "PHANUTH", 
+      role: "System Architect", 
+      about: "About Me",
+      aboutDesc: "I am a Full Stack Developer based in Cambodia, specializing in building scalable web engines. I transform complex logic into beautiful, high-performance digital experiences.",
+      skills: "Tech Stack", 
+      work: "Project Archive", 
+      edu: "Academic",
+      contact: "Let's Connect",
+      btn: "Launch Mail Protocol"
+    },
+    kh: { 
+      name: "ផានុត", 
+      role: "អ្នករៀបចំប្រព័ន្ធ", 
+      about: "អំពីខ្ញុំ",
+      aboutDesc: "ខ្ញុំគឺជាអ្នកអភិវឌ្ឍកម្មវិធី Full Stack ដែលមានមូលដ្ឋាននៅប្រទេសកម្ពុជា។ ខ្ញុំមានជំនាញក្នុងការបង្កើតប្រព័ន្ធគេហទំព័រដែលមានប្រសិទ្ធភាពខ្ពស់ និងបទពិសោធន៍ឌីជីថលដ៏អស្ចារ្យ។",
+      skills: "បច្ចេកវិទ្យា", 
+      work: "បណ្ណសារគម្រោង", 
+      edu: "ការសិក្សា",
+      contact: "ទំនាក់ទំនង",
+      btn: "ផ្ញើសារមកកាន់ខ្ញុំ"
+    }
   };
 
-  const categories = useMemo(() => ["All", ...new Set(data.projects.map(p => p.category))], [data.projects]);
-  const filteredProjects = filter === "All" ? data.projects : data.projects.filter(p => p.category === filter);
-
-  if (loading) return <div className="h-screen bg-black flex items-center justify-center text-blue-500 font-black tracking-widest animate-pulse">SYSTEM INITIALIZING...</div>;
+  if (loading) return (
+    <div className={`h-screen flex items-center justify-center font-black ${isDark ? 'bg-black text-white' : 'bg-white text-black'}`}>
+      SYNCING_SYSTEM...
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white selection:bg-blue-500 font-sans">
+    <div className={`min-h-screen transition-colors duration-500 ${lang === 'kh' ? 'font-khmer' : 'font-sans'} ${isDark ? 'bg-[#050505] text-white' : 'bg-[#fafafa] text-slate-900'}`}>
       
-      {/* 🧭 NAV */}
-      <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-white/5 backdrop-blur-2xl border border-white/10 px-6 py-3 rounded-full flex items-center gap-8 shadow-2xl">
-        <h1 className="font-black text-xl tracking-tighter text-blue-500">P.</h1>
-        <div className="flex gap-6 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
-          <a href="#projects" className="hover:text-white transition-colors">Work</a>
-          <a href="#skills" className="hover:text-white transition-colors">Tech</a>
+      {/* 📥 KHMER FONT IMPORT */}
+      <style jsx global>{`
+        @import url('https://fonts.googleapis.com/css2?family=Khmer+OS+Siemreap&family=Inter:wght@400;700;900&display=swap');
+        .font-khmer { font-family: 'Khmer OS Siemreap', cursive !important; }
+      `}</style>
+
+      {/* 🧭 HYPER-NAVBAR */}
+      <nav className={`fixed top-6 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-4 px-6 py-3 rounded-2xl border backdrop-blur-2xl shadow-2xl transition-all ${isDark ? 'bg-white/5 border-white/10' : 'bg-black/5 border-black/10'}`}>
+        <div className="flex items-center gap-6 px-4 border-r border-white/10 mr-2 font-black text-sm tracking-tighter">P.</div>
+        <div className="flex gap-8 text-[10px] font-black uppercase tracking-widest opacity-50">
+          <a href="#about" className="hover:opacity-100 transition-opacity whitespace-nowrap">{t[lang].about}</a>
+          <a href="#tech" className="hover:opacity-100 transition-opacity whitespace-nowrap">{t[lang].skills}</a>
+          <a href="#work" className="hover:opacity-100 transition-opacity whitespace-nowrap">{t[lang].work}</a>
+          <a href="#edu" className="hover:opacity-100 transition-opacity whitespace-nowrap">{t[lang].edu}</a>
         </div>
-        <button onClick={() => setLang(lang === "en" ? "kh" : "en")} className="bg-blue-600 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter hover:bg-blue-500 transition-all">
-          {lang === "en" ? "KH" : "EN"}
-        </button>
+        <div className="flex items-center gap-2 ml-4">
+          <button onClick={() => setIsDark(!isDark)} className={`p-2 rounded-xl transition-all ${isDark ? 'bg-white/10 text-yellow-400' : 'bg-black/10 text-blue-600'}`}>
+            {isDark ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+          <button onClick={() => setLang(lang === "en" ? "kh" : "en")} className={`px-3 py-2 rounded-xl text-[10px] font-black transition-all ${isDark ? 'bg-blue-600 text-white' : 'bg-slate-900 text-white'}`}>
+            {lang === "en" ? "KH" : "EN"}
+          </button>
+        </div>
       </nav>
 
-      {/* ⚡ HERO */}
-      <section className="pt-48 pb-32 px-6 text-center">
-        <div className="max-w-4xl mx-auto">
-          <span className="text-blue-500 font-black text-[10px] uppercase tracking-[0.5em] mb-6 block">Full Stack Developer & System Architect</span>
-          <h1 className="text-7xl md:text-9xl font-black tracking-tighter leading-none mb-8 italic">
-            {t[lang].name}<span className="text-blue-600">.</span>
-          </h1>
-          <p className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto font-medium">
-            Building secure, data-driven applications with <span className="text-white">Next.js</span> and <span className="text-white">MySQL</span>.
-          </p>
+      {/* 👤 HERO SECTION */}
+      <section className="pt-48 pb-20 px-6 max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-16">
+        <div className="flex-1">
+          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
+            <h1 className="text-8xl md:text-[140px] font-black tracking-tighter leading-none mb-6 italic uppercase">
+              {t[lang].name}<span className="text-blue-600">.</span>
+            </h1>
+            <p className={`text-xl md:text-2xl font-medium max-w-lg ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+              {t[lang].role}
+            </p>
+          </motion.div>
         </div>
-      </section>
-
-      {/* 🛠️ PROJECTS (BENTO GRID STYLE) */}
-      <section id="projects" className="max-w-7xl mx-auto px-6 py-20">
-        <div className="flex justify-between items-end mb-12">
-            <h2 className="text-4xl font-black tracking-tight">{t[lang].projects}</h2>
-            <div className="flex gap-2">
-                {categories.map(cat => (
-                    <button key={cat} onClick={() => setFilter(cat)} className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase transition-all ${filter === cat ? 'bg-blue-600' : 'bg-white/5 text-slate-500 hover:text-white'}`}>
-                        {cat}
-                    </button>
-                ))}
-            </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-          {filteredProjects.map((p, idx) => (
-            <div key={p.id} className={`group relative bg-white/5 border border-white/10 rounded-[2.5rem] overflow-hidden hover:border-blue-500/50 transition-all duration-500 ${idx === 0 ? 'md:col-span-8' : 'md:col-span-4'}`}>
-              <div className="aspect-video relative overflow-hidden">
-                {p.imageUrl ? (
-                    <img src={p.imageUrl} className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700 opacity-60 group-hover:opacity-100" alt="" />
-                ) : (
-                    <div className="w-full h-full flex items-center justify-center font-black text-6xl text-white/5">DB</div>
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent"></div>
-              </div>
-              <div className="p-10 relative mt-[-60px]">
-                <span className="text-blue-500 text-[9px] font-black uppercase tracking-widest">{p.category}</span>
-                <h3 className="text-2xl font-black mt-2 mb-4">{p.title}</h3>
-                <p className="text-slate-400 text-sm mb-6 line-clamp-2">{p.description}</p>
-                <div className="flex flex-wrap gap-2">
-                  {p.techStack.split(',').map(s => (
-                    <span key={s} className="bg-white/5 text-slate-300 text-[8px] font-bold px-3 py-1 rounded-full border border-white/5">{s.trim()}</span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* 📬 CONTACT (4 PROFESSIONAL FIELDS) */}
-      <section className="py-32 px-6">
-        <div className="max-w-4xl mx-auto bg-blue-600 rounded-[3rem] p-12 md:p-20 text-white relative overflow-hidden shadow-2xl">
-          <div className="relative z-10">
-            <h2 className="text-5xl font-black tracking-tighter mb-4">{t[lang].contact}</h2>
-            <p className="text-blue-100 mb-10 font-bold italic">Ready to transform your ideas into high-performance systems?</p>
-            
-            <form onSubmit={handleMessage} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <input name="name" placeholder="Full Name" required className="bg-white/10 border border-white/20 p-5 rounded-2xl outline-none focus:bg-white/20 transition-all placeholder:text-blue-200" />
-              <input name="email" type="email" placeholder="Email Address" required className="bg-white/10 border border-white/20 p-5 rounded-2xl outline-none focus:bg-white/20 transition-all placeholder:text-blue-200" />
-              <input name="subject" placeholder="Project Type / Subject" required className="md:col-span-2 bg-white/10 border border-white/20 p-5 rounded-2xl outline-none focus:bg-white/20 transition-all placeholder:text-blue-200" />
-              <textarea name="content" placeholder="Detailed Message" required className="md:col-span-2 bg-white/10 border border-white/20 p-5 rounded-2xl h-40 outline-none focus:bg-white/20 transition-all placeholder:text-blue-200 resize-none" />
-              <button type="submit" className="md:col-span-2 bg-white text-blue-600 py-5 rounded-2xl font-black uppercase tracking-widest hover:scale-[0.98] transition-all shadow-xl">
-                Transmit Message
-              </button>
-            </form>
+        
+        <div className="relative group">
+          <div className={`absolute -inset-4 rounded-[4rem] blur-3xl transition-opacity ${isDark ? 'bg-blue-600/20 opacity-40' : 'bg-blue-400/10 opacity-100'}`}></div>
+          <div className={`w-80 h-[450px] rounded-[3.5rem] overflow-hidden border transition-colors ${isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-200 shadow-2xl'}`}>
+            <img src="images/bl-steven.png" className="w-full h-full object-cover grayscale brightness-90 hover:grayscale-0 transition-all duration-1000" alt="Profile" />
           </div>
         </div>
       </section>
 
-      {/* 📊 SKILLS */}
-      <section id="skills" className="py-32 border-t border-white/5">
-        <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-20 items-center">
-            <div>
-                <h2 className="text-6xl font-black tracking-tighter mb-6 leading-none italic">Technical <br/> Stack.</h2>
-                <p className="text-slate-500 text-lg">Visualizing system proficiency through real-time database metrics.</p>
+      {/* 📖 ABOUT ME SECTION */}
+      <section id="about" className="py-32 px-6">
+        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+            <div className={`p-12 rounded-[3rem] border ${isDark ? 'bg-white/5 border-white/10' : 'bg-white border-slate-200 shadow-xl'}`}>
+                <div className="flex gap-4 mb-8">
+                    <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                    <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                </div>
+                <h2 className="text-4xl font-black mb-6 italic">{t[lang].about}</h2>
+                <p className={`text-lg leading-relaxed ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                    {t[lang].aboutDesc}
+                </p>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {data.skills.map((s) => (
-                    <div key={s.id} className="bg-white/5 p-6 rounded-3xl border border-white/5">
-                        <div className="flex justify-between mb-3 items-end">
-                            <span className="font-black text-xs uppercase tracking-widest text-slate-400">{s.name}</span>
-                            <span className="text-blue-500 font-black text-xs">{s.level}%</span>
-                        </div>
-                        <div className="h-1 w-full bg-white/10 rounded-full overflow-hidden">
-                            <div className="h-full bg-blue-500 transition-all duration-1000" style={{ width: `${s.level}%` }}></div>
-                        </div>
-                    </div>
-                ))}
+            <div className="grid grid-cols-2 gap-6">
+                <div className={`p-8 rounded-3xl border ${isDark ? 'bg-white/5 border-white/5' : 'bg-white border-slate-100'}`}>
+                    <Terminal className="text-blue-500 mb-4" />
+                    <h4 className="font-black text-xl italic uppercase">Logic</h4>
+                    <p className="text-xs text-slate-500 mt-2">Clean architecture design.</p>
+                </div>
+                <div className={`p-8 rounded-3xl border ${isDark ? 'bg-white/5 border-white/5' : 'bg-white border-slate-100'}`}>
+                    <Code2 className="text-blue-500 mb-4" />
+                    <h4 className="font-black text-xl italic uppercase">Scale</h4>
+                    <p className="text-xs text-slate-500 mt-2">Built for high traffic.</p>
+                </div>
             </div>
         </div>
       </section>
 
-      {/* 🎓 FOOTER / EDUCATION */}
-      <footer className="py-20 px-6 border-t border-white/5 bg-[#050505]">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start gap-12">
-            <div className="space-y-8">
-                <h3 className="text-[10px] font-black uppercase tracking-[0.5em] text-blue-500">{t[lang].edu}</h3>
-                {data.education.map(e => (
-                    <div key={e.id}>
-                        <p className="text-2xl font-black tracking-tight">{e.degree}</p>
-                        <p className="font-bold text-slate-500 text-sm uppercase">{e.university} • {e.startDate} - {e.endDate}</p>
-                    </div>
-                ))}
-            </div>
-            <div className="text-right">
-                <h2 className="text-8xl font-black tracking-tighter opacity-10 leading-none mb-4">PHANUTH</h2>
-                <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">© 2026 Developer System • Cambodia</p>
-            </div>
+      {/* 📊 TECH STACK MATRIX */}
+      <section id="tech" className={`py-32 px-6 ${isDark ? 'bg-white/[0.02]' : 'bg-slate-100'}`}>
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-16">
+            <h2 className="text-xs font-black uppercase tracking-[0.8em] text-blue-600 mb-4">{t[lang].skills} Matrix</h2>
+            <p className="text-4xl font-black tracking-tight italic">{lang === 'en' ? 'Technical Capabilities.' : 'សមត្ថភាពបច្ចេកទេស'}</p>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {data.skills.map((s, idx) => (
+              <motion.div 
+                key={s.id}
+                whileHover={{ y: -5, scale: 1.02 }}
+                className={`p-6 rounded-3xl border transition-all ${isDark ? 'bg-slate-900/50 border-white/5 hover:border-blue-500/50' : 'bg-white border-slate-200 hover:shadow-xl'}`}
+              >
+                <div className="flex justify-between items-start mb-8">
+                  <span className={`text-[10px] font-black uppercase opacity-30`}>0{idx + 1}</span>
+                  <div className="text-blue-500"><Cpu size={16} /></div>
+                </div>
+                <h3 className="text-xl font-black mb-2 uppercase tracking-tighter">{s.name}</h3>
+                <div className="h-1 w-full bg-blue-600/10 rounded-full overflow-hidden">
+                    <motion.div initial={{ width: 0 }} whileInView={{ width: `${s.level}%` }} className="h-full bg-blue-600" />
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
-      </footer>
+      </section>
+
+      {/* 🖼️ PROJECT ALBUM */}
+      <section id="work" className="py-32 px-6">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-20">
+          {data.projects.map((p) => (
+            <motion.div key={p.id} initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} className="group">
+              <div className={`aspect-[16/10] rounded-[3rem] overflow-hidden border mb-10 transition-all ${isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-200 shadow-xl'}`}>
+                <img src={p.imageUrl} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 opacity-60 group-hover:opacity-100" alt="" />
+              </div>
+              <div className="px-6 flex justify-between items-start gap-10">
+                <div className="flex-1">
+                    <span className="text-blue-500 font-black text-[10px] uppercase tracking-widest">{p.category}</span>
+                    <h3 className="text-5xl font-black tracking-tighter mt-4 italic leading-tight">{p.title}</h3>
+                </div>
+                <div className="flex gap-2 flex-wrap justify-end">
+                    {p.techStack && p.techStack.split(',').map(tag => (
+                        <span key={tag} className={`text-[9px] font-black px-4 py-1.5 rounded-full border ${isDark ? 'bg-white/5 border-white/10' : 'bg-slate-900 text-white'}`}>{tag.trim()}</span>
+                    ))}
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* 🎓 EDUCATION */}
+      <section id="edu" className={`py-32 px-6 border-t border-white/5 ${isDark ? 'bg-black' : 'bg-white'}`}>
+        <div className="max-w-5xl mx-auto">
+          <h2 className="text-xs font-black uppercase tracking-[0.8em] text-blue-600 mb-12">{t[lang].edu}</h2>
+          <div className="space-y-12 relative before:absolute before:inset-0 before:ml-8 before:h-full before:w-0.5 before:bg-slate-200">
+            {data.education.map((edu) => (
+              <div key={edu.id} className="relative flex items-center gap-8 pl-4 group">
+                {/* UNIVERSITY LOGO */}
+                <div className="relative z-10 w-16 h-16 bg-white rounded-2xl border-2 border-slate-100 p-2 shadow-sm group-hover:border-blue-500 transition-colors shrink-0">
+                  <img 
+                    src={edu.logoUrl || "/default-uni-icon.png"} 
+                    alt={edu.university}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+
+                <div className={`flex-1 p-6 rounded-[2rem] border transition-all ${isDark ? 'bg-white/5 border-white/10 hover:border-blue-500' : 'bg-slate-50 border-transparent hover:border-slate-200'}`}>
+                  <div className="flex flex-col md:flex-row justify-between items-start mb-2 gap-2">
+                    <div>
+                      <h4 className={`text-xl font-black italic ${isDark ? 'text-white' : 'text-slate-800'}`}>{edu.degree}</h4>
+                      <p className="font-bold text-blue-600">{edu.university}</p>
+                    </div>
+                    <span className={`text-[10px] font-black px-3 py-1 rounded-full shadow-sm italic shrink-0 ${isDark ? 'bg-white/10 text-slate-400' : 'bg-white text-slate-500'}`}>
+                      {edu.startDate} — {edu.endDate}
+                    </span>
+                  </div>
+                  
+                  {edu.achievement && (
+                    <div className={`mt-3 flex items-start gap-2 text-sm italic ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                      <Trophy size={14} className="text-orange-500 shrink-0 mt-1" />
+                      <p>{edu.achievement}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 📬 CONTACT CARD */}
+      <section className="py-40 px-6">
+        <div className={`max-w-5xl mx-auto rounded-[4rem] p-16 md:p-24 text-center relative overflow-hidden transition-all ${isDark ? 'bg-blue-600 text-white shadow-[0_0_100px_-20px_rgba(37,99,235,0.4)]' : 'bg-slate-900 text-white'}`}>
+          <h2 className="text-6xl md:text-8xl font-black tracking-tighter mb-8 italic leading-none">{t[lang].contact}.</h2>
+          <a href="mailto:phanuth.dev@system.com" className={`px-12 py-5 rounded-2xl font-black uppercase tracking-widest inline-block transition-all hover:scale-105 ${isDark ? 'bg-white text-blue-600' : 'bg-blue-600 text-white'}`}>
+            {t[lang].btn}
+          </a>
+        </div>
+      </section>
 
     </div>
   );
