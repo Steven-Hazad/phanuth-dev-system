@@ -29,17 +29,26 @@ model Education {
   achievements String   @db.Text
 }
 model Project {
-  id           Int      @id @default(autoincrement())
-  title        String
-  category     String   // e.g., "Web System", "Mobile App"
-  description  String   @db.Text
-  techStack    String   // e.g., "Next.js, MySQL, Tailwind"
-  githubUrl    String?
-  demoUrl      String?
-  status       String   @default("Completed") // or "In Progress"
-  createdAt    DateTime @default(now())
+  id          Int      @id @default(autoincrement())
+  title       String
+  category    String
+  description String   @db.Text
+  techStack   String
+  imageUrl    String?  // URL to your project screenshot
+  liveLink    String?  // URL to the actual running app
+  githubLink  String?  // URL to the source code
+  createdAt   DateTime @default(now())
 }
 
+model Message {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String
+  subject   String
+  content   String   @db.Text
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
 // We'll also add a Skill table for later
 model Skill {
   id        Int     @id @default(autoincrement())
