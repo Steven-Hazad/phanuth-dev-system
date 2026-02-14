@@ -148,24 +148,34 @@ export default function Home() {
             <p className="text-4xl font-black tracking-tight italic">{lang === 'en' ? 'Technical Capabilities.' : 'សមត្ថភាពបច្ចេកទេស'}</p>
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {data.skills.map((s, idx) => (
-              <motion.div 
-                key={s.id}
-                whileHover={{ y: -5, scale: 1.02 }}
-                className={`p-6 rounded-3xl border transition-all ${isDark ? 'bg-slate-900/50 border-white/5 hover:border-blue-500/50' : 'bg-white border-slate-200 hover:shadow-xl'}`}
-              >
-                <div className="flex justify-between items-start mb-8">
-                  <span className={`text-[10px] font-black uppercase opacity-30`}>0{idx + 1}</span>
-                  <div className="text-blue-500"><Cpu size={16} /></div>
-                </div>
-                <h3 className="text-xl font-black mb-2 uppercase tracking-tighter">{s.name}</h3>
-                <div className="h-1 w-full bg-blue-600/10 rounded-full overflow-hidden">
-                    <motion.div initial={{ width: 0 }} whileInView={{ width: `${s.level}%` }} className="h-full bg-blue-600" />
-                </div>
-              </motion.div>
-            ))}
-          </div>
+         {/* 📊 TECH STACK MATRIX */}
+<div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+  {data.skills.map((s, idx) => (
+    <motion.div 
+      key={s.id}
+      whileHover={{ y: -5, scale: 1.02 }}
+      className={`p-6 rounded-3xl border transition-all ${isDark ? 'bg-slate-900/50 border-white/5 hover:border-blue-500/50' : 'bg-white border-slate-200 hover:shadow-xl'}`}
+    >
+      <div className="flex justify-between items-start mb-8">
+        <span className={`text-[10px] font-black uppercase opacity-30`}>0{idx + 1}</span>
+        
+        {/* UPDATED LOGO LOGIC */}
+        <div className="w-8 h-8 flex items-center justify-center">
+          {s.iconUrl ? (
+            <img src={s.iconUrl} alt={s.name} className="w-full h-full object-contain" />
+          ) : (
+            <div className="text-blue-500"><Cpu size={20} /></div>
+          )}
+        </div>
+      </div>
+      
+      <h3 className="text-xl font-black mb-2 uppercase tracking-tighter">{s.name}</h3>
+      <div className="h-1 w-full bg-blue-600/10 rounded-full overflow-hidden">
+          <motion.div initial={{ width: 0 }} whileInView={{ width: `${s.level}%` }} className="h-full bg-blue-600" />
+      </div>
+    </motion.div>
+  ))}
+</div>
         </div>
       </section>
 

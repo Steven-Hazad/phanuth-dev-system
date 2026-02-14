@@ -91,13 +91,21 @@ export default function AdminDashboard() {
                 )}
 
                 {tab === "skill" && (
-                  <>
-                    <input name="name" defaultValue={editingItem?.name} placeholder="Skill Name" required className="form-input" />
-                    <input name="category" defaultValue={editingItem?.category} placeholder="Category" className="form-input" />
-                    <input name="level" type="number" defaultValue={editingItem?.level} placeholder="Level %" className="form-input" />
-                  </>
-                )}
+  <>
+    <input name="name" defaultValue={editingItem?.name} placeholder="Skill Name (e.g., React)" required className="form-input" />
+    <input name="category" defaultValue={editingItem?.category} placeholder="Category (e.g., Frontend)" className="form-input" />
+    
+    {/* NEW ICON FIELD */}
+    <input 
+      name="iconUrl" 
+      defaultValue={editingItem?.iconUrl} 
+      placeholder="Icon URL (e.g., https://skillicons.dev/icons?i=react)" 
+      className="form-input" 
+    />
 
+    <input name="level" type="number" defaultValue={editingItem?.level} placeholder="Level %" className="form-input" />
+  </>
+)}
                 <button type="submit" className={`w-full py-4 rounded-2xl font-black text-white shadow-lg transition-all active:scale-95 ${editingItem ? 'bg-orange-500 shadow-orange-200' : 'bg-blue-600 shadow-blue-200'}`}>
                   {editingItem ? "SAVE CHANGES" : "CREATE ENTRY"}
                 </button>
