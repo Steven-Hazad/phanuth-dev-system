@@ -2,15 +2,16 @@
 import { useState, useEffect } from "react";
 // Added useMotionValue for the mouse tracker
 import { motion, AnimatePresence, useScroll, useSpring, useMotionValue } from "framer-motion"; 
-import { Sun, Moon, Cpu, Code2, Terminal, User, Briefcase, GraduationCap, Mail, Trophy, Globe, ArrowUpRight, Github } from "lucide-react";
+import { Sun, Moon, Cpu, Code2, Terminal, User, Briefcase, GraduationCap, Mail, Trophy, Globe, ArrowUpRight, Github, Activity } from "lucide-react";
 
 export default function Home() {
   const [data, setData] = useState({ projects: [], education: [], skills: [] });
   const [lang, setLang] = useState("en");
-  const [isDark, setIsDark] = useState(true);
+  const [isDark, setIsDark] = useState(false); // 💡 CHANGED TO LIGHT FIRST
   const [loading, setLoading] = useState(true);
+  const [uptime, setUptime] = useState(0); // 💡 Added for the new feature
 
-  // 🖱️ MOUSE ANIMATION LOGIC (Add this)
+  // 🖱️ MOUSE ANIMATION LOGIC (Your existing logic)
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
   const cursorSpringX = useSpring(mouseX, { stiffness: 500, damping: 30 });
@@ -25,7 +26,10 @@ export default function Home() {
   });
 
   useEffect(() => {
-    // Mouse movement listener
+    // 💡 Timer for the new feature
+    const timer = setInterval(() => setUptime(prev => prev + 1), 1000);
+
+    // Mouse movement listener (Your existing logic)
     const handleMouseMove = (e) => {
       mouseX.set(e.clientX - 16);
       mouseY.set(e.clientY - 16);
@@ -51,7 +55,10 @@ export default function Home() {
       }
     };
     fetchData();
-    return () => window.removeEventListener("mousemove", handleMouseMove);
+    return () => {
+        window.removeEventListener("mousemove", handleMouseMove);
+        clearInterval(timer);
+    };
   }, []);
 
   const t = {
@@ -88,7 +95,7 @@ export default function Home() {
   return (
     <div className={`min-h-screen transition-colors duration-500 cursor-none ${lang === 'kh' ? 'font-khmer' : 'font-sans'} ${isDark ? 'bg-[#050505] text-white' : 'bg-[#fafafa] text-slate-900'}`}>
       
-      {/* 🖱️ CUSTOM MOUSE ELEMENT (Add this) */}
+      {/* 🖱️ CUSTOM MOUSE ELEMENT (Your existing element) */}
       <motion.div 
         className={`fixed top-0 left-0 w-8 h-8 rounded-full border-2 pointer-events-none z-[9999] hidden md:block ${isDark ? 'border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)]' : 'border-slate-900'}`}
         style={{ x: cursorSpringX, y: cursorSpringY }}
@@ -101,9 +108,22 @@ export default function Home() {
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Khmer+OS+Siemreap&family=Inter:wght@400;700;900&display=swap');
         .font-khmer { font-family: 'Khmer OS Siemreap', cursive !important; }
-        /* Hide default cursor because we made a custom one */
         html { cursor: none; } 
       `}</style>
+
+      {/* 📟 NEW FEATURE: COMMAND CENTER BAR */}
+      <div className={`fixed bottom-10 left-10 z-[100] hidden lg:flex items-center gap-6 px-5 py-3 rounded-2xl border backdrop-blur-xl transition-all ${isDark ? 'bg-white/5 border-white/10' : 'bg-black/5 border-black/10'}`}>
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+          <span className="text-[10px] font-black uppercase tracking-widest opacity-60">System Online</span>
+        </div>
+        <div className="h-4 w-px bg-current opacity-10" />
+        <div className="text-[10px] font-mono opacity-60">
+          UPTIME: {uptime}s
+        </div>
+        <div className="h-4 w-px bg-current opacity-10" />
+        <Activity size={14} className="text-blue-600" />
+      </div>
 
       {/* 🧭 HYPER-NAVBAR (Your existing nav) */}
       <nav className={`fixed top-6 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-4 px-6 py-3 rounded-2xl border backdrop-blur-2xl shadow-2xl transition-all ${isDark ? 'bg-white/5 border-white/10' : 'bg-black/5 border-black/10'}`}>
@@ -240,7 +260,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 🐙 GITHUB CONTRIBUTIONS (New Added Feature) */}
+      {/* 🐙 GITHUB CONTRIBUTIONS (Your existing feature) */}
       <section className="py-32 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center gap-4 mb-12">
@@ -248,7 +268,6 @@ export default function Home() {
             <h2 className="text-4xl font-black italic uppercase tracking-tighter">Contribution Protocol</h2>
           </div>
           <div className={`p-10 rounded-[4rem] border ${isDark ? 'bg-white/5 border-white/10' : 'bg-white border-slate-200 shadow-2xl'} overflow-hidden`}>
-             {/* Replace 'phanuth-dev' with your real username */}
              <img 
                src={`https://ghchart.rshah.org/steven-hazad`} 
                alt="Github Contributions" 
@@ -258,7 +277,7 @@ export default function Home() {
                 <span>Status: Synchronized</span>
                 <div className="flex gap-4">
                    <span>Less</span>
-                   <div className="flex gap-1"><div className="w-3 h-3 bg-blue-100 rounded"></div><div className="w-3 h-3 bg-blue-300 rounded"></div><div className="w-3 h-3 bg-blue-600 rounded"></div></div>
+                   <div className="flex gap-1"><div className="w-3 h-3 bg-green-100 rounded"></div><div className="w-3 h-3 bg-green-300 rounded"></div><div className="w-3 h-3 bg-green-600 rounded"></div></div>
                    <span>More</span>
                 </div>
              </div>
