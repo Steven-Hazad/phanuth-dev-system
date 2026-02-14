@@ -1,7 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Sun, Moon, Cpu, Code2, Terminal, User, Briefcase, GraduationCap, Mail, Trophy } from "lucide-react";
+// Added useMotionValue for the mouse tracker
+import { motion, AnimatePresence, useScroll, useSpring, useMotionValue } from "framer-motion"; 
+import { Sun, Moon, Cpu, Code2, Terminal, User, Briefcase, GraduationCap, Mail, Trophy, Globe, ArrowUpRight, Github } from "lucide-react";
 
 export default function Home() {
   const [data, setData] = useState({ projects: [], education: [], skills: [] });
@@ -9,7 +10,28 @@ export default function Home() {
   const [isDark, setIsDark] = useState(true);
   const [loading, setLoading] = useState(true);
 
+  // 🖱️ MOUSE ANIMATION LOGIC (Add this)
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const cursorSpringX = useSpring(mouseX, { stiffness: 500, damping: 30 });
+  const cursorSpringY = useSpring(mouseY, { stiffness: 500, damping: 30 });
+
+  // 📈 SCROLL PROGRESS LOGIC (Your existing logic)
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001
+  });
+
   useEffect(() => {
+    // Mouse movement listener
+    const handleMouseMove = (e) => {
+      mouseX.set(e.clientX - 16);
+      mouseY.set(e.clientY - 16);
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+
     const fetchData = async () => {
       try {
         const [p, e, s] = await Promise.all([
@@ -29,6 +51,7 @@ export default function Home() {
       }
     };
     fetchData();
+    return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
   const t = {
@@ -63,15 +86,26 @@ export default function Home() {
   );
 
   return (
-    <div className={`min-h-screen transition-colors duration-500 ${lang === 'kh' ? 'font-khmer' : 'font-sans'} ${isDark ? 'bg-[#050505] text-white' : 'bg-[#fafafa] text-slate-900'}`}>
+    <div className={`min-h-screen transition-colors duration-500 cursor-none ${lang === 'kh' ? 'font-khmer' : 'font-sans'} ${isDark ? 'bg-[#050505] text-white' : 'bg-[#fafafa] text-slate-900'}`}>
       
-      {/* 📥 KHMER FONT IMPORT */}
+      {/* 🖱️ CUSTOM MOUSE ELEMENT (Add this) */}
+      <motion.div 
+        className={`fixed top-0 left-0 w-8 h-8 rounded-full border-2 pointer-events-none z-[9999] hidden md:block ${isDark ? 'border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)]' : 'border-slate-900'}`}
+        style={{ x: cursorSpringX, y: cursorSpringY }}
+      />
+
+      {/* 📈 TOP PROGRESS BAR (Your existing logic) */}
+      <motion.div className="fixed top-0 left-0 right-0 h-1 bg-blue-600 z-[1000] origin-left" style={{ scaleX }} />
+
+      {/* 📥 KHMER FONT IMPORT (Your existing style) */}
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Khmer+OS+Siemreap&family=Inter:wght@400;700;900&display=swap');
         .font-khmer { font-family: 'Khmer OS Siemreap', cursive !important; }
+        /* Hide default cursor because we made a custom one */
+        html { cursor: none; } 
       `}</style>
 
-      {/* 🧭 HYPER-NAVBAR */}
+      {/* 🧭 HYPER-NAVBAR (Your existing nav) */}
       <nav className={`fixed top-6 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-4 px-6 py-3 rounded-2xl border backdrop-blur-2xl shadow-2xl transition-all ${isDark ? 'bg-white/5 border-white/10' : 'bg-black/5 border-black/10'}`}>
         <div className="flex items-center gap-6 px-4 border-r border-white/10 mr-2 font-black text-sm tracking-tighter">P.</div>
         <div className="flex gap-8 text-[10px] font-black uppercase tracking-widest opacity-50">
@@ -90,9 +124,9 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* 👤 HERO SECTION */}
-      <section className="pt-48 pb-20 px-6 max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-16">
-        <div className="flex-1">
+      {/* 👤 HERO SECTION (Your existing hero) */}
+      <section className="pt-48 pb-20 px-6 max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-16 relative overflow-hidden">
+        <div className="flex-1 z-10">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
             <h1 className="text-8xl md:text-[140px] font-black tracking-tighter leading-none mb-6 italic uppercase">
               {t[lang].name}<span className="text-blue-600">.</span>
@@ -103,7 +137,7 @@ export default function Home() {
           </motion.div>
         </div>
         
-        <div className="relative group">
+        <div className="relative group z-10">
           <div className={`absolute -inset-4 rounded-[4rem] blur-3xl transition-opacity ${isDark ? 'bg-blue-600/20 opacity-40' : 'bg-blue-400/10 opacity-100'}`}></div>
           <div className={`w-80 h-[450px] rounded-[3.5rem] overflow-hidden border transition-colors ${isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-200 shadow-2xl'}`}>
             <img src="images/bl-steven.png" className="w-full h-full object-cover grayscale brightness-90 hover:grayscale-0 transition-all duration-1000" alt="Profile" />
@@ -111,10 +145,11 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 📖 ABOUT ME SECTION */}
-      <section id="about" className="py-32 px-6">
+      {/* 📖 ABOUT ME SECTION (Your existing about) */}
+      <section id="about" className="py-32 px-6 relative overflow-hidden">
+        <div className={`absolute top-0 right-0 text-[200px] font-black opacity-[0.02] select-none pointer-events-none translate-x-20 ${isDark ? 'text-white' : 'text-black'}`}>SYSTEM</div>
         <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
-            <div className={`p-12 rounded-[3rem] border ${isDark ? 'bg-white/5 border-white/10' : 'bg-white border-slate-200 shadow-xl'}`}>
+            <div className={`p-12 rounded-[3rem] border backdrop-blur-sm ${isDark ? 'bg-white/5 border-white/10' : 'bg-white border-slate-200 shadow-xl'}`}>
                 <div className="flex gap-4 mb-8">
                     <div className="w-3 h-3 rounded-full bg-red-500"></div>
                     <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
@@ -140,57 +175,59 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 📊 TECH STACK MATRIX */}
-      <section id="tech" className={`py-32 px-6 ${isDark ? 'bg-white/[0.02]' : 'bg-slate-100'}`}>
+      {/* 📊 TECH STACK MATRIX (Your existing tech) */}
+      <section id="tech" className={`py-32 px-6 relative overflow-hidden ${isDark ? 'bg-white/[0.02]' : 'bg-slate-100'}`}>
         <div className="max-w-7xl mx-auto">
           <div className="mb-16">
             <h2 className="text-xs font-black uppercase tracking-[0.8em] text-blue-600 mb-4">{t[lang].skills} Matrix</h2>
-            <p className="text-4xl font-black tracking-tight italic">{lang === 'en' ? 'Technical Capabilities.' : 'សមត្ថភាពបច្ចេកទេស'}</p>
+            <p className="text-4xl font-black tracking-tight italic uppercase">{lang === 'en' ? 'Technical Capabilities' : 'សមត្ថភាពបច្ចេកទេស'}</p>
           </div>
           
-         {/* 📊 TECH STACK MATRIX */}
-<div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-  {data.skills.map((s, idx) => (
-    <motion.div 
-      key={s.id}
-      whileHover={{ y: -5, scale: 1.02 }}
-      className={`p-6 rounded-3xl border transition-all ${isDark ? 'bg-slate-900/50 border-white/5 hover:border-blue-500/50' : 'bg-white border-slate-200 hover:shadow-xl'}`}
-    >
-      <div className="flex justify-between items-start mb-8">
-        <span className={`text-[10px] font-black uppercase opacity-30`}>0{idx + 1}</span>
-        
-        {/* UPDATED LOGO LOGIC */}
-        <div className="w-8 h-8 flex items-center justify-center">
-          {s.iconUrl ? (
-            <img src={s.iconUrl} alt={s.name} className="w-full h-full object-contain" />
-          ) : (
-            <div className="text-blue-500"><Cpu size={20} /></div>
-          )}
-        </div>
-      </div>
-      
-      <h3 className="text-xl font-black mb-2 uppercase tracking-tighter">{s.name}</h3>
-      <div className="h-1 w-full bg-blue-600/10 rounded-full overflow-hidden">
-          <motion.div initial={{ width: 0 }} whileInView={{ width: `${s.level}%` }} className="h-full bg-blue-600" />
-      </div>
-    </motion.div>
-  ))}
-</div>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {data.skills.map((s, idx) => (
+              <motion.div 
+                key={s.id}
+                whileHover={{ y: -5, scale: 1.02 }}
+                className={`p-6 rounded-3xl border transition-all ${isDark ? 'bg-slate-900/50 border-white/5 hover:border-blue-500/50' : 'bg-white border-slate-200 hover:shadow-xl'}`}
+              >
+                <div className="flex justify-between items-start mb-8">
+                  <span className={`text-[10px] font-black uppercase opacity-30`}>0{idx + 1}</span>
+                  <div className="w-8 h-8 flex items-center justify-center">
+                    {s.iconUrl ? (
+                      <img src={s.iconUrl} alt={s.name} className="w-full h-full object-contain" />
+                    ) : (
+                      <div className="text-blue-500"><Cpu size={20} /></div>
+                    )}
+                  </div>
+                </div>
+                
+                <h3 className="text-xl font-black mb-2 uppercase tracking-tighter">{s.name}</h3>
+                <div className="h-1 w-full bg-blue-600/10 rounded-full overflow-hidden">
+                    <motion.div initial={{ width: 0 }} whileInView={{ width: `${s.level}%` }} className="h-full bg-blue-600" />
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* 🖼️ PROJECT ALBUM */}
-      <section id="work" className="py-32 px-6">
+      {/* 🖼️ PROJECT ALBUM (Your existing projects) */}
+      <section id="work" className="py-32 px-6 relative overflow-hidden">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-20">
           {data.projects.map((p) => (
-            <motion.div key={p.id} initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} className="group">
-              <div className={`aspect-[16/10] rounded-[3rem] overflow-hidden border mb-10 transition-all ${isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-200 shadow-xl'}`}>
-                <img src={p.imageUrl} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 opacity-60 group-hover:opacity-100" alt="" />
+            <motion.div key={p.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} className="group relative">
+              <div className={`aspect-[16/10] rounded-[3rem] overflow-hidden border mb-10 transition-all duration-500 group-hover:shadow-[0_40px_80px_-15px_rgba(37,99,235,0.2)] relative ${isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-200 shadow-xl'}`}>
+                <img src={p.imageUrl} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-60 group-hover:opacity-100" alt={p.title} />
+                <div className="absolute inset-0 bg-blue-600/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <div className="w-14 h-14 rounded-full bg-white text-blue-600 flex items-center justify-center scale-0 group-hover:scale-100 transition-transform duration-500">
+                        <ArrowUpRight size={24} />
+                    </div>
+                </div>
               </div>
               <div className="px-6 flex justify-between items-start gap-10">
                 <div className="flex-1">
                     <span className="text-blue-500 font-black text-[10px] uppercase tracking-widest">{p.category}</span>
-                    <h3 className="text-5xl font-black tracking-tighter mt-4 italic leading-tight">{p.title}</h3>
+                    <h3 className="text-5xl font-black tracking-tighter mt-4 italic leading-tight group-hover:text-blue-600 transition-colors">{p.title}</h3>
                 </div>
                 <div className="flex gap-2 flex-wrap justify-end">
                     {p.techStack && p.techStack.split(',').map(tag => (
@@ -203,22 +240,42 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 🎓 EDUCATION */}
+      {/* 🐙 GITHUB CONTRIBUTIONS (New Added Feature) */}
+      <section className="py-32 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center gap-4 mb-12">
+            <Github className="text-blue-600" size={32} />
+            <h2 className="text-4xl font-black italic uppercase tracking-tighter">Contribution Protocol</h2>
+          </div>
+          <div className={`p-10 rounded-[4rem] border ${isDark ? 'bg-white/5 border-white/10' : 'bg-white border-slate-200 shadow-2xl'} overflow-hidden`}>
+             {/* Replace 'phanuth-dev' with your real username */}
+             <img 
+               src={`https://ghchart.rshah.org/steven-hazad`} 
+               alt="Github Contributions" 
+               className={`w-full h-auto ${isDark ? 'invert brightness-200 hue-rotate-180' : ''}`}
+             />
+             <div className="mt-10 flex justify-between items-center text-[10px] font-black opacity-40 uppercase tracking-[0.3em]">
+                <span>Status: Synchronized</span>
+                <div className="flex gap-4">
+                   <span>Less</span>
+                   <div className="flex gap-1"><div className="w-3 h-3 bg-blue-100 rounded"></div><div className="w-3 h-3 bg-blue-300 rounded"></div><div className="w-3 h-3 bg-blue-600 rounded"></div></div>
+                   <span>More</span>
+                </div>
+             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 🎓 EDUCATION (Your existing education) */}
       <section id="edu" className={`py-32 px-6 border-t border-white/5 ${isDark ? 'bg-black' : 'bg-white'}`}>
         <div className="max-w-5xl mx-auto">
-          <h2 className="text-xs font-black uppercase tracking-[0.8em] text-blue-600 mb-12">{t[lang].edu}</h2>
+          <h2 className="text-xs font-black uppercase tracking-[0.8em] text-blue-600 mb-12">{t[lang].edu} History</h2>
           <div className="space-y-12 relative before:absolute before:inset-0 before:ml-8 before:h-full before:w-0.5 before:bg-slate-200">
             {data.education.map((edu) => (
               <div key={edu.id} className="relative flex items-center gap-8 pl-4 group">
-                {/* UNIVERSITY LOGO */}
                 <div className="relative z-10 w-16 h-16 bg-white rounded-2xl border-2 border-slate-100 p-2 shadow-sm group-hover:border-blue-500 transition-colors shrink-0">
-                  <img 
-                    src={edu.logoUrl || "/default-uni-icon.png"} 
-                    alt={edu.university}
-                    className="w-full h-full object-contain"
-                  />
+                  <img src={edu.logoUrl || "/default-uni-icon.png"} alt={edu.university} className="w-full h-full object-contain" />
                 </div>
-
                 <div className={`flex-1 p-6 rounded-[2rem] border transition-all ${isDark ? 'bg-white/5 border-white/10 hover:border-blue-500' : 'bg-slate-50 border-transparent hover:border-slate-200'}`}>
                   <div className="flex flex-col md:flex-row justify-between items-start mb-2 gap-2">
                     <div>
@@ -229,7 +286,6 @@ export default function Home() {
                       {edu.startDate} — {edu.endDate}
                     </span>
                   </div>
-                  
                   {edu.achievement && (
                     <div className={`mt-3 flex items-start gap-2 text-sm italic ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                       <Trophy size={14} className="text-orange-500 shrink-0 mt-1" />
@@ -243,11 +299,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 📬 CONTACT CARD */}
+      {/* 📬 CONTACT CARD (Your existing contact) */}
       <section className="py-40 px-6">
         <div className={`max-w-5xl mx-auto rounded-[4rem] p-16 md:p-24 text-center relative overflow-hidden transition-all ${isDark ? 'bg-blue-600 text-white shadow-[0_0_100px_-20px_rgba(37,99,235,0.4)]' : 'bg-slate-900 text-white'}`}>
-          <h2 className="text-6xl md:text-8xl font-black tracking-tighter mb-8 italic leading-none">{t[lang].contact}.</h2>
-          <a href="mailto:phanuth.hun@gmail.com" className={`px-12 py-5 rounded-2xl font-black uppercase tracking-widest inline-block transition-all hover:scale-105 ${isDark ? 'bg-white text-blue-600' : 'bg-blue-600 text-white'}`}>
+          <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
+          <h2 className="text-6xl md:text-8xl font-black tracking-tighter mb-8 italic leading-none relative z-10">{t[lang].contact}.</h2>
+          <a href="mailto:phanuth.hun@gmail.com" className={`px-12 py-5 rounded-2xl font-black uppercase tracking-widest inline-block transition-all hover:scale-105 relative z-10 ${isDark ? 'bg-white text-blue-600' : 'bg-blue-600 text-white'}`}>
             {t[lang].btn}
           </a>
         </div>
