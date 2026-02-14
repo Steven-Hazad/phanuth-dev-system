@@ -33,10 +33,10 @@ export default function Home() {
 
   const t = {
     en: { 
-      name: "PHANUTH", 
+      name: "HUN PHANUTH", 
       role: "System Architect", 
       about: "About Me",
-      aboutDesc: "I am a Full Stack Developer based in Cambodia, specializing in building scalable web engines. I transform complex logic into beautiful, high-performance digital experiences.",
+      aboutDesc: "I'm a student with a strong background in Computer Science and currently pursuing Air Traffic Management . While I don’t have formal work experience yet, I work.",
       skills: "Tech Stack", 
       work: "Project Archive", 
       edu: "Academic",
@@ -44,12 +44,12 @@ export default function Home() {
       btn: "Launch Mail Protocol"
     },
     kh: { 
-      name: "ផានុត", 
-      role: "អ្នករៀបចំប្រព័ន្ធ", 
+      name: "ហ៊ុន ផានុត", 
+      role: "System Architect", 
       about: "អំពីខ្ញុំ",
-      aboutDesc: "ខ្ញុំគឺជាអ្នកអភិវឌ្ឍកម្មវិធី Full Stack ដែលមានមូលដ្ឋាននៅប្រទេសកម្ពុជា។ ខ្ញុំមានជំនាញក្នុងការបង្កើតប្រព័ន្ធគេហទំព័រដែលមានប្រសិទ្ធភាពខ្ពស់ និងបទពិសោធន៍ឌីជីថលដ៏អស្ចារ្យ។",
-      skills: "បច្ចេកវិទ្យា", 
-      work: "បណ្ណសារគម្រោង", 
+      aboutDesc: "ខ្ញុំជានិស្សិតដែលមានភាពរឹងមាំក្នុងវិទ្យាសាស្ត្រកុំព្យូទ័រ ហើយកំពុងសិក្សាផ្នែកគ្រប់គ្រងចរាចរណ៍អាកាស។ ខណៈពេលដែលខ្ញុំមិនទាន់មានបទពិសោធន៍ការងារផ្លូវការទេ ខ្ញុំក៏បានបង្កើតគម្រោងផ្ទាល់ខ្លួន និងចូលរួមក្នុងការប្រកួតប្រជែងដើម្បីបង្ហាញជំនាញ និងការប្តេជ្ញារបស់ខ្ញុំ។",
+      skills: "ជំនាញ", 
+      work: "គម្រោង", 
       edu: "ការសិក្សា",
       contact: "ទំនាក់ទំនង",
       btn: "ផ្ញើសារមកកាន់ខ្ញុំ"
@@ -247,7 +247,7 @@ export default function Home() {
       <section className="py-40 px-6">
         <div className={`max-w-5xl mx-auto rounded-[4rem] p-16 md:p-24 text-center relative overflow-hidden transition-all ${isDark ? 'bg-blue-600 text-white shadow-[0_0_100px_-20px_rgba(37,99,235,0.4)]' : 'bg-slate-900 text-white'}`}>
           <h2 className="text-6xl md:text-8xl font-black tracking-tighter mb-8 italic leading-none">{t[lang].contact}.</h2>
-          <a href="mailto:phanuth.dev@system.com" className={`px-12 py-5 rounded-2xl font-black uppercase tracking-widest inline-block transition-all hover:scale-105 ${isDark ? 'bg-white text-blue-600' : 'bg-blue-600 text-white'}`}>
+          <a href="mailto:phanuth.hun@gmail.com" className={`px-12 py-5 rounded-2xl font-black uppercase tracking-widest inline-block transition-all hover:scale-105 ${isDark ? 'bg-white text-blue-600' : 'bg-blue-600 text-white'}`}>
             {t[lang].btn}
           </a>
         </div>
