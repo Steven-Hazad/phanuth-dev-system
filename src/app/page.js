@@ -530,13 +530,7 @@ export default function Home() {
               >
                 {/* Animated timeline dot */}
                 <div className="absolute left-[26px] top-1/2 -translate-y-1/2 z-20 pointer-events-none">
-                  <motion.div
-                    className="w-3 h-3 rounded-full bg-blue-600"
-                    initial={{ scale: 0 }}
-                    whileInView={{ scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: idx * 0.15 + 0.3, type: "spring", stiffness: 300 }}
-                  />
+                
                   <motion.div
                     className="absolute inset-0 rounded-full bg-blue-400"
                     animate={{ scale: [1, 2.5, 1], opacity: [0.6, 0, 0.6] }}
