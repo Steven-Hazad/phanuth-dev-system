@@ -40,37 +40,7 @@ function AnimatedBackground({ isDark, mode = "premium" }) {
         { x: 0.5, y: 0.1, r: 0.35, speed: 0.0006, color: isDark ? "6,182,212" : "14,165,233" },
       ];
 
-      const draw = () => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        t += 1;
-
-        orbs.forEach((orb, i) => {
-          const ox = (orb.x + Math.sin(t * orb.speed + i * 2.1) * 0.2) * canvas.width;
-          const oy = (orb.y + Math.cos(t * orb.speed + i * 1.7) * 0.2) * canvas.height;
-          const radius = orb.r * Math.max(canvas.width, canvas.height);
-
-          const grad = ctx.createRadialGradient(ox, oy, 0, ox, oy, radius);
-          grad.addColorStop(0, `rgba(${orb.color},${isDark ? 0.18 : 0.12})`);
-          grad.addColorStop(1, `rgba(${orb.color},0)`);
-
-          ctx.fillStyle = grad;
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-        });
-
-        // Subtle grid overlay
-        ctx.strokeStyle = isDark ? "rgba(255,255,255,0.025)" : "rgba(0,0,0,0.03)";
-        ctx.lineWidth = 1;
-        const gridSize = 80;
-        for (let x = 0; x < canvas.width; x += gridSize) {
-          ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
-        }
-        for (let y = 0; y < canvas.height; y += gridSize) {
-          ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
-        }
-
-        animRef.current = requestAnimationFrame(draw);
-      };
-      draw();
+  
     }
 
     // ── PREMIUM: Particles + Aurora + Noise trails ──
@@ -84,7 +54,7 @@ function AnimatedBackground({ isDark, mode = "premium" }) {
         vy: (Math.random() - 0.5) * 0.4,
         radius: Math.random() * 1.8 + 0.4,
         alpha: Math.random() * 0.5 + 0.2,
-        hue: 200 + Math.random() * 60, // blue–purple spectrum
+      
         pulse: Math.random() * Math.PI * 2,
         pulseSpeed: 0.01 + Math.random() * 0.02,
       }));
@@ -173,11 +143,7 @@ function AnimatedBackground({ isDark, mode = "premium" }) {
         // Aurora background waves
         drawAurora();
 
-        // Mouse-attracted particles
-        drawMouseAttract();
-
-        // Connections
-        drawConnections();
+      
 
         // Particles
         particlesRef.current.forEach((p) => {
@@ -198,8 +164,6 @@ function AnimatedBackground({ isDark, mode = "premium" }) {
 
           // Glow halo
           const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, pulseR * 6);
-          glow.addColorStop(0, `hsla(${p.hue},80%,65%,${alpha * 0.6})`);
-          glow.addColorStop(1, `hsla(${p.hue},80%,65%,0)`);
           ctx.fillStyle = glow;
           ctx.beginPath();
           ctx.arc(p.x, p.y, pulseR * 6, 0, Math.PI * 2);
@@ -566,7 +530,13 @@ export default function Home() {
               >
                 {/* Animated timeline dot */}
                 <div className="absolute left-[26px] top-1/2 -translate-y-1/2 z-20 pointer-events-none">
-                
+                  <motion.div
+                    className="w-3 h-3 rounded-full bg-blue-600"
+                    initial={{ scale: 0 }}
+                    whileInView={{ scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: idx * 0.15 + 0.3, type: "spring", stiffness: 300 }}
+                  />
                   <motion.div
                     className="absolute inset-0 rounded-full bg-blue-400"
                     animate={{ scale: [1, 2.5, 1], opacity: [0.6, 0, 0.6] }}
