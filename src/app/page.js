@@ -230,24 +230,20 @@ export default function Home() {
     };
     window.addEventListener("mousemove", handleMouseMove);
 
-    const fetchData = async () => {
-      try {
-        const [p, e, s] = await Promise.all([
-          fetch("/api/admin?type=project").then(res => res.json()),
-          fetch("/api/admin?type=education").then(res => res.json()),
-          fetch("/api/admin?type=skill").then(res => res.json()),
-        ]);
-        setData({
-          projects: Array.isArray(p) ? p : [],
-          education: Array.isArray(e) ? e : [],
-          skills: Array.isArray(s) ? s : []
-        });
-      } catch (err) {
-        console.error("Fetch error:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+    // Inside your useEffect
+const fetchData = async () => {
+  try {
+    const [p, e, s] = await Promise.all([
+      fetch("/api/admin?type=project").then(res => res.json()),
+      fetch("/api/admin?type=education").then(res => res.json()),
+      fetch("/api/admin?type=skill").then(res => res.json()),
+    ]);
+    // ... setData logic
+  } catch (err) {
+    console.error("Backend not ready yet:", err);
+    setLoading(false); // 💡 IMPORTANT: This stops the infinite loading screen
+  }
+};
     fetchData();
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
