@@ -276,11 +276,6 @@ const fetchData = async () => {
     }
   };
 
-  if (loading) return (
-    <div className={`h-screen flex items-center justify-center font-black ${isDark ? 'bg-black text-white' : 'bg-white text-black'}`}>
-      SYNCING_SYSTEM...
-    </div>
-  );
 
   return (
     <div className={`min-h-screen transition-colors duration-500 cursor-none relative ${lang === 'kh' ? 'font-khmer' : 'font-sans'} ${isDark ? 'bg-[#050505] text-white' : 'bg-[#f8fafc] text-slate-900'}`}>
