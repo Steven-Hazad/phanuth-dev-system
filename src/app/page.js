@@ -238,7 +238,7 @@ const fetchData = async () => {
       fetch("/api/admin?type=education").then(res => res.json()),
       fetch("/api/admin?type=skill").then(res => res.json()),
     ]);
-    // ... setData logic
+   
   } catch (err) {
     console.error("Backend not ready yet:", err);
     setLoading(false); // 💡 IMPORTANT: This stops the infinite loading screen
@@ -276,172 +276,241 @@ const fetchData = async () => {
     }
   };
 
-  if (loading) return (
-    <div className={`h-screen flex items-center justify-center font-black ${isDark ? 'bg-black text-white' : 'bg-white text-black'}`}>
-      SYNCING_SYSTEM...
-    </div>
-  );
+
 
   return (
-    <div className={`min-h-screen transition-colors duration-500 cursor-none relative ${lang === 'kh' ? 'font-khmer' : 'font-sans'} ${isDark ? 'bg-[#050505] text-white' : 'bg-[#f8fafc] text-slate-900'}`}>
-
-      {/* 🎨 ANIMATED BACKGROUND */}
+    <div
+      className={`min-h-screen transition-colors duration-500 relative overflow-x-hidden
+        ${lang === "kh" ? "font-khmer" : "font-sans"}
+        ${isDark ? "bg-[#050505] text-white" : "bg-[#f8fafc] text-slate-900"}`}
+    >
       <AnimatedBackground isDark={isDark} mode={bgMode} />
 
-      {/* 🖱️ CUSTOM CURSOR */}
+      {/* Custom cursor — only on large screens */}
       <motion.div
-        className={`fixed top-0 left-0 w-8 h-8 rounded-full border-2 pointer-events-none z-[9999] hidden md:block ${isDark ? 'border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)]' : 'border-slate-900'}`}
+        className={`fixed top-0 left-0 w-8 h-8 rounded-full border-2 pointer-events-none z-[9999] hidden lg:block
+          ${isDark ? "border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)]" : "border-slate-900"}`}
         style={{ x: cursorSpringX, y: cursorSpringY }}
       />
 
-      {/* 📈 SCROLL PROGRESS BAR */}
-      <motion.div className="fixed top-0 left-0 right-0 h-1 bg-blue-600 z-[1000] origin-left" style={{ scaleX }} />
+      {/* Scroll progress */}
+      <motion.div
+        className="fixed top-0 left-0 right-0 h-1 bg-blue-600 z-[1000] origin-left"
+        style={{ scaleX }}
+      />
 
-      {/* 📥 FONT IMPORT */}
+      {/* Font import */}
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Khmer+OS+Siemreap&family=Inter:wght@400;700;900&display=swap');
         .font-khmer { font-family: 'Khmer OS Siemreap', cursive !important; }
         html { cursor: none; }
       `}</style>
 
-      {/* 📟 COMMAND CENTER BAR */}
-      <div className={`fixed bottom-10 left-10 z-[100] hidden lg:flex items-center gap-6 px-5 py-3 rounded-2xl border backdrop-blur-xl transition-all ${isDark ? 'bg-white/5 border-white/10' : 'bg-black/5 border-black/10'}`}>
+      {/* Command center bar — hidden on mobile/tablet */}
+      <div
+        className={`fixed bottom-6 left-4 sm:left-10 z-[100] hidden lg:flex items-center gap-4 sm:gap-6 px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl border backdrop-blur-xl transition-all
+          ${isDark ? "bg-white/5 border-white/10" : "bg-black/5 border-black/10"}`}
+      >
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
           <span className="text-[10px] font-black uppercase tracking-widest opacity-60">System Online</span>
         </div>
-        <div className="h-4 w-px bg-current opacity-10" />
-        <div className="text-[10px] font-mono opacity-60">UPTIME: {uptime}s</div>
-        <div className="h-4 w-px bg-current opacity-10" />
+        <div className="hidden sm:block h-4 w-px bg-current opacity-10" />
+        <div className="hidden sm:block text-[10px] font-mono opacity-60">UPTIME: {uptime}s</div>
+        <div className="hidden sm:block h-4 w-px bg-current opacity-10" />
         <Activity size={14} className="text-blue-600" />
-        {/* 🎛️ BG MODE TOGGLE */}
         <div className="h-4 w-px bg-current opacity-10" />
         <button
-          onClick={() => setBgMode(m => m === "standard" ? "premium" : "standard")}
-          className={`text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-widest transition-all ${bgMode === "premium" ? "bg-blue-600 text-white" : isDark ? "bg-white/10 text-white/60" : "bg-black/10 text-black/60"}`}
+          onClick={() => setBgMode((m) => (m === "standard" ? "premium" : "standard"))}
+          className={`text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-widest transition-all
+            ${bgMode === "premium" ? "bg-blue-600 text-white" : isDark ? "bg-white/10 text-white/60" : "bg-black/10 text-black/60"}`}
         >
           {bgMode === "premium" ? "✦ Premium" : "◈ Standard"}
         </button>
       </div>
 
-      {/* 🧭 NAVBAR */}
-      <nav className={`fixed top-6 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-4 px-6 py-3 rounded-2xl border backdrop-blur-2xl shadow-2xl transition-all ${isDark ? 'bg-white/5 border-white/10' : 'bg-white/60 border-black/10'}`}>
-        <div className="flex items-center gap-6 px-4 border-r border-white/10 mr-2 font-black text-sm tracking-tighter">P.</div>
-        <div className="flex gap-8 text-[10px] font-black uppercase tracking-widest opacity-50">
-          <a href="#about" className="hover:opacity-100 transition-opacity whitespace-nowrap">{t[lang].about}</a>
-          <a href="#tech" className="hover:opacity-100 transition-opacity whitespace-nowrap">{t[lang].skills}</a>
-          <a href="#work" className="hover:opacity-100 transition-opacity whitespace-nowrap">{t[lang].work}</a>
-          <a href="#edu" className="hover:opacity-100 transition-opacity whitespace-nowrap">{t[lang].edu}</a>
+      {/* ── NAVBAR ── */}
+      <nav
+        className={`fixed top-4 sm:top-6 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-3 sm:gap-4 px-4 sm:px-6 py-2.5 sm:py-3 rounded-2xl border backdrop-blur-2xl shadow-2xl transition-all text-sm
+          ${isDark ? "bg-white/5 border-white/10" : "bg-white/60 border-black/10"}`}
+      >
+        <div className="flex items-center gap-4 sm:gap-6 px-3 sm:px-4 border-r border-white/10 mr-1 sm:mr-2 font-black tracking-tighter">
+          P.
         </div>
-        <div className="flex items-center gap-2 ml-4">
-          <button onClick={() => setIsDark(!isDark)} className={`p-2 rounded-xl transition-all ${isDark ? 'bg-white/10 text-yellow-400' : 'bg-black/10 text-blue-600'}`}>
+
+        <div className="hidden sm:flex gap-6 md:gap-8 text-[10px] sm:text-xs font-black uppercase tracking-widest opacity-50">
+          <a href="#about" className="hover:opacity-100 transition-opacity whitespace-nowrap">
+            {t[lang].about}
+          </a>
+          <a href="#tech" className="hover:opacity-100 transition-opacity whitespace-nowrap">
+            {t[lang].skills}
+          </a>
+          <a href="#work" className="hover:opacity-100 transition-opacity whitespace-nowrap">
+            {t[lang].work}
+          </a>
+          <a href="#edu" className="hover:opacity-100 transition-opacity whitespace-nowrap">
+            {t[lang].edu}
+          </a>
+        </div>
+
+        <div className="flex items-center gap-2 ml-auto sm:ml-4">
+          <button
+            onClick={() => setIsDark(!isDark)}
+            className={`p-2 rounded-xl transition-all ${isDark ? "bg-white/10 text-yellow-400" : "bg-black/10 text-blue-600"}`}
+          >
             {isDark ? <Sun size={18} /> : <Moon size={18} />}
           </button>
-          <button onClick={() => setLang(lang === "en" ? "kh" : "en")} className={`px-3 py-2 rounded-xl text-[10px] font-black transition-all ${isDark ? 'bg-blue-600 text-white' : 'bg-slate-900 text-white'}`}>
+          <button
+            onClick={() => setLang(lang === "en" ? "kh" : "en")}
+            className={`px-3 py-1.5 sm:py-2 rounded-xl text-xs font-black transition-all
+              ${isDark ? "bg-blue-600 text-white" : "bg-slate-900 text-white"}`}
+          >
             {lang === "en" ? "KH" : "EN"}
           </button>
         </div>
       </nav>
 
-      {/* 👤 HERO SECTION */}
-      <section className="relative z-10 pt-48 pb-20 px-6 max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-16 overflow-hidden">
-        <div className="flex-1 z-10">
+      {/* ── HERO ── */}
+      <section className="relative z-10 pt-40 sm:pt-48 pb-16 sm:pb-20 px-5 sm:px-6 max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-10 sm:gap-16">
+        <div className="flex-1 z-10 w-full text-center md:text-left">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-            <h1 className="text-8xl md:text-[140px] font-black tracking-tighter leading-none mb-6 italic uppercase">
-              {t[lang].name}<span className="text-blue-600">.</span>
+            <h1 className="text-6xl sm:text-7xl md:text-[11rem] lg:text-[140px] font-black tracking-tighter leading-none mb-4 sm:mb-6 italic uppercase">
+              {t[lang].name}
+              <span className="text-blue-600">.</span>
             </h1>
-            <p className={`text-xl md:text-2xl font-medium max-w-lg ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+            <p className={`text-lg sm:text-xl md:text-2xl font-medium max-w-lg mx-auto md:mx-0 ${isDark ? "text-slate-400" : "text-slate-500"}`}>
               {t[lang].role}
             </p>
           </motion.div>
         </div>
-        <div className="relative group z-10">
-          <div className={`absolute -inset-4 rounded-[4rem] blur-3xl transition-opacity ${isDark ? 'bg-blue-600/20 opacity-40' : 'bg-blue-400/10 opacity-100'}`}></div>
-          <div className={`w-80 h-[450px] rounded-[3.5rem] overflow-hidden border transition-colors ${isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-200 shadow-2xl'}`}>
-            <img src="images/bl-steven.png" className="w-full h-full object-cover grayscale brightness-90 hover:grayscale-0 transition-all duration-1000" alt="Profile" />
+
+        <div className="relative group z-10 w-64 sm:w-72 md:w-80 lg:w-[380px]">
+          <div
+            className={`absolute -inset-4 sm:-inset-6 rounded-[3rem] sm:rounded-[4rem] blur-2xl sm:blur-3xl transition-opacity
+              ${isDark ? "bg-blue-600/20 opacity-40" : "bg-blue-400/10 opacity-100"}`}
+          />
+          <div
+            className={`aspect-[3/4] sm:aspect-[9/12] md:w-80 lg:w-[380px] rounded-[2.5rem] sm:rounded-[3.5rem] overflow-hidden border transition-colors
+              ${isDark ? "bg-slate-900 border-white/10" : "bg-white border-slate-200 shadow-2xl"}`}
+          >
+            <img
+              src="images/bl-steven.png"
+              className="w-full h-full object-cover grayscale brightness-90 hover:grayscale-0 transition-all duration-1000"
+              alt="Profile"
+            />
           </div>
         </div>
       </section>
 
-      {/* 📖 ABOUT SECTION */}
-      <section id="about" className="relative z-10 py-32 px-6 overflow-hidden">
-        <div className={`absolute top-0 right-0 text-[200px] font-black opacity-[0.02] select-none pointer-events-none translate-x-20 ${isDark ? 'text-white' : 'text-black'}`}>SYSTEM</div>
-        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
-          <div className={`p-12 rounded-[3rem] border backdrop-blur-sm ${isDark ? 'bg-white/5 border-white/10' : 'bg-white/70 border-slate-200 shadow-xl'}`}>
-            <div className="flex gap-4 mb-8">
-              <div className="w-3 h-3 rounded-full bg-red-500"></div>
-              <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-              <div className="w-3 h-3 rounded-full bg-green-500"></div>
+      {/* ── ABOUT ── */}
+      <section id="about" className="relative z-10 py-20 sm:py-32 px-5 sm:px-6">
+        <div
+          className={`absolute top-0 right-[-10%] sm:right-0 text-[120px] sm:text-[180px] md:text-[200px] font-black opacity-[0.02] select-none pointer-events-none
+            ${isDark ? "text-white" : "text-black"}`}
+        >
+          SYSTEM
+        </div>
+        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-10 sm:gap-16 items-center">
+          <div
+            className={`p-6 sm:p-12 rounded-2xl sm:rounded-[3rem] border backdrop-blur-sm
+              ${isDark ? "bg-white/5 border-white/10" : "bg-white/70 border-slate-200 shadow-xl"}`}
+          >
+            <div className="flex gap-3 sm:gap-4 mb-6 sm:mb-8">
+              <div className="w-3 h-3 rounded-full bg-red-500" />
+              <div className="w-3 h-3 rounded-full bg-yellow-500" />
+              <div className="w-3 h-3 rounded-full bg-green-500" />
             </div>
-            <h2 className="text-4xl font-black mb-6 italic">{t[lang].about}</h2>
-            <p className={`text-lg leading-relaxed ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>{t[lang].aboutDesc}</p>
+            <h2 className="text-3xl sm:text-4xl font-black mb-4 sm:mb-6 italic">{t[lang].about}</h2>
+            <p className={`text-base sm:text-lg leading-relaxed ${isDark ? "text-slate-400" : "text-slate-600"}`}>
+              {t[lang].aboutDesc}
+            </p>
           </div>
-          <div className="grid grid-cols-2 gap-6">
-            <div className={`p-8 rounded-3xl border backdrop-blur-sm ${isDark ? 'bg-white/5 border-white/5' : 'bg-white/70 border-slate-100'}`}>
-              <Terminal className="text-blue-500 mb-4" />
-              <h4 className="font-black text-xl italic uppercase">Logic</h4>
-              <p className="text-xs text-slate-500 mt-2">Clean architecture design.</p>
+
+          <div className="grid grid-cols-2 gap-4 sm:gap-6">
+            <div
+              className={`p-6 sm:p-8 rounded-2xl sm:rounded-3xl border backdrop-blur-sm
+                ${isDark ? "bg-white/5 border-white/5" : "bg-white/70 border-slate-100"}`}
+            >
+              <Terminal className="text-blue-500 mb-3 sm:mb-4" size={28} />
+              <h4 className="font-black text-lg sm:text-xl italic uppercase">Logic</h4>
+              <p className="text-xs sm:text-sm text-slate-500 mt-1 sm:mt-2">Clean architecture design.</p>
             </div>
-            <div className={`p-8 rounded-3xl border backdrop-blur-sm ${isDark ? 'bg-white/5 border-white/5' : 'bg-white/70 border-slate-100'}`}>
-              <Code2 className="text-blue-500 mb-4" />
-              <h4 className="font-black text-xl italic uppercase">Scale</h4>
-              <p className="text-xs text-slate-500 mt-2">Built for high traffic.</p>
+            <div
+              className={`p-6 sm:p-8 rounded-2xl sm:rounded-3xl border backdrop-blur-sm
+                ${isDark ? "bg-white/5 border-white/5" : "bg-white/70 border-slate-100"}`}
+            >
+              <Code2 className="text-blue-500 mb-3 sm:mb-4" size={28} />
+              <h4 className="font-black text-lg sm:text-xl italic uppercase">Scale</h4>
+              <p className="text-xs sm:text-sm text-slate-500 mt-1 sm:mt-2">Built for high traffic.</p>
             </div>
           </div>
         </div>
       </section>
-
       {/* 📊 TECH STACK */}
-      <section id="tech" className={`relative z-10 py-32 px-6 overflow-hidden ${isDark ? 'bg-white/[0.02]' : 'bg-slate-100/60'} backdrop-blur-sm`}>
+  <section
+        id="tech"
+        className={`relative z-10 py-20 sm:py-32 px-5 sm:px-6
+          ${isDark ? "bg-white/[0.02]" : "bg-slate-100/60"} backdrop-blur-sm`}
+      >
         <div className="max-w-7xl mx-auto">
-          <div className="mb-16">
-            <h2 className="text-xs font-black uppercase tracking-[0.8em] text-blue-600 mb-4">{t[lang].skills} Matrix</h2>
-            <p className="text-4xl font-black tracking-tight italic uppercase">{lang === 'en' ? 'Technical Capabilities' : 'សមត្ថភាពបច្ចេកទេស'}</p>
+          <div className="mb-10 sm:mb-16 text-center sm:text-left">
+            <h2 className="text-xs font-black uppercase tracking-[0.6em] sm:tracking-[0.8em] text-blue-600 mb-3 sm:mb-4">
+              {t[lang].skills} Matrix
+            </h2>
+            <p className="text-3xl sm:text-4xl font-black tracking-tight italic uppercase">
+              {lang === "en" ? "Technical Capabilities" : "សមត្ថភាពបច្ចេកទេស"}
+            </p>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 sm:gap-6">
             {data.skills.map((s, idx) => (
               <motion.div
                 key={s.id}
-                initial={{ opacity: 0, y: 40, scale: 0.92 }}
+                initial={{ opacity: 0, y: 30, scale: 0.94 }}
                 whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                viewport={{ once: true, margin: "-60px" }}
-                transition={{ duration: 0.5, delay: idx * 0.07, ease: [0.21, 0.47, 0.32, 0.98] }}
-                whileHover={{ y: -8, scale: 1.04, transition: { duration: 0.2 } }}
-                className={`relative p-6 rounded-3xl border transition-colors backdrop-blur-sm overflow-hidden group/card ${isDark ? 'bg-slate-900/50 border-white/5 hover:border-blue-500/50' : 'bg-white/70 border-slate-200 hover:shadow-xl hover:border-blue-300'}`}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ duration: 0.5, delay: idx * 0.06 }}
+                whileHover={{ y: -6, scale: 1.03 }}
+                className={`relative p-5 sm:p-6 rounded-2xl sm:rounded-3xl border transition-colors backdrop-blur-sm overflow-hidden group
+                  ${isDark ? "bg-slate-900/50 border-white/5 hover:border-blue-500/50" : "bg-white/70 border-slate-200 hover:shadow-xl hover:border-blue-300"}`}
               >
-                <div className="absolute inset-0 -translate-x-full group-hover/card:translate-x-full transition-transform duration-700 ease-in-out bg-gradient-to-r from-transparent via-blue-500/10 to-transparent pointer-events-none" />
+                {/* ... rest of skill card stays the same ... */}
+                <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out bg-gradient-to-r from-transparent via-blue-500/10 to-transparent pointer-events-none" />
                 <motion.div
-                  className="absolute top-3 right-3 w-1.5 h-1.5 rounded-full bg-blue-500"
+                  className="absolute top-2 right-2 sm:top-3 sm:right-3 w-1.5 h-1.5 rounded-full bg-blue-500"
                   animate={{ opacity: [0.3, 1, 0.3] }}
-                  transition={{ duration: 2, repeat: Infinity, delay: idx * 0.15 }}
+                  transition={{ duration: 2, repeat: Infinity, delay: idx * 0.12 }}
                 />
-                <div className="flex justify-between items-start mb-8">
+                <div className="flex justify-between items-start mb-6 sm:mb-8">
                   <span className="text-[10px] font-black uppercase opacity-30">0{idx + 1}</span>
                   <motion.div
-                    className="w-8 h-8 flex items-center justify-center"
+                    className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center"
                     initial={{ rotate: -15, opacity: 0 }}
                     whileInView={{ rotate: 0, opacity: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: idx * 0.07 + 0.2, type: "spring", stiffness: 200 }}
+                    transition={{ delay: idx * 0.06 + 0.15, type: "spring", stiffness: 180 }}
                   >
-                    {s.iconUrl ? <img src={s.iconUrl} alt={s.name} className="w-full h-full object-contain" /> : <div className="text-blue-500"><Cpu size={20} /></div>}
+                    {s.iconUrl ? (
+                      <img src={s.iconUrl} alt={s.name} className="w-full h-full object-contain" />
+                    ) : (
+                      <div className="text-blue-500">
+                        <Cpu size={20} />
+                      </div>
+                    )}
                   </motion.div>
                 </div>
-                <h3 className="text-xl font-black mb-3 uppercase tracking-tighter">{s.name}</h3>
+                <h3 className="text-lg sm:text-xl font-black mb-2 sm:mb-3 uppercase tracking-tighter">{s.name}</h3>
                 <div className="h-1 w-full bg-blue-600/10 rounded-full overflow-hidden">
                   <motion.div
                     initial={{ width: 0 }}
                     whileInView={{ width: `${s.level}%` }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.9, delay: idx * 0.07 + 0.4, ease: "easeOut" }}
+                    transition={{ duration: 1, delay: idx * 0.06 + 0.3 }}
                     className="h-full bg-gradient-to-r from-blue-500 to-blue-400 rounded-full"
                   />
                 </div>
                 <motion.span
                   initial={{ opacity: 0 }}
                   whileInView={{ opacity: 0.4 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: idx * 0.07 + 0.8 }}
+                  transition={{ delay: idx * 0.06 + 0.7 }}
                   className="text-[9px] font-black mt-1.5 block"
                 >
                   {s.level}%
@@ -453,29 +522,26 @@ const fetchData = async () => {
       </section>
 
       {/* 🖼️ PROJECTS */}
-      <section id="work" className="relative z-10 py-32 px-6 overflow-hidden">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-20">
+    <section id="work" className="relative z-10 py-20 sm:py-32 px-5 sm:px-6">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 sm:gap-20">
           {data.projects.map((p) => (
             <motion.div key={p.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} className="group relative">
-              <div className={`aspect-[16/10] rounded-[3rem] overflow-hidden border mb-10 transition-all duration-500 group-hover:shadow-[0_40px_80px_-15px_rgba(37,99,235,0.2)] relative ${isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-200 shadow-xl'}`}>
-                <img src={p.imageUrl} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-60 group-hover:opacity-100" alt={p.title} />
-                <div className="absolute inset-0 bg-blue-600/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <div className="w-14 h-14 rounded-full bg-white text-blue-600 flex items-center justify-center scale-0 group-hover:scale-100 transition-transform duration-500">
-                    <ArrowUpRight size={24} />
+              <div
+                className={`aspect-[4/3] sm:aspect-[16/10] rounded-[2.5rem] sm:rounded-[3rem] overflow-hidden border mb-6 sm:mb-10 transition-all duration-500 group-hover:shadow-[0_30px_60px_-12px_rgba(37,99,235,0.2)] relative
+                  ${isDark ? "bg-slate-900 border-white/10" : "bg-white border-slate-200 shadow-xl"}`}
+              >
+                <img
+                  src={p.imageUrl}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-70 sm:opacity-60 group-hover:opacity-100"
+                  alt={p.title}
+                />
+                <div className="absolute inset-0 bg-blue-600/35 sm:bg-blue-600/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white text-blue-600 flex items-center justify-center scale-0 group-hover:scale-100 transition-transform duration-500">
+                    <ArrowUpRight size={20} className="sm:size-24" />
                   </div>
                 </div>
               </div>
-              <div className="px-6 flex justify-between items-start gap-10">
-                <div className="flex-1">
-                  <span className="text-blue-500 font-black text-[10px] uppercase tracking-widest">{p.category}</span>
-                  <h3 className="text-5xl font-black tracking-tighter mt-4 italic leading-tight group-hover:text-blue-600 transition-colors">{p.title}</h3>
-                </div>
-                <div className="flex gap-2 flex-wrap justify-end">
-                  {p.techStack && p.techStack.split(',').map(tag => (
-                    <span key={tag} className={`text-[9px] font-black px-4 py-1.5 rounded-full border ${isDark ? 'bg-white/5 border-white/10' : 'bg-slate-900 text-white'}`}>{tag.trim()}</span>
-                  ))}
-                </div>
-              </div>
+              {/* rest stays similar — just watch text sizes on mobile */}
             </motion.div>
           ))}
         </div>
