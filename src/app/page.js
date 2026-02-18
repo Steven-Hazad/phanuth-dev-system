@@ -275,10 +275,7 @@ const fetchData = async () => {
       btn: "ផ្ញើសារមកកាន់ខ្ញុំ"
     }
   };
-
-
-
-  return (
+return (
     <div
       className={`min-h-screen transition-colors duration-500 relative overflow-x-hidden
         ${lang === "kh" ? "font-khmer" : "font-sans"}
