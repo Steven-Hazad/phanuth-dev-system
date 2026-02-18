@@ -279,7 +279,7 @@ return (
     <div
       className={`min-h-screen transition-colors duration-500 relative overflow-x-hidden
         ${lang === "kh" ? "font-khmer" : "font-sans"}
-        ${isDark ? "bg-[#050505] text-white" : "bg-[#f8fafc] text-slate-900"}`}
+        ${isDark ? "bg-[#000000] text-white" : "bg-[#f8fafc] text-slate-900"}`}
     >
       <AnimatedBackground isDark={isDark} mode={bgMode} />
 
