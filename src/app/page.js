@@ -230,8 +230,7 @@ export default function Home() {
     };
     window.addEventListener("mousemove", handleMouseMove);
 
-    // Inside your useEffect
-// Change your state setters to check if data is actually an array
+// Inside your Home component's useEffect:
 const fetchData = async () => {
   try {
     const [p, e, s] = await Promise.all([
@@ -240,11 +239,12 @@ const fetchData = async () => {
       fetch("/api/admin?type=skill").then(res => res.json()),
     ]);
 
-    // 💡 Add Array.isArray check to prevent the .map() crash
-    setProjects(Array.isArray(p) ? p : []);
-    setEducation(Array.isArray(e) ? e : []);
-    setSkills(Array.isArray(s) ? s : []);
-
+    // ✅ Match this to your 'data' state structure
+    setData({
+      projects: Array.isArray(p) ? p : [],
+      education: Array.isArray(e) ? e : [],
+      skills: Array.isArray(s) ? s : []
+    });
   } catch (err) {
     console.error("Fetch failed:", err);
   } finally {
