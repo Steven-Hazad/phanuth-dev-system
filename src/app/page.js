@@ -231,6 +231,7 @@ export default function Home() {
     window.addEventListener("mousemove", handleMouseMove);
 
     // Inside your useEffect
+// Change your state setters to check if data is actually an array
 const fetchData = async () => {
   try {
     const [p, e, s] = await Promise.all([
@@ -238,12 +239,16 @@ const fetchData = async () => {
       fetch("/api/admin?type=education").then(res => res.json()),
       fetch("/api/admin?type=skill").then(res => res.json()),
     ]);
-           setData({ projects: p, education: e, skills: s });
 
+    // 💡 Add Array.isArray check to prevent the .map() crash
+    setProjects(Array.isArray(p) ? p : []);
+    setEducation(Array.isArray(e) ? e : []);
+    setSkills(Array.isArray(s) ? s : []);
 
   } catch (err) {
-    console.error("Backend not ready yet:", err);
-    setLoading(false); // 💡 IMPORTANT: This stops the infinite loading screen
+    console.error("Fetch failed:", err);
+  } finally {
+    setLoading(false);
   }
 };
     fetchData();
