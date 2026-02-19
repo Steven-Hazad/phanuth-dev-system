@@ -233,25 +233,17 @@ export default function Home() {
     // Inside your useEffect
 const fetchData = async () => {
   try {
-    setLoading(true); // Start the loading spinner
-    
-    // This fetches all 3 tables at the same time (faster!)
     const [p, e, s] = await Promise.all([
       fetch("/api/admin?type=project").then(res => res.json()),
       fetch("/api/admin?type=education").then(res => res.json()),
       fetch("/api/admin?type=skill").then(res => res.json()),
     ]);
+           setData({ projects: p, education: e, skills: s });
 
-    // 🚀 DO THIS AT THIS PART:
-    setProjects(p);   // Put project data into state
-    setEducation(e);  // Put education data into state
-    setSkills(s);     // Put skill data into state
-    
-    setLoading(false); // Data is here, stop loading!
 
   } catch (err) {
     console.error("Backend not ready yet:", err);
-    setLoading(false); // Stop loading so the site doesn't stay white
+    setLoading(false); // 💡 IMPORTANT: This stops the infinite loading screen
   }
 };
     fetchData();
