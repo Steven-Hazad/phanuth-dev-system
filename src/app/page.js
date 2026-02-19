@@ -207,12 +207,13 @@ function AnimatedBackground({ isDark, mode = "premium" }) {
 // 🏠 MAIN PORTFOLIO COMPONENT
 // ============================================================
 export default function Home() {
+  // ✅ This is your single state object
   const [data, setData] = useState({ projects: [], education: [], skills: [] });
   const [lang, setLang] = useState("en");
   const [isDark, setIsDark] = useState(false);
   const [loading, setLoading] = useState(true);
   const [uptime, setUptime] = useState(0);
-  const [bgMode, setBgMode] = useState("premium"); // "standard" | "premium"
+  const [bgMode, setBgMode] = useState("premium");
 
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -230,34 +231,37 @@ export default function Home() {
     };
     window.addEventListener("mousemove", handleMouseMove);
 
-// Inside your Home component's useEffect:
-const fetchData = async () => {
-  try {
-    const [p, e, s] = await Promise.all([
-      fetch("/api/admin?type=project").then(res => res.json()),
-      fetch("/api/admin?type=education").then(res => res.json()),
-      fetch("/api/admin?type=skill").then(res => res.json()),
-    ]);
+    // ✅ FIXED FETCH LOGIC
+    const fetchData = async () => {
+      try {
+        const [p, e, s] = await Promise.all([
+          fetch("/api/admin?type=project").then(res => res.json()),
+          fetch("/api/admin?type=education").then(res => res.json()),
+          fetch("/api/admin?type=skill").then(res => res.json()),
+        ]);
 
-    // ✅ Match this to your 'data' state structure
-    setData({
-      projects: Array.isArray(p) ? p : [],
-      education: Array.isArray(e) ? e : [],
-      skills: Array.isArray(s) ? s : []
-    });
-  } catch (err) {
-    console.error("Fetch failed:", err);
-  } finally {
-    setLoading(false);
-  }
-};
+        // ✅ Update the 'data' state object using the results
+        // We use Array.isArray to prevent crashes if the API returns an error message
+        setData({
+          projects: Array.isArray(p) ? p : [],
+          education: Array.isArray(e) ? e : [],
+          skills: Array.isArray(s) ? s : [],
+        });
+
+      } catch (err) {
+        console.error("Database fetch failed:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchData();
+
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
       clearInterval(timer);
     };
   }, []);
-
   const t = {
     en: {
       name: "HUN PHANUTH",
@@ -274,7 +278,7 @@ const fetchData = async () => {
       name: "ហ៊ុន ផានុត",
       role: "System Architect",
       about: "អំពីខ្ញុំ",
-      aboutDesc: "ខ្ញុំជានិស្សិតដែលមានភាពស៊ីជម្រៅក្នុងវិទ្យាសាស្ត្រកុំព្យូទ័រ ហើយកំពុងសិក្សាផ្នែកគ្រប់គ្រងចរាចរណ៍អាកាស។",
+      aboutDesc: "ខ្ញុំជានិស្សិតដែលមានភាពsក្នុងវិទ្យាសាស្ត្រកុំព្យូទ័រ ហើយកំពុងសិក្សាផ្នែកគ្រប់គ្រងចរាចរណ៍អាកាស។",
       skills: "ជំនាញ",
       work: "គម្រោង",
       edu: "ការសិក្សា",

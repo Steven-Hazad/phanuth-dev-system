@@ -1,9 +1,6 @@
-// src/lib/auth.js
 import CredentialsProvider from "next-auth/providers/credentials";
-import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
-
-const prisma = new PrismaClient();
+import prisma from "./prisma"; // ✅ Imports the singleton fixed above
 
 export const authOptions = {
   providers: [
@@ -11,16 +8,22 @@ export const authOptions = {
       name: "credentials",
       credentials: {
         username: { label: "Username", type: "text" },
-        password: { label: "Password", type: "password" }
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        const admin = await prisma.admin.findUnique({ 
-          where: { username: credentials.username } 
+        if (!credentials?.username || !credentials?.password) return null;
+
+        const admin = await prisma.admin.findUnique({
+          where: { username: credentials.username },
         });
 
         if (!admin) return null;
 
-        const passwordMatch = await bcrypt.compare(credentials.password, admin.password);
+        const passwordMatch = await bcrypt.compare(
+          credentials.password,
+          admin.password
+        );
+        
         if (!passwordMatch) return null;
 
         return { id: admin.id, name: admin.username };
@@ -28,6 +31,14 @@ export const authOptions = {
     }),
   ],
   session: { strategy: "jwt" },
-  secret: process.env.NEXTAUTH_SECRET, // 🛡️ Important!
+  secret: process.env.NEXTAUTH_SECRET,
   pages: { signIn: "/login" },
+  callbacks: {
+    async session({ session, token }) {
+      if (token) {
+        session.user.id = token.sub;
+      }
+      return session;
+    },
+  },
 };
