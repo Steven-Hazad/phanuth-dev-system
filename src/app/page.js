@@ -214,6 +214,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [uptime, setUptime] = useState(0);
   const [bgMode, setBgMode] = useState("premium");
+  const [showAllProjects, setShowAllProjects] = useState(false);
 
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -529,7 +530,6 @@ return (
         </div>
       </section>
 
-      {/* 🖼️ PROJECTS */}
     {/* 🖼️ PROJECT SHOWCASE */}
       <section id="work" className="py-32 px-6 relative overflow-hidden z-10">
         <div className="max-w-7xl mx-auto">
@@ -546,7 +546,7 @@ return (
 
           {/* Projects Grid */}
           <div className="space-y-32">
-            {data.projects.map((p, idx) => (
+            {(showAllProjects ? data.projects : data.projects.slice(0, 5)).map((p, idx) => (
               <motion.div 
                 key={p.id}
                 initial={{ opacity: 0, y: 60 }}
@@ -566,7 +566,7 @@ return (
                     initial={{ opacity: 0, scale: 0 }}
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true }}
-                    className={`absolute -top-8 -left-8 w-24 h-24 rounded-full flex items-center justify-center font-black text-4xl z-10 ${
+                    className={`absolute -top-8 -left-8 w-[60px] h-[60px] rounded-full flex items-center justify-center font-black text-2xl z-10 ${
                       isDark ? 'bg-blue-600 text-white' : 'bg-slate-900 text-white'
                     }`}
                   >
@@ -574,14 +574,14 @@ return (
                   </motion.div>
 
                   {/* Image Container */}
-                  <div className={`relative rounded-3xl overflow-hidden border ${
+                  <div className={`relative h-[300px] w-[500px] rounded-2xl overflow-hidden border ${
                     isDark ? 'border-white/10 bg-slate-900' : 'border-slate-200 bg-white shadow-2xl'
                   }`}>
                     <div className="aspect-[4/3] relative">
                       <motion.img
                         src={p.imageUrl}
                         alt={p.title}
-                        className="w-full h-full object-cover"
+                        className="h-[300px] w-[500px] object-cover"
                         whileHover={{ scale: 1.1 }}
                         transition={{ duration: 0.6 }}
                       />
@@ -728,6 +728,36 @@ return (
               </motion.div>
             ))}
           </div>
+
+          {/* Show More Button */}
+          {data.projects.length > 5 && (
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="mt-20 text-center"
+            >
+              <motion.button
+                onClick={() => setShowAllProjects(!showAllProjects)}
+                whileHover={{ scale: 1.05, y: -5 }}
+                whileTap={{ scale: 0.95 }}
+                className={`px-12 py-5 rounded-2xl font-black uppercase tracking-widest transition-all ${
+                  isDark 
+                    ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                    : 'bg-slate-900 text-white hover:bg-slate-800'
+                } shadow-lg hover:shadow-2xl`}
+              >
+                <motion.span
+                  animate={{ 
+                    opacity: showAllProjects ? [1, 0.5, 1] : 1 
+                  }}
+                  transition={{ duration: 2, repeat: showAllProjects ? Infinity : 0 }}
+                >
+                  {showAllProjects ? 'Show Less' : `Show More (${data.projects.length - 5})`}
+                </motion.span>
+              </motion.button>
+            </motion.div>
+          )}
         </div>
       </section>
 
