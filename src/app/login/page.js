@@ -21,7 +21,7 @@ export default function LoginPage() {
   return (
     <div className="h-screen flex items-center justify-center bg-slate-900">
       <form onSubmit={handleSubmit} className="bg-white p-10 rounded-[2rem] shadow-2xl w-full max-w-sm">
-        <h1 className="text-2xl font-black mb-6 text-slate-900">System Access</h1>
+        <h1 className="text-2xl font-black mb-6 text-slate-900">System Access jol ban tea STevn Teh </h1>
         <div className="space-y-4">
           <input type="text" placeholder="Username" className="w-full p-4 bg-slate-100 rounded-xl outline-none" 
             onChange={(e) => setUsername(e.target.value)} />
