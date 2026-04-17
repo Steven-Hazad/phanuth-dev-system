@@ -530,54 +530,7 @@ return (
         </div>
       </section>
 
-    {/* 🖼️ PROJECT SHOWCASE */}
-      <section id="work" className="py-32 px-6 relative overflow-hidden z-10">
-        <div className="max-w-7xl mx-auto">
-          {/* Section Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="mb-20"
-          >
-            <h2 className="text-xs font-black uppercase tracking-[0.8em] text-blue-600 mb-4">{t[lang].work}</h2>
-            <p className="text-5xl md:text-6xl font-black tracking-tight italic uppercase">Featured Work</p>
-          </motion.div>
-
-          {/* Projects Grid */}
-        
-
-          {/* Show More Button */}
-          {data.projects.length > 5 && (
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="mt-20 text-center"
-            >
-              <motion.button
-                onClick={() => setShowAllProjects(!showAllProjects)}
-                whileHover={{ scale: 1.05, y: -5 }}
-                whileTap={{ scale: 0.95 }}
-                className={`px-12 py-5 rounded-2xl font-black uppercase tracking-widest transition-all ${
-                  isDark 
-                    ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                    : 'bg-slate-900 text-white hover:bg-slate-800'
-                } shadow-lg hover:shadow-2xl`}
-              >
-                <motion.span
-                  animate={{ 
-                    opacity: showAllProjects ? [1, 0.5, 1] : 1 
-                  }}
-                  transition={{ duration: 2, repeat: showAllProjects ? Infinity : 0 }}
-                >
-                  {showAllProjects ? 'Show Less' : `Show More (${data.projects.length - 5})`}
-                </motion.span>
-              </motion.button>
-            </motion.div>
-          )}
-        </div>
-      </section>
+   
 
       {/* 🐙 GITHUB CONTRIBUTIONS */}
       <section className="relative z-10 py-32 px-6">
