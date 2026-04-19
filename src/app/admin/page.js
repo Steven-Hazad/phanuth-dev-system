@@ -35,7 +35,7 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-slate-50 flex text-slate-900 font-sans">
       <aside className="w-72 bg-slate-900 text-white p-8 fixed h-full flex flex-col shadow-2xl">
-        <h1 className="text-2xl font-black italic text-blue-500 mb-10">PHANUTH.ADMIN</h1>
+        <h1 className="text-2xl font-black italic text-blue-500 mb-10">PHANUTH.ADMIN STEAVE KOB LU</h1>
         <nav className="flex-1 space-y-2">
           <NavBtn active={tab==="project"} onClick={()=>setTab("project")} icon={<FolderKanban size={20}/>} label="Projects"/>
           <NavBtn active={tab==="education"} onClick={()=>setTab("education")} icon={<GraduationCap size={20}/>} label="Education"/>
