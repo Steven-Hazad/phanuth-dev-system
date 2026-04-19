@@ -463,7 +463,7 @@ return (
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center gap-4 mb-12">
             <Github className="text-blue-600" size={32} />
-            <h2 className="text-4xl font-black italic uppercase tracking-tighter">Contribution Protocol</h2>
+            <h2 className="text-4xl font-black italic uppercase tracking-tighter">Contribution GitHUB Protocol</h2>
           </div>
           <div className={`p-10 rounded-[4rem] border backdrop-blur-sm ${isDark ? 'bg-white/5 border-white/10' : 'bg-white/70 border-slate-200 shadow-2xl'} overflow-hidden`}>
             <img
