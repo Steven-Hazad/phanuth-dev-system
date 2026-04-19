@@ -417,7 +417,7 @@ return (
           className={`absolute top-0 right-[-10%] sm:right-0 text-[120px] sm:text-[180px] md:text-[200px] font-black opacity-[0.02] select-none pointer-events-none
             ${isDark ? "text-white" : "text-black"}`}
         >
-          SYSTEMMMM
+          STEVENNNNN
         </div>
         <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-10 sm:gap-16 items-center">
           <div
