@@ -456,7 +456,64 @@ return (
         </div>
       </section>
    
-   
+   {/* 📊 TECH STACK MATRIX */}
+      <section id="tech" className={`py-32 px-6 relative overflow-hidden z-10 ${isDark ? 'bg-white/[0.02]' : 'bg-slate-100'}`}>
+        <div className="max-w-7xl mx-auto">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mb-16"
+          >
+            <h2 className="text-xs font-black uppercase tracking-[0.8em] text-blue-600 mb-4">{t[lang].skills} Matrix</h2>
+            <p className="text-4xl font-black tracking-tight italic uppercase">{lang === 'en' ? 'Technical Capabilities' : 'សមត្ថភាពបច្ចេកទេស'}</p>
+          </motion.div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {data.skills.map((s, idx) => (
+              <motion.div 
+                key={s.id}
+                initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.05 }}
+                whileHover={{ 
+                  y: -10, 
+                  scale: 1.05,
+                  rotate: [0, -2, 2, 0],
+                  transition: { duration: 0.3 }
+                }}
+                className={`p-6 rounded-3xl border transition-all cursor-pointer ${isDark ? 'bg-slate-900/50 border-white/5 hover:border-blue-500/50 hover:shadow-[0_0_30px_-5px_rgba(59,130,246,0.3)]' : 'bg-white border-slate-200 hover:shadow-xl'}`}
+              >
+                <div className="flex justify-between items-start mb-8">
+                  <span className={`text-[10px] font-black uppercase opacity-30`}>0{idx + 1}</span>
+                  <motion.div 
+                    whileHover={{ rotate: 360, scale: 1.2 }}
+                    transition={{ duration: 0.5 }}
+                    className="w-8 h-8 flex items-center justify-center"
+                  >
+                    {s.iconUrl ? (
+                      <img src={s.iconUrl} alt={s.name} className="w-full h-full object-contain" />
+                    ) : (
+                      <div className="text-blue-500"><Cpu size={20} /></div>
+                    )}
+                  </motion.div>
+                </div>
+                
+                <h3 className="text-xl font-black mb-2 uppercase tracking-tighter">{s.name}</h3>
+                <div className="h-1 w-full bg-blue-600/10 rounded-full overflow-hidden">
+                    <motion.div 
+                      initial={{ width: 0 }} 
+                      whileInView={{ width: `${s.level || 80}%` }}
+                      transition={{ duration: 1, delay: idx * 0.05 }}
+                      className="h-full bg-gradient-to-r from-blue-600 to-purple-600" 
+                    />
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* 🐙 GITHUB CONTRIBUTIONS */}
       <section className="relative z-10 py-32 px-6">
