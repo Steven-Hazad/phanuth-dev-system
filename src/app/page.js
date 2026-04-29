@@ -265,7 +265,7 @@ export default function Home() {
   }, []);
   const t = {
     en: {
-      name: "HUN PHANUTH Can Call me Steven",
+      name: "HUN PHANUTH",
       role: "System Architect",
       about: "About Me",
       aboutDesc: "I'm a student with a strong background in Computer Science and currently pursuing Air Traffic Management.",
