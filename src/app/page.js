@@ -265,7 +265,7 @@ export default function Home() {
   }, []);
   const t = {
     en: {
-      name: "HUN PHANUTH",
+      name: "HUN PHANUTH Can Call me Steven",
       role: "System Architect",
       about: "About Me",
       aboutDesc: "I'm a student with a strong background in Computer Science and currently pursuing Air Traffic Management.",
@@ -310,8 +310,8 @@ return (
 
       {/* Font import */}
       <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Khmer+OS+Siemreap&family=Inter:wght@400;700;900&display=swap');
-        .font-khmer { font-family: 'Khmer OS Siemreap', cursive !important; }
+@import url('https://fonts.googleapis.com/css2?family=Battambang:wght@100;300;400;700;900&display=swap');
+        .font-khmer { font-family: 'Battambang', cursive !important; }
         html { cursor: none; }
       `}</style>
 
@@ -568,7 +568,6 @@ return (
                   />
                 </div>
 
-                {/* Logo icon */}
                 <motion.div
                   className="relative z-10 w-16 h-16 bg-white rounded-2xl border-2 border-slate-100 p-2 shadow-sm group-hover:border-blue-500 transition-colors shrink-0"
                   whileHover={{ rotate: [0, -5, 5, 0], transition: { duration: 0.4 } }}
@@ -576,7 +575,6 @@ return (
                   <img src={edu.logoUrl || "/default-uni-icon.png"} alt={edu.university} className="w-full h-full object-contain" />
                 </motion.div>
 
-                {/* Card */}
                 <motion.div
                   className={`flex-1 p-6 rounded-[2rem] border transition-all backdrop-blur-sm overflow-hidden relative ${isDark ? 'bg-white/5 border-white/10 hover:border-blue-500' : 'bg-white/70 border-transparent hover:border-slate-200'}`}
                   whileHover={{ x: 6, transition: { duration: 0.2 } }}
