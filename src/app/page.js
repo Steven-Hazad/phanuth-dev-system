@@ -272,7 +272,7 @@ export default function Home() {
       skills: "Tech Stack",
       work: "Project Archive",
       edu: "Academic",
-      contact: "Let's Connect to STeven",
+      contact: "Let's Connect to STevennnnn",
       btn: "Launch Mail Protocol"
     },
     kh: {
