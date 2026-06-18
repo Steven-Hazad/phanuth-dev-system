@@ -5,7 +5,7 @@ import { Sun, Moon, Cpu, Code2, Terminal, User, Briefcase, GraduationCap, Mail, 
 
 // ============================================================
 // 🎨 ANIMATED BACKGROUND ENGINE
-// Two modes: "standard" (clean mesh gradient) | "premium" (full particle + aurora system)
+// Two modes: "standard" (clean mesh gradient) | "premium" (full particle + aurora system) 
 // ============================================================
 
 function AnimatedBackground({ isDark, mode = "premium" }) {
@@ -450,7 +450,7 @@ return (
             >
               <Code2 className="text-blue-500 mb-3 sm:mb-4" size={28} />
               <h4 className="font-black text-lg sm:text-xl italic uppercase">Scale</h4>
-              <p className="text-xs sm:text-sm text-slate-500 mt-1 sm:mt-2">Built for high traffic.</p>
+              <p className="text-xs sm:text-sm text-slate-500 mt-1 sm:mt-2">Built for high traffic. Mana</p>
             </div>
           </div>
         </div>
