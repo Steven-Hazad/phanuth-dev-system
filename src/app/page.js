@@ -1,10 +1,11 @@
 "use client";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Sun, Moon, Github, Trophy } from "lucide-react";
+import { Sun, Moon, Github, Trophy, Mail, ArrowUpRight } from "lucide-react";
 
 // ============================================================
-// EDITORIAL PORTFOLIO — clean, formal, static
+// BRUTALISM — raw structure, hard edges, offset shadows.
+// No radius. No blur. No gradients. The grid is the design.
 // ============================================================
 export default function Home() {
   const [data, setData] = useState({ projects: [], education: [], skills: [] });
@@ -38,48 +39,40 @@ export default function Home() {
 
   const t = {
     en: {
-      name: "Hun Phanuth",
-      role: "Computer Science Student — Air Traffic Management",
-      eyebrow: "Portfolio / 2026",
-      about: "About",
+      name: "HUN PHANUTH",
+      role: "CS STUDENT / AIR TRAFFIC MANAGEMENT",
+      about: "ABOUT",
       aboutDesc:
         "I'm a student with a background in Computer Science, currently pursuing studies in Air Traffic Management. I build practical software while training toward a career that bridges both disciplines.",
-      logic: "Engineering",
-      logicDesc: "Structured, maintainable code written with attention to long-term clarity.",
-      scale: "Operations",
-      scaleDesc: "Systems designed to hold up under real, sustained use.",
-      skills: "Technical Skills",
-      skillsSub: "Tools and technologies",
-      work: "Projects",
-      edu: "Education",
-      eduSub: "Academic background",
-      github: "Activity",
-      githubSub: "Contribution record",
-      contact: "Get in touch",
-      contactSub: "Open to opportunities and collaboration",
-      btn: "Send an email",
-      nav: { about: "About", skills: "Skills", work: "Work", edu: "Education" },
+      logic: "ENGINEERING",
+      logicDesc: "Structured, maintainable architecture.",
+      scale: "OPERATIONS",
+      scaleDesc: "Built to hold up under real, sustained use.",
+      skills: "TECHNICAL SKILLS",
+      work: "PROJECTS",
+      edu: "EDUCATION",
+      github: "CONTRIBUTION LOG",
+      contact: "GET IN TOUCH",
+      contactDesc: "OPEN TO OPPORTUNITIES AND COLLABORATION",
+      btn: "SEND EMAIL",
+      nav: { about: "ABOUT", skills: "SKILLS", work: "WORK", edu: "EDU" },
     },
     kh: {
       name: "ហ៊ុន ផានុត",
-      role: "និស្សិតវិទ្យាសាស្ត្រកុំព្យូទ័រ — គ្រប់គ្រងចរាចរណ៍អាកាស",
-      eyebrow: "ប្រវត្តិរូប / ២០២៦-២៧",
+      role: "និស្សិតវិទ្យាសាស្ត្រកុំព្យូទ័រ / គ្រប់គ្រងចរាចរណ៍អាកាស",
       about: "អំពីខ្ញុំ",
       aboutDesc:
         "ខ្ញុំជានិស្សិតដែលមានភាពស៊ីជម្រៅក្នុងជំនាញវិទ្យាសាស្ត្រកុំព្យូទ័រ ហើយកំពុងសិក្សាផ្នែកគ្រប់គ្រងចរាចរណ៍អាកាសផងដែរ។",
       logic: "វិស្វកម្ម",
-      logicDesc: "កូដដែលមានរចនាសម្ព័ន្ធច្បាស់លាស់ និងងាយស្រួលថែទាំ។",
+      logicDesc: "ស្ថាបត្យកម្មច្បាស់លាស់ និងស្ថិតស្ថេរ។",
       scale: "ប្រតិបត្តិការ",
-      scaleDesc: "ប្រព័ន្ធដែលត្រូវបានរចនាឡើងសម្រាប់ការប្រើប្រាស់ជាក់ស្តែង។",
+      scaleDesc: "ត្រូវបានរចនាសម្រាប់ការប្រើប្រាស់ជាក់ស្តែង។",
       skills: "ជំនាញបច្ចេកទេស",
-      skillsSub: "ឧបករណ៍ និងបច្ចេកវិទ្យា",
       work: "គម្រោង",
       edu: "ការសិក្សា",
-      eduSub: "ប្រវត្តិការសិក្សា",
-      github: "សកម្មភាព",
-      githubSub: "កំណត់ត្រាការចូលរួម",
+      github: "កំណត់ត្រាការចូលរួម",
       contact: "ទាក់ទងមកខ្ញុំ",
-      contactSub: "បើកចំហសម្រាប់ឱកាស និងការសហការ",
+      contactDesc: "បើកចំហសម្រាប់ឱកាស និងការសហការ",
       btn: "ផ្ញើអ៊ីមែល",
       nav: { about: "អំពីខ្ញុំ", skills: "ជំនាញ", work: "គម្រោង", edu: "ការសិក្សា" },
     },
@@ -87,57 +80,80 @@ export default function Home() {
 
   const tr = t[lang];
 
+  const c = isDark
+    ? { bg: "#0A0A0A", panel: "#1A1A1A", ink: "#F5F5F0", sub: "#9A9A92", accent: "#FF3D00", border: "#F5F5F0" }
+    : { bg: "#FFFFFF", panel: "#F5F5F0", ink: "#0A0A0A", sub: "#5A5A52", accent: "#FF3D00", border: "#0A0A0A" };
+
+  const hardShadow = { boxShadow: `8px 8px 0 ${c.border}` };
+  const hardShadowSm = { boxShadow: `5px 5px 0 ${c.border}` };
+
   return (
     <div
-      className={`min-h-screen transition-colors duration-300
-        ${lang === "kh" ? "font-khmer" : "font-sans"}
-        ${isDark ? "bg-[#121210] text-[#EDEAE3]" : "bg-[#FAFAF8] text-[#1A1A1A]"}`}
+      className={`min-h-screen transition-colors duration-200 ${lang === "kh" ? "font-khmer" : "font-mono"}`}
+      style={{ backgroundColor: c.bg, color: c.ink }}
     >
       <style jsx global>{`
-        @import url("https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Battambang:wght@400;700&display=swap");
+        @import url("https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@500;700&family=IBM+Plex+Mono:wght@400;500;600;700&family=Battambang:wght@400;700&display=swap");
 
-        .font-sans { font-family: "Inter", sans-serif; }
-        .font-khmer { font-family: "Battambang", sans-serif; }
-        .font-display { font-family: "Source Serif 4", serif; }
         .font-mono { font-family: "IBM Plex Mono", monospace; }
+        .font-khmer { font-family: "Battambang", sans-serif; }
+        .font-display { font-family: "Archivo Black", "Space Grotesk", sans-serif; }
+
+        .stamp {
+          transition: box-shadow 0.1s linear, transform 0.1s linear;
+        }
+        .stamp:active {
+          box-shadow: none !important;
+          transform: translate(8px, 8px);
+        }
+        .stamp-sm:active {
+          transform: translate(5px, 5px);
+        }
       `}</style>
+
+      {/* ── TOP BAR ── */}
+      <div
+        className="border-b-2 flex items-center justify-between px-4 sm:px-6 py-2 text-[10px] tracking-[0.15em]"
+        style={{ borderColor: c.border, backgroundColor: c.ink, color: c.bg }}
+      >
+        <span>SYSTEM: PORTFOLIO_V3</span>
+        <span className="hidden sm:inline">STATUS: ONLINE</span>
+      </div>
 
       {/* ── NAVBAR ── */}
       <header
-        className={`sticky top-0 z-50 border-b backdrop-blur-md
-          ${isDark ? "bg-[#121210]/90 border-white/10" : "bg-[#FAFAF8]/90 border-black/10"}`}
+        className="sticky top-0 z-50 border-b-2 backdrop-blur-none"
+        style={{ borderColor: c.border, backgroundColor: c.bg }}
       >
-        <div className="max-w-5xl mx-auto px-6 sm:px-8 h-16 flex items-center justify-between">
-          <span className="font-display text-lg tracking-tight">Phanuth</span>
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+          <span className="font-display text-base tracking-tight">P.</span>
 
-          <nav className="hidden sm:flex items-center gap-8 font-mono text-[11px] uppercase tracking-[0.15em] opacity-70">
-            <a href="#about" className="hover:opacity-100 hover:underline underline-offset-4 transition">
-              {tr.nav.about}
-            </a>
-            <a href="#tech" className="hover:opacity-100 hover:underline underline-offset-4 transition">
-              {tr.nav.skills}
-            </a>
-            <a href="#work" className="hover:opacity-100 hover:underline underline-offset-4 transition">
-              {tr.nav.work}
-            </a>
-            <a href="#edu" className="hover:opacity-100 hover:underline underline-offset-4 transition">
-              {tr.nav.edu}
-            </a>
+          <nav className="hidden sm:flex items-center text-[11px] tracking-[0.1em] font-semibold">
+            {Object.entries(tr.nav).map(([key, label], i) => (
+              <a
+                key={key}
+                href={`#${key === "skills" ? "tech" : key}`}
+                className="px-4 py-1.5 border-l-2 hover:opacity-100"
+                style={{ borderColor: c.border, color: c.sub }}
+              >
+                {label}
+              </a>
+            ))}
           </nav>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-0">
             <button
               onClick={() => setLang(lang === "en" ? "kh" : "en")}
-              className={`font-mono text-[11px] uppercase tracking-widest px-3 py-1.5 border transition
-                ${isDark ? "border-white/20 hover:bg-white/10" : "border-black/20 hover:bg-black/5"}`}
+              className="stamp-sm px-3 py-1.5 border-2 text-[11px] font-bold transition-transform"
+              style={{ borderColor: c.border, backgroundColor: c.panel }}
             >
               {lang === "en" ? "KH" : "EN"}
             </button>
             <button
               onClick={() => setIsDark(!isDark)}
               aria-label="Toggle theme"
-              className={`p-2 border transition
-                ${isDark ? "border-white/20 hover:bg-white/10" : "border-black/20 hover:bg-black/5"}`}
+              className="stamp-sm px-2.5 py-1.5 border-2 border-l-0 transition-transform"
+              style={{ borderColor: c.border, backgroundColor: c.panel }}
             >
               {isDark ? <Sun size={14} /> : <Moon size={14} />}
             </button>
@@ -146,87 +162,67 @@ export default function Home() {
       </header>
 
       {/* ── HERO ── */}
-      <section className="max-w-5xl mx-auto px-6 sm:px-8 pt-20 sm:pt-28 pb-16">
-        <p className="font-mono text-[11px] uppercase tracking-[0.2em] opacity-50 mb-6">
-          {tr.eyebrow}
-        </p>
-        <div className="grid md:grid-cols-[1fr_280px] gap-12 items-start">
-          <div>
-            <h1 className="font-display text-5xl sm:text-6xl md:text-7xl leading-[1.05] tracking-tight mb-6">
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+        <div className="grid md:grid-cols-[1fr_220px] border-2" style={{ borderColor: c.border }}>
+          <div className="p-6 sm:p-10 md:p-12 border-b-2 md:border-b-0 md:border-r-2" style={{ borderColor: c.border }}>
+            <p
+              className="text-[11px] font-bold tracking-[0.2em] mb-5 inline-block px-2 py-0.5"
+              style={{ backgroundColor: c.accent, color: "#fff" }}
+            >
+              {tr.role.split(" / ")[1] || "PORTFOLIO"}
+            </p>
+            <h1 className="font-display text-4xl sm:text-5xl md:text-6xl leading-[0.95] tracking-tight mb-5 uppercase">
               {tr.name}
             </h1>
-            <p
-              className={`text-lg sm:text-xl leading-relaxed max-w-md ${
-                isDark ? "text-[#B5B0A6]" : "text-[#5C5648]"
-              }`}
-            >
+            <p className="text-xs sm:text-sm tracking-[0.05em]" style={{ color: c.sub }}>
               {tr.role}
             </p>
           </div>
 
-          <div
-            className={`aspect-[3/4] border overflow-hidden ${
-              isDark ? "border-white/10" : "border-black/10"
-            }`}
-          >
+          <div className="aspect-square overflow-hidden">
             <img
               src="images/bl-steven.png"
               className="w-full h-full object-cover"
+              style={{ filter: isDark ? "grayscale(1) contrast(1.1)" : "grayscale(1) contrast(1.05)" }}
               alt="Portrait of Hun Phanuth"
             />
           </div>
         </div>
       </section>
 
-      <Divider isDark={isDark} index="01" />
-
       {/* ── ABOUT ── */}
-      <section id="about" className="max-w-5xl mx-auto px-6 sm:px-8 py-16 sm:py-20">
-        <SectionLabel isDark={isDark}>{tr.about}</SectionLabel>
+      <section id="about" className="max-w-5xl mx-auto px-4 sm:px-6 pb-12">
+        <SectionHead c={c} label={tr.about} index="01" />
 
-        <div className="grid md:grid-cols-2 gap-12 mt-8">
-          <p
-            className={`font-display text-2xl sm:text-3xl leading-snug ${
-              isDark ? "text-[#EDEAE3]" : "text-[#1A1A1A]"
-            }`}
-          >
+        <div className="grid md:grid-cols-2 border-2 border-t-0" style={{ borderColor: c.border }}>
+          <p className="text-base sm:text-lg leading-relaxed p-6 sm:p-8 border-b-2 md:border-b-0 md:border-r-2" style={{ borderColor: c.border }}>
             {tr.aboutDesc}
           </p>
 
-          <div className="space-y-8">
-            <div className={`border-l-2 pl-6 ${isDark ? "border-[#4A7A65]" : "border-[#2C4A3E]"}`}>
-              <h4 className="font-mono text-[11px] uppercase tracking-[0.15em] mb-2 opacity-60">
+          <div className="grid grid-rows-2">
+            <div className="p-6 sm:p-8 border-b-2" style={{ borderColor: c.border }}>
+              <h4 className="text-[11px] font-bold tracking-[0.15em] mb-2" style={{ color: c.accent }}>
                 {tr.logic}
               </h4>
-              <p className={`text-sm leading-relaxed ${isDark ? "text-[#B5B0A6]" : "text-[#5C5648]"}`}>
-                {tr.logicDesc}
-              </p>
+              <p className="text-sm" style={{ color: c.sub }}>{tr.logicDesc}</p>
             </div>
-            <div className={`border-l-2 pl-6 ${isDark ? "border-[#4A7A65]" : "border-[#2C4A3E]"}`}>
-              <h4 className="font-mono text-[11px] uppercase tracking-[0.15em] mb-2 opacity-60">
+            <div className="p-6 sm:p-8">
+              <h4 className="text-[11px] font-bold tracking-[0.15em] mb-2" style={{ color: c.accent }}>
                 {tr.scale}
               </h4>
-              <p className={`text-sm leading-relaxed ${isDark ? "text-[#B5B0A6]" : "text-[#5C5648]"}`}>
-                {tr.scaleDesc}
-              </p>
+              <p className="text-sm" style={{ color: c.sub }}>{tr.scaleDesc}</p>
             </div>
           </div>
         </div>
       </section>
 
-      <Divider isDark={isDark} index="02" />
-
       {/* ── TECH STACK ── */}
-      <section id="tech" className="max-w-5xl mx-auto px-6 sm:px-8 py-16 sm:py-20">
-        <SectionLabel isDark={isDark}>{tr.skills}</SectionLabel>
-        <p className={`mt-3 mb-10 text-sm ${isDark ? "text-[#B5B0A6]" : "text-[#5C5648]"}`}>
-          {tr.skillsSub}
-        </p>
+      <section id="tech" className="max-w-5xl mx-auto px-4 sm:px-6 pb-12">
+        <SectionHead c={c} label={tr.skills} index="02" />
 
         <div
-          className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 border-t border-l ${
-            isDark ? "border-white/10" : "border-black/10"
-          }`}
+          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 border-2 border-t-0"
+          style={{ borderColor: c.border }}
         >
           {data.skills.map((s, idx) => (
             <motion.div
@@ -234,27 +230,23 @@ export default function Home() {
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: idx * 0.03 }}
-              className={`p-6 border-r border-b group ${
-                isDark ? "border-white/10" : "border-black/10"
-              }`}
+              transition={{ duration: 0.3, delay: idx * 0.02 }}
+              className="p-5 border-r-2 border-b-2"
+              style={{ borderColor: c.border, backgroundColor: c.panel }}
             >
-              <div className="flex items-center justify-between mb-5">
-                <span className="font-mono text-[10px] opacity-40">
-                  {String(idx + 1).padStart(2, "0")}
-                </span>
-                {s.iconUrl && (
-                  <img src={s.iconUrl} alt={s.name} className="w-5 h-5 object-contain" />
-                )}
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[10px] font-bold opacity-50">{String(idx + 1).padStart(2, "0")}</span>
+                {s.iconUrl && <img src={s.iconUrl} alt={s.name} className="w-5 h-5 object-contain" />}
               </div>
-              <h3 className="text-sm font-medium mb-3">{s.name}</h3>
-              <div className={`h-px w-full ${isDark ? "bg-white/10" : "bg-black/10"}`}>
+              <h3 className="text-sm font-bold mb-3 uppercase tracking-tight">{s.name}</h3>
+              <div className="h-2 w-full border" style={{ borderColor: c.border, backgroundColor: c.bg }}>
                 <motion.div
                   initial={{ width: 0 }}
                   whileInView={{ width: `${s.level || 80}%` }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.8, delay: idx * 0.03 }}
-                  className={`h-px ${isDark ? "bg-[#4A7A65]" : "bg-[#2C4A3E]"}`}
+                  transition={{ duration: 0.6, delay: idx * 0.02 }}
+                  className="h-full"
+                  style={{ backgroundColor: c.accent }}
                 />
               </div>
             </motion.div>
@@ -262,126 +254,104 @@ export default function Home() {
         </div>
       </section>
 
-      <Divider isDark={isDark} index="03" />
-
       {/* ── PROJECTS ── */}
       {data.projects.length > 0 && (
-        <>
-          <section id="work" className="max-w-5xl mx-auto px-6 sm:px-8 py-16 sm:py-20">
-            <SectionLabel isDark={isDark}>{tr.work}</SectionLabel>
+        <section id="work" className="max-w-5xl mx-auto px-4 sm:px-6 pb-12">
+          <SectionHead c={c} label={tr.work} index="03" />
 
-            <div className="mt-8 divide-y divide-black/10 dark:divide-white/10">
-              {data.projects.map((p, idx) => (
-                <motion.a
-                  key={p.id}
-                  href={p.link || "#"}
-                  target={p.link ? "_blank" : undefined}
-                  rel="noreferrer"
-                  initial={{ opacity: 0, y: 10 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: idx * 0.05 }}
-                  className={`flex items-center justify-between gap-6 py-6 border-black/10 group ${
-                    isDark ? "border-white/10" : ""
-                  } ${idx === 0 ? "" : "border-t"}`}
-                >
-                  <div>
-                    <h3 className="font-display text-xl sm:text-2xl mb-1 group-hover:underline underline-offset-4">
-                      {p.title || p.name}
-                    </h3>
-                    {p.description && (
-                      <p className={`text-sm max-w-lg ${isDark ? "text-[#B5B0A6]" : "text-[#5C5648]"}`}>
-                        {p.description}
-                      </p>
-                    )}
-                  </div>
-                  <span className="font-mono text-[11px] opacity-40 shrink-0">
-                    {String(idx + 1).padStart(2, "0")}
-                  </span>
-                </motion.a>
-              ))}
-            </div>
-          </section>
-
-          <Divider isDark={isDark} index="04" />
-        </>
+          <div className="border-2 border-t-0 divide-y-2" style={{ borderColor: c.border }}>
+            {data.projects.map((p, idx) => (
+              <motion.a
+                key={p.id}
+                href={p.link || "#"}
+                target={p.link ? "_blank" : undefined}
+                rel="noreferrer"
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.3, delay: idx * 0.03 }}
+                className="flex items-center justify-between gap-6 p-6 sm:p-7 group hover:opacity-90"
+                style={{ borderColor: c.border }}
+              >
+                <div>
+                  <h3 className="font-display text-lg sm:text-xl uppercase tracking-tight mb-1">
+                    {p.title || p.name}
+                  </h3>
+                  {p.description && (
+                    <p className="text-sm max-w-lg" style={{ color: c.sub }}>{p.description}</p>
+                  )}
+                </div>
+                <ArrowUpRight
+                  size={20}
+                  className="shrink-0 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"
+                  style={{ color: c.accent }}
+                />
+              </motion.a>
+            ))}
+          </div>
+        </section>
       )}
 
       {/* ── GITHUB ── */}
-      <section className="max-w-5xl mx-auto px-6 sm:px-8 py-16 sm:py-20">
-        <div className="flex items-baseline gap-3 mb-8">
-          <Github size={18} className={isDark ? "text-[#4A7A65]" : "text-[#2C4A3E]"} />
-          <SectionLabel isDark={isDark} noMargin>
-            {tr.github}
-          </SectionLabel>
-        </div>
-        <p className={`mb-8 text-sm ${isDark ? "text-[#B5B0A6]" : "text-[#5C5648]"}`}>{tr.githubSub}</p>
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 pb-12">
+        <SectionHead c={c} label={tr.github} index="04" icon={<Github size={14} />} />
 
-        <div className={`border p-6 sm:p-8 ${isDark ? "border-white/10" : "border-black/10"}`}>
-          <img
-            src="https://ghchart.rshah.org/2C4A3E/steven-hazad"
-            alt="Github Contributions"
-            className="w-full h-auto"
-          />
-          <div className="mt-6 flex justify-between items-center font-mono text-[10px] uppercase tracking-[0.15em] opacity-40">
-            <span>Less</span>
-            <span>More</span>
+        <div className="border-2 border-t-0 p-5 sm:p-7" style={{ borderColor: c.border }}>
+          <div className="border-2 p-3 sm:p-4 overflow-hidden" style={{ borderColor: c.border, backgroundColor: c.panel }}>
+            <img
+              src="https://ghchart.rshah.org/ff3d00/steven-hazad"
+              alt="Github Contributions"
+              className="w-full h-auto"
+              style={{ filter: isDark ? "invert(0.9)" : "none" }}
+            />
+          </div>
+          <div className="mt-4 flex justify-between text-[10px] font-bold tracking-[0.15em]" style={{ color: c.sub }}>
+            <span>LESS</span>
+            <span>MORE</span>
           </div>
         </div>
       </section>
 
-      <Divider isDark={isDark} index="05" />
-
       {/* ── EDUCATION ── */}
-      <section id="edu" className="max-w-5xl mx-auto px-6 sm:px-8 py-16 sm:py-20">
-        <SectionLabel isDark={isDark}>{tr.edu}</SectionLabel>
-        <p className={`mt-3 mb-10 text-sm ${isDark ? "text-[#B5B0A6]" : "text-[#5C5648]"}`}>{tr.eduSub}</p>
+      <section id="edu" className="max-w-5xl mx-auto px-4 sm:px-6 pb-12">
+        <SectionHead c={c} label={tr.edu} index="05" />
 
-        <div className="space-y-0">
+        <div className="border-2 border-t-0 divide-y-2" style={{ borderColor: c.border }}>
           {data.education.map((edu, idx) => (
             <motion.div
               key={edu.id}
-              initial={{ opacity: 0, y: 10 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
               viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.4, delay: idx * 0.08 }}
-              className={`flex flex-col sm:flex-row gap-6 py-8 border-black/10 ${
-                isDark ? "border-white/10" : ""
-              } ${idx === 0 ? "" : "border-t"}`}
+              transition={{ duration: 0.3, delay: idx * 0.05 }}
+              className="flex flex-col sm:flex-row gap-5 p-6 sm:p-7"
+              style={{ borderColor: c.border }}
             >
-              <div
-                className={`w-12 h-12 shrink-0 border p-1.5 ${
-                  isDark ? "border-white/10 bg-white/5" : "border-black/10 bg-white"
-                }`}
-              >
+              <div className="w-14 h-14 border-2 p-1.5 shrink-0" style={{ borderColor: c.border, backgroundColor: c.panel }}>
                 <img
                   src={edu.logoUrl || "/default-uni-icon.png"}
                   alt={edu.university}
                   className="w-full h-full object-contain"
+                  style={{ filter: "grayscale(1)" }}
                 />
               </div>
 
               <div className="flex-1">
                 <div className="flex flex-wrap items-baseline justify-between gap-2 mb-1">
-                  <h4 className="font-display text-xl">{edu.degree}</h4>
-                  <span className="font-mono text-[11px] opacity-50">
+                  <h4 className="font-display text-lg uppercase tracking-tight">{edu.degree}</h4>
+                  <span
+                    className="text-[10px] font-bold px-2 py-0.5 border-2"
+                    style={{ borderColor: c.border, backgroundColor: c.panel }}
+                  >
                     {edu.startDate} — {edu.endDate}
                   </span>
                 </div>
-                <p
-                  className={`text-sm font-medium mb-2 ${
-                    isDark ? "text-[#4A7A65]" : "text-[#2C4A3E]"
-                  }`}
-                >
+                <p className="text-sm font-bold mb-2" style={{ color: c.accent }}>
                   {edu.university}
                 </p>
                 {edu.achievement && (
-                  <p
-                    className={`flex items-start gap-2 text-sm ${
-                      isDark ? "text-[#B5B0A6]" : "text-[#5C5648]"
-                    }`}
-                  >
-                    <Trophy size={13} className="shrink-0 mt-0.5 opacity-60" />
+                  <p className="flex items-start gap-2 text-sm" style={{ color: c.sub }}>
+                    <Trophy size={13} className="shrink-0 mt-0.5" />
                     {edu.achievement}
                   </p>
                 )}
@@ -392,27 +362,28 @@ export default function Home() {
       </section>
 
       {/* ── CONTACT ── */}
-      <footer
-        className={`border-t mt-8 ${isDark ? "border-white/10" : "border-black/10"}`}
-      >
-        <div className="max-w-5xl mx-auto px-6 sm:px-8 py-20 sm:py-28">
-          <p className="font-mono text-[11px] uppercase tracking-[0.2em] opacity-50 mb-4">
-            {tr.contactSub}
-          </p>
+      <footer className="border-t-2" style={{ borderColor: c.border }}>
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-16 sm:py-20">
+          <div className="flex items-center gap-3 mb-6">
+            <Mail size={16} style={{ color: c.accent }} />
+            <p className="text-[11px] font-bold tracking-[0.2em]" style={{ color: c.sub }}>
+              {tr.contactDesc}
+            </p>
+          </div>
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-8">
-            <h2 className="font-display text-4xl sm:text-5xl md:text-6xl tracking-tight leading-tight max-w-lg">
+            <h2 className="font-display text-4xl sm:text-5xl md:text-6xl uppercase tracking-tight leading-[0.95] max-w-lg">
               {tr.contact}
             </h2>
             <a
               href="mailto:phanuth.hun@gmail.com"
-              className={`inline-flex items-center gap-2 px-6 py-3.5 font-mono text-[12px] uppercase tracking-[0.1em] transition shrink-0
-                ${isDark ? "bg-[#EDEAE3] text-[#121210] hover:bg-white" : "bg-[#1A1A1A] text-white hover:bg-[#2C4A3E]"}`}
+              className="stamp inline-flex items-center gap-2 px-7 py-4 border-2 font-bold text-sm tracking-[0.1em] shrink-0"
+              style={{ borderColor: c.border, backgroundColor: c.accent, color: "#fff", ...hardShadow }}
             >
-              {tr.btn} →
+              {tr.btn}
             </a>
           </div>
-          <p className="font-mono text-[10px] opacity-30 mt-16">
-            phanuth.hun@gmail.com
+          <p className="text-[10px] mt-14 tracking-[0.1em]" style={{ color: c.sub }}>
+            PHANUTH.HUN@GMAIL.COM
           </p>
         </div>
       </footer>
@@ -420,30 +391,12 @@ export default function Home() {
   );
 }
 
-// ============================================================
-// Shared bits
-// ============================================================
-function SectionLabel({ children, isDark, noMargin }) {
+function SectionHead({ c, label, index, icon }) {
   return (
-    <h2
-      className={`font-mono text-[11px] uppercase tracking-[0.2em] ${
-        noMargin ? "" : "mb-1"
-      } ${isDark ? "text-[#4A7A65]" : "text-[#2C4A3E]"}`}
-    >
-      {children}
-    </h2>
-  );
-}
-
-function Divider({ isDark, index }) {
-  return (
-    <div className="max-w-5xl mx-auto px-6 sm:px-8">
-      <div
-        className={`flex items-center gap-4 ${isDark ? "text-white/20" : "text-black/20"}`}
-      >
-        <span className="font-mono text-[10px]">{index}</span>
-        <div className={`h-px flex-1 ${isDark ? "bg-white/10" : "bg-black/10"}`} />
-      </div>
+    <div className="flex items-center gap-2 border-2 border-b-0 px-4 sm:px-6 py-3" style={{ borderColor: c.border, backgroundColor: c.ink, color: c.bg }}>
+      {icon}
+      <span className="text-[11px] font-bold tracking-[0.2em]">{label}</span>
+      <span className="ml-auto text-[11px] font-bold opacity-60">{index}</span>
     </div>
   );
 }
