@@ -182,7 +182,7 @@ export default function Home() {
           <div className="aspect-square overflow-hidden">
             <img
               src="images/bl-steven.png"
-              className="w-full h-full object-cover"
+              className="w-full h-[300px] object-cover"
               style={{ filter: isDark ? "grayscale(1) contrast(1.1)" : "grayscale(1) contrast(1.05)" }}
               alt="Portrait of Hun Phanuth"
             />
