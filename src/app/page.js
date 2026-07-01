@@ -190,9 +190,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── ABOUT ME SADSADASDASDASDASDADSDS ── */}
+      {/* ── ABOUT ME SADSADASDASDASDASDADSDS!~!!! ── */}
       <section id="about" className="max-w-5xl mx-auto px-4 sm:px-6 pb-12">
-        <SectionHead c={c} label={tr.about} index="01" />
+        <SectionHead c={c} label={tr.about} index="01" /> 
 
         <div className="grid md:grid-cols-2 border-2 border-t-0" style={{ borderColor: c.border }}>
           <p className="text-base sm:text-lg leading-relaxed p-6 sm:p-8 border-b-2 md:border-b-0 md:border-r-2" style={{ borderColor: c.border }}>
