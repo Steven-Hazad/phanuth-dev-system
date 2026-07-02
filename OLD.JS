@@ -5,7 +5,7 @@ import { Sun, Moon, Cpu, Code2, Terminal, Briefcase, GraduationCap, Mail, Trophy
 
 // ============================================================
 // 🎨 ANIMATED BACKGROUND ENGINE
-// ============================================================
+// =================================================ddddddddddddddd===========
 function AnimatedBackground({ isDark, mode = "premium" }) {
   const canvasRef = useRef(null);
   const animRef = useRef(null);
