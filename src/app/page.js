@@ -190,7 +190,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── ABOUT ME steen!~!!! ─sssss─ */}
+      {/* ── ABOUT ME steen!~!!! ─sssssdasdsad─ */}
       <section id="about" className="max-w-5xl mx-auto px-4 sm:px-6 pb-12">
         <SectionHead c={c} label={tr.about} index="01" /> 
 
