@@ -8,6 +8,7 @@ import { Phone, Mail, Github, Linkedin, MapPin } from "lucide-react";
 // Colour: #FAFAFA bg · #111111 ink · #E8000D ONE accent (name H + CTA)
 // Layout: full-width name → hairline → two-col label/content rows
 // Signature: red H in the name, dead silence everywhere else
+// Now responsive (mobile-first breakpoints) + print-tuned for PDF export
 // ============================================================
 
 const DEFAULT_EDU = [
@@ -62,7 +63,7 @@ const CONTENT = {
     achievements: [
       { date:"មិថុនា 2026", title:"លេខ ៣ — UniPreneurCamp Cluster 1", org:"Khmer Enterprise", desc:'ក្រុម "Safework" ទទួលបានលេខ ៣ — June 12–14, 2026.' },
       { date:"ធ្នូ 2025", title:"វិញ្ញាបនបត្រ Big Data", org:"ការបណ្តុះបណ្តាលវិជ្ជាជីវៈ", desc:"ដំណើរការ 1.04M+ ជួររដ្ឋ ដោយប្រើ Hadoop, PySpark, Spark SQL, Hive, Parquet។" },
-      { date:"ធ្នូ 2024", title:"វិញ្ញាបនបត្រ Python", org:"Samsung Innovation Campus × RUPP", desc:"បញ្ចប់ Feb–Dec 2024. RUPP." },
+      { date:"ធ្នូ 2024", title:"វិញ្ញាបនបត្រ Python", org:"Samsung Innovation Campus × RUPP", desc:"បញ្ចប់ Feb–Dec 2024. RUPP។" },
     ],
     languages: [{ name:"ខ្មែរ", note:"ភាសាមាតុភូមិ" }, { name:"អង់គ្លេស", note:"វិជ្ជាជីវៈ" }],
     nav: { experience:"បទពិសោធន៍", education:"ការសិក្សា", skills:"ជំនាញ", contact:"ទំនាក់ទំនង" },
@@ -77,11 +78,12 @@ const SUB   = "#777777";
 const RULE  = "#E2E2E2";
 const BG    = "#FAFAFA";
 
-// Two-column row used throughout the body
-function Row({ label, children, first = false }) {
+// Two-column row used throughout the body — layout lives in CSS (.cv-row)
+// so it can respond to breakpoints; only color/type styling stays inline.
+function Row({ label, children }) {
   return (
-    <div style={{ display:"grid", gridTemplateColumns:"160px 1fr", gap:"0 48px", borderTop:`1px solid ${RULE}`, paddingTop:32, paddingBottom:32 }}>
-      <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:600, fontSize:11, letterSpacing:"0.12em", textTransform:"uppercase", color:SUB, paddingTop:3 }}>
+    <div className="cv-row">
+      <div className="cv-row-label" style={{ fontFamily:"'Syne',sans-serif", fontWeight:600, fontSize:11, letterSpacing:"0.12em", textTransform:"uppercase", color:SUB }}>
         {label}
       </div>
       <div>{children}</div>
@@ -92,7 +94,7 @@ function Row({ label, children, first = false }) {
 // Experience / education entry
 function Entry({ period, title, org, points, achievement }) {
   return (
-    <div style={{ marginBottom:28 }}>
+    <div className="cv-entry" style={{ marginBottom:28 }}>
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"baseline", gap:16, flexWrap:"wrap", marginBottom:4 }}>
         <span style={{ fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:17, color:INK }}>{title}</span>
         <span style={{ fontFamily:"'Syne',sans-serif", fontSize:12, color:SUB, whiteSpace:"nowrap" }}>{period}</span>
@@ -136,36 +138,110 @@ export default function FormalCV() {
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800;900&family=Battambang:wght@400;700&display=swap');
         * { box-sizing:border-box; margin:0; padding:0; }
-        body { background:${BG}; }
+        html { -webkit-text-size-adjust:100%; }
+        body { background:${BG}; overflow-x:hidden; }
         .font-khmer * { font-family:'Battambang',sans-serif!important; }
-        @media (max-width:600px) {
-          .two-col { grid-template-columns:1fr!important; }
-          .two-col > *:first-child { display:none; }
+
+        /* ---------- structural / responsive layout ---------- */
+        .cv-topbar {
+          display:flex; align-items:center; justify-content:space-between;
+          padding:14px 48px; gap:16px;
         }
+        .cv-nav { display:flex; gap:32px; overflow-x:auto; scrollbar-width:none; }
+        .cv-nav::-webkit-scrollbar { display:none; }
+        .cv-nav a { white-space:nowrap; }
+
+        .cv-container { max-width:920px; margin:0 auto; padding:0 48px 100px; }
+
+        .cv-hero { padding-top:80px; padding-bottom:56px; }
+        .cv-hero h1 { font-size:clamp(56px,11vw,128px); }
+
+        .cv-row {
+          display:grid; grid-template-columns:160px 1fr; gap:0 48px;
+          border-top:1px solid ${RULE}; padding-top:32px; padding-bottom:32px;
+        }
+        .cv-row-label { padding-top:3px; }
+
+        .cv-contact-grid, .cv-skills-grid {
+          display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:16px 32px;
+        }
+
+        .cv-cta {
+          display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:24px;
+        }
+        .cv-cta h2 { font-size:clamp(28px,5vw,52px); }
+
+        /* ---------- tablet / phone ---------- */
+        @media (max-width:820px) {
+          .cv-container { padding:0 32px 72px; }
+          .cv-topbar { padding:12px 32px; }
+        }
+
+        @media (max-width:640px) {
+          .cv-topbar { padding:12px 20px; gap:10px; }
+          .cv-nav { gap:20px; }
+          .cv-nav a { font-size:11px!important; }
+          .cv-topbar button { padding:6px 12px!important; font-size:11px!important; }
+
+          .cv-container { padding:0 20px 56px; }
+
+          .cv-hero { padding-top:40px; padding-bottom:32px; }
+          .cv-hero h1 { margin-bottom:20px!important; line-height:0.96!important; }
+          .cv-hero .cv-role-line { flex-direction:column; align-items:flex-start!important; gap:6px!important; }
+
+          .cv-row {
+            grid-template-columns:1fr; gap:8px 0;
+            padding-top:22px; padding-bottom:22px;
+          }
+          .cv-row-label { padding-top:0; }
+
+          .cv-contact-grid, .cv-skills-grid { grid-template-columns:1fr 1fr; gap:14px 20px; }
+
+          .cv-entry-header { flex-direction:column; align-items:flex-start!important; gap:4px!important; }
+
+          .cv-cta { flex-direction:column; align-items:flex-start!important; }
+          .cv-cta a { width:100%; text-align:center; }
+        }
+
+        @media (max-width:400px) {
+          .cv-contact-grid, .cv-skills-grid { grid-template-columns:1fr; }
+        }
+
+        /* ---------- print / PDF export ---------- */
         @media print {
-          .no-print{display:none!important}
-          body{background:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+          @page { size:A4; margin:14mm 16mm; }
+          .no-print { display:none!important; }
+          html, body { background:#fff!important; }
+          body {
+            -webkit-print-color-adjust:exact; print-color-adjust:exact; color-adjust:exact;
+            font-size:12px;
+          }
+          .cv-container { max-width:100%!important; padding:0!important; margin:0!important; }
+          .cv-hero { padding-top:0!important; padding-bottom:28px!important; }
+          .cv-hero h1 { font-size:64px!important; }
+          .cv-row { padding-top:18px!important; padding-bottom:18px!important; break-inside:avoid; }
+          .cv-entry { break-inside:avoid; margin-bottom:18px!important; }
+          .cv-cta { break-inside:avoid; }
+          a[href]:after { content:""!important; } /* suppress browsers' auto URL suffix */
         }
       `}</style>
 
       {/* ── TOPBAR ── */}
-      <div className="no-print" style={{
+      <div className="no-print cv-topbar" style={{
         position:"sticky", top:0, zIndex:50,
         background:BG, borderBottom:`1px solid ${RULE}`,
-        display:"flex", alignItems:"center", justifyContent:"space-between",
-        padding:"14px 48px",
       }}>
-        <span style={{ fontFamily:"'Syne',sans-serif", fontWeight:900, fontSize:14, letterSpacing:"-0.01em" }}>
+        <span style={{ fontFamily:"'Syne',sans-serif", fontWeight:900, fontSize:14, letterSpacing:"-0.01em", flexShrink:0 }}>
           <span style={{ color:RED }}>H</span>P
         </span>
-        <nav style={{ display:"flex", gap:32 }}>
+        <nav className="cv-nav">
           {Object.entries(d.nav).map(([k, v]) => (
             <a key={k} href={`#${k}`} style={{ fontFamily:"'Syne',sans-serif", fontSize:12, fontWeight:600, color:SUB, textDecoration:"none", letterSpacing:"0.06em", textTransform:"uppercase" }}>
               {v}
             </a>
           ))}
         </nav>
-        <div style={{ display:"flex", gap:10 }}>
+        <div style={{ display:"flex", gap:10, flexShrink:0 }}>
           <button onClick={() => setLang(l => l === "en" ? "kh" : "en")} style={{ fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:12, background:"transparent", border:`1px solid ${RULE}`, color:SUB, padding:"6px 16px", cursor:"pointer", letterSpacing:"0.08em" }}>
             {d.toggle}
           </button>
@@ -175,14 +251,13 @@ export default function FormalCV() {
         </div>
       </div>
 
-      <div style={{ maxWidth:920, margin:"0 auto", padding:"0 48px 100px" }}>
+      <div className="cv-container">
 
         {/* ══ HERO ══ */}
-        <div style={{ paddingTop:80, paddingBottom:56 }}>
+        <div className="cv-hero">
           {/* Name — the whole design lives here */}
           <h1 style={{
             fontFamily:"'Syne',sans-serif", fontWeight:900,
-            fontSize:"clamp(56px, 11vw, 128px)",
             lineHeight:0.92, letterSpacing:"-0.03em",
             marginBottom:32,
           }}>
@@ -190,7 +265,7 @@ export default function FormalCV() {
           </h1>
 
           {/* Role + sector — quiet, below the name */}
-          <div style={{ display:"flex", alignItems:"baseline", gap:24, flexWrap:"wrap" }}>
+          <div className="cv-role-line" style={{ display:"flex", alignItems:"baseline", gap:24, flexWrap:"wrap" }}>
             <span style={{ fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:18, color:INK }}>{d.role}</span>
             <span style={{ fontFamily:"'Syne',sans-serif", fontSize:14, color:SUB }}>{d.sector}</span>
           </div>
@@ -204,7 +279,7 @@ export default function FormalCV() {
 
         {/* Contact */}
         <Row label={d.labels.contact}>
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(220px,1fr))", gap:"10px 32px" }}>
+          <div className="cv-contact-grid">
             {[
               { icon:<Phone size={13}/>, v:d.contact.phone },
               { icon:<Mail size={13}/>, v:d.contact.email },
@@ -212,8 +287,9 @@ export default function FormalCV() {
               { icon:<Linkedin size={13}/>, v:d.contact.linkedin },
               { icon:<MapPin size={13}/>, v:d.contact.location },
             ].map((c, i) => (
-              <div key={i} style={{ display:"flex", alignItems:"center", gap:9, fontFamily:"'Syne',sans-serif", fontSize:13, color:"#444" }}>
-                <span style={{ color:SUB, flexShrink:0 }}>{c.icon}</span>{c.v}
+              <div key={i} style={{ display:"flex", alignItems:"center", gap:9, fontFamily:"'Syne',sans-serif", fontSize:13, color:"#444", minWidth:0 }}>
+                <span style={{ color:SUB, flexShrink:0 }}>{c.icon}</span>
+                <span style={{ overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{c.v}</span>
               </div>
             ))}
           </div>
@@ -255,7 +331,7 @@ export default function FormalCV() {
         {/* Skills */}
         <div id="skills">
           <Row label={d.labels.skills}>
-            <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))", gap:"16px 40px" }}>
+            <div className="cv-skills-grid">
               {skills.map((sk, i) => (
                 <div key={sk.id || i}>
                   <div style={{ display:"flex", justifyContent:"space-between", marginBottom:7 }}>
@@ -275,9 +351,9 @@ export default function FormalCV() {
         <Row label={d.labels.achievements}>
           <div>
             {d.achievements.map((ach, i) => (
-              <div key={i}>
+              <div key={i} className="cv-entry">
                 {i > 0 && <div style={{ height:1, background:RULE, margin:"4px 0 24px" }} />}
-                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"baseline", gap:16, flexWrap:"wrap", marginBottom:4 }}>
+                <div className="cv-entry-header" style={{ display:"flex", justifyContent:"space-between", alignItems:"baseline", gap:16, flexWrap:"wrap", marginBottom:4 }}>
                   <span style={{ fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:15, color:INK }}>{ach.title}</span>
                   <span style={{ fontFamily:"'Syne',sans-serif", fontSize:12, color:SUB, whiteSpace:"nowrap" }}>{ach.date}</span>
                 </div>
@@ -302,9 +378,9 @@ export default function FormalCV() {
 
         {/* CTA — dead simple */}
         <div style={{ borderTop:`1px solid ${RULE}`, paddingTop:48, marginTop:8 }}>
-          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:24 }}>
+          <div className="cv-cta">
             <div>
-              <h2 style={{ fontFamily:"'Syne',sans-serif", fontWeight:900, fontSize:"clamp(28px,5vw,52px)", lineHeight:0.95, letterSpacing:"-0.02em", marginBottom:10 }}>
+              <h2 style={{ fontFamily:"'Syne',sans-serif", fontWeight:900, lineHeight:0.95, letterSpacing:"-0.02em", marginBottom:10 }}>
                 Let's work together.
               </h2>
               <p style={{ fontFamily:"'Syne',sans-serif", fontSize:14, color:SUB }}>Open to opportunities and collaboration.</p>
