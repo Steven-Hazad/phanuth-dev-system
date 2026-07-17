@@ -47,7 +47,7 @@ const CONTENT = {
     toggle: "KH",
   },
   kh: {
-    first: "ហ", rest: "៊ុន ផានុត",
+    first: "ហ៊ុន", rest: " ផានុត",
     role: "អ្នកអភិវឌ្ឍន៍ Full-Stack",
     sector: "វិទ្យាសាស្ត្រកុំព្យូទ័រ — គ្រប់គ្រងចរាចរណ៍អាកាស",
     about: "និស្សិត CS និងអ្នកអភិវឌ្ឍន៍ full-stack ដែលកំពុងសិក្សា ATM នៅ NICA។ ខ្ញុំបង្កើតកម្មវិធី POS, e-commerce, AgriTech — ឆ្ពោះទៅអាជីពភ្ជាប់ CS និង aviation។",
