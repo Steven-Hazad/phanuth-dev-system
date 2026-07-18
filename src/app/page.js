@@ -91,7 +91,7 @@ function Row({ label, children }) {
   );
 }
 
-// Experience / education entry
+// Experience / educadsadsadaation entry
 function Entry({ period, title, org, points, achievement }) {
   return (
     <div className="cv-entry" style={{ marginBottom:28 }}>
