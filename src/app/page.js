@@ -1,129 +1,130 @@
 "use client";
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { useState, useEffect, useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { Mail, Github, Linkedin, MapPin, Phone, ArrowUpRight } from "lucide-react";
 
 // ============================================================
-// THE PROFILE — editorial magazine portfolio
-// Wired / Fast Company profile feature aesthetic
-// Font: Playfair Display Condensed (headline) + Libre Baskerville
-//       (body/article) + Barlow Condensed (masthead/labels)
-// Ink: #1A1714 print-black · Paper: #F8F6F0 newsprint-white
-// Red: #C41A1A — masthead marker + pull-quote mark ONLY
-// Signature: "The developer who reads radar." pull quote at 48px
+// RASHFORD-STYLE — Full-screen stacked panels, pure black/white
+// Each section = a full-viewport dark panel with centred label
+// Fixed left sidebar: nav links. Fixed right sidebar: status
+// Font: Bebas Neue (massive condensed caps) + Inter (body)
+// Zero colour. Zero radius. Just black, white, scale, photo.
 // ============================================================
 
-const RED   = "#C41A1A";
-const INK   = "#1A1714";
-const INK2  = "#2B2825";
-const META  = "#8C7B6B";
-const PAPER = "#F8F6F0";
-const RULE  = "#E8E4DC";
-
 const DEFAULT_EDU = [
-  { id:1, degree:"Bachelor of Air Traffic Management", university:"National Institute of Civil Aviation (NICA)", startDate:"2022", endDate:"Present" },
-  { id:2, degree:"Bachelor of Computer Science", university:"Cambodian University for Specialties (CUS)", startDate:"2022", endDate:"Present" },
+  { id:1, degree:"Bachelor of Air Traffic Management", university:"NICA — National Institute of Civil Aviation", startDate:"2022", endDate:"Present" },
+  { id:2, degree:"Bachelor of Computer Science", university:"CUS — Cambodian University for Specialties", startDate:"2022", endDate:"Present" },
 ];
 const DEFAULT_SKILLS = [
-  { id:1, name:"React / Next.js", level:80 }, { id:2, name:"Node.js", level:70 },
-  { id:3, name:"PostgreSQL", level:70 }, { id:4, name:"Python", level:75 },
-  { id:5, name:"Aviation Safety", level:70 }, { id:6, name:"Data Analysis", level:70 },
-  { id:7, name:"POS Systems", level:80 }, { id:8, name:"Air Traffic Mgmt", level:70 },
+  { id:1, name:"React / Next.js", level:80 },
+  { id:2, name:"Node.js", level:70 },
+  { id:3, name:"PostgreSQL", level:70 },
+  { id:4, name:"Python", level:75 },
+  { id:5, name:"Aviation Safety", level:70 },
+  { id:6, name:"Data Analysis", level:70 },
+  { id:7, name:"POS Systems", level:80 },
+  { id:8, name:"Air Traffic Mgmt", level:70 },
 ];
 const DEFAULT_PROJECTS = [
-  { id:1, name:"SrovChlart", description:"Rice marketplace mobile app for Cambodian farmers — React Native + TypeScript.", link:"#" },
-  { id:2, name:"SafeHire", description:"Anti-scam job verification platform — React Native Expo.", link:"#" },
-  { id:3, name:"KourSrov", description:"AgriTech pitch platform for Cambodia's rice industry.", link:"#" },
+  { id:1, name:"SrovChlart", description:"Rice marketplace — React Native + TypeScript", link:"#" },
+  { id:2, name:"SafeHire", description:"Anti-scam job verification — React Native Expo", link:"#" },
+  { id:3, name:"KourSrov", description:"AgriTech platform for Cambodia's rice industry", link:"#" },
 ];
 
-const CONTENT = {
+const T = {
   en: {
-    issue: `Vol. ${new Date().getFullYear()} — Issue 01`,
-    section: "PROFILE",
-    kicker: "BUILDERS & PIONEERS",
-    headline: "The developer\nwho reads radar.",
-    subhead: "Hun Phanuth writes code by day and studies airspace by night. Meet the student who won't choose between two disciplines.",
-    pullquote: "I don't see them as separate fields. Aviation and software engineering both come down to one thing: if you get it wrong, something fails.",
-    byline: "Portfolio of Hun Phanuth",
-    location: "Phnom Penh, Cambodia",
-    body1: "There's a particular kind of discipline that comes from studying Air Traffic Management. Every decision is consequential. Ambiguity isn't tolerated. Procedures exist for a reason. It's not the obvious background for a full-stack developer — but for Hun Phanuth, it's exactly what makes him different.",
-    body2: "Since December 2025, Phanuth has been building production software for Cambodian businesses — POS systems, e-commerce platforms, agritech applications — while simultaneously cross-training at the National Institute of Civil Aviation in Phnom Penh. He's not choosing one path. He's building both.",
-    workLabel: "Selected work",
-    expLabel: "Career",
-    eduLabel: "Education",
-    skillsLabel: "Technical profile",
-    awardsLabel: "Recognition",
-    contactLabel: "Contact",
-    contactLine: "Open to serious projects and the right full-time role.",
-    experience: [
-      { period:"Dec 2025 – Present", title:"Full-Stack Freelancer", org:"Independent · Phnom Penh",
-        desc:"Delivers end-to-end digital products for Cambodian businesses — POS systems, e-commerce storefronts, and agritech platforms. Backend architecture, database design, API routing." },
-      { period:"Jan 2013 – Jan 2019", title:"Operations Assistant", org:"HHH Printer · Takeo",
-        desc:"Managed print operations, digital design, and client service at a family printing business. First exposure to operational systems and business workflow." },
+    name: "HUN PHANUTH",
+    role: "FULL-STACK DEVELOPER",
+    sector: "CS + AIR TRAFFIC MANAGEMENT",
+    labels: { about:"ABOUT", work:"WORK", skills:"SKILLS", contact:"CONTACT" },
+    about1: "I build production software.",
+    about2: "POS systems. E-commerce platforms. Agritech applications. End to end, from architecture to deployment.",
+    about3: "I'm also cross-training in Air Traffic Management at NICA. Two disciplines. One standard: if you get it wrong, something fails.",
+    workLabel: "Selected Projects",
+    expLabel: "Experience",
+    exp: [
+      { period:"2025 – Now", title:"Full-Stack Freelancer", org:"Independent · Phnom Penh", desc:"End-to-end POS and e-commerce platforms for Cambodian businesses." },
+      { period:"2013 – 2019", title:"Operations Assistant", org:"HHH Printer · Takeo", desc:"Print operations, digital design, and client service." },
     ],
+    edu: "Education",
+    awards: "Awards",
     achievements: [
       { date:"Jun 2026", title:"3rd Place, UniPreneurCamp Cluster 1", org:"Khmer Enterprise" },
-      { date:"Dec 2025", title:"Big Data Certification", org:"Hadoop · PySpark · Spark SQL · Parquet" },
+      { date:"Dec 2025", title:"Big Data Certification", org:"Hadoop · PySpark · Spark SQL" },
       { date:"Dec 2024", title:"Python Certification", org:"Samsung Innovation Campus × RUPP" },
     ],
     contact: { email:"hunphanut14@gmail.com", github:"Steven-Hazad", linkedin:"Hun Phanuth", location:"Phnom Penh, Cambodia", phone:"+855 715 303 622" },
+    contactLine: "Open to the right opportunity.",
     toggle: "KH",
-    nav: ["Work", "Experience", "Skills", "Contact"],
-    navIds: ["work", "experience", "skills", "contact"],
+    status: "AVAILABLE",
+    based: "PHNOM PENH",
+    year: String(new Date().getFullYear()),
   },
   kh: {
-    issue: `ឆ្នាំ ${new Date().getFullYear()} — លេខ ០១`,
-    section: "ប្រវត្តិរូប",
-    kicker: "អ្នកបង្កើត",
-    headline: "អ្នកបង្កើតកម្មវិធី\nដែលអានរ៉ាដា។",
-    subhead: "ហ៊ុន ផានុត សរសេរកូដពេលថ្ងៃ និងសិក្សាចរាចរណ៍អាកាសពេលយប់។",
-    pullquote: "ខ្ញុំមិនមើលពួកវាជាវិស័យដាច់ដោយឡែកទេ។ Aviation និង software engineering ទាំងពីរអាស្រ័យលើរឿងតែមួយ: ប្រសិនបើខ្ញុំខុស វានឹងបរាជ័យ។",
-    byline: "ប្រវត្តិរូបរបស់ ហ៊ុន ផានុត",
-    location: "ភ្នំពេញ, កម្ពុជា",
-    body1: "មានវិន័យពិសេសមួយដែលមកពីការសិក្សាការគ្រប់គ្រងចរាចរណ៍អាកាស។ ការសម្រេចចិត្តគ្រប់យ៉ាងមានផលប៉ះពាល់។ ភាពមិនច្បាស់លាស់មិនត្រូវបានអត់ឱននោះទេ។",
-    body2: "ចាប់តាំងពីខែធ្នូ ២០២៥ ផានុតកំពុងបង្កើតកម្មវិធីផលិតផលសម្រាប់អាជីវកម្មខ្មែរ — ប្រព័ន្ធ POS, e-commerce, AgriTech — ខណៈពេលសិក្សានៅ NICA។",
+    name: "ហ៊ុន ផានុត",
+    role: "អ្នកអភិវឌ្ឍន៍ FULL-STACK",
+    sector: "CS + គ្រប់គ្រងចរាចរណ៍អាកាស",
+    labels: { about:"អំពីខ្ញុំ", work:"គម្រោង", skills:"ជំនាញ", contact:"ទំនាក់ទំនង" },
+    about1: "ខ្ញុំបង្កើតកម្មវិធីផលិតផល។",
+    about2: "ប្រព័ន្ធ POS, e-commerce, AgriTech — ពីដើមដល់ចប់, ពី architecture ដល់ deployment។",
+    about3: "ខ្ញុំក៏កំពុងសិក្សា ATM នៅ NICA ផងដែរ — ជំនាញពីរ, ស្តង់ដារតែមួយ: ប្រសិនបើខ្ញុំខុស, វានឹងបរាជ័យ។",
     workLabel: "គម្រោងដែលបានជ្រើស",
-    expLabel: "អាជីព",
-    eduLabel: "ការសិក្សា",
-    skillsLabel: "ប្រវត្តិបច្ចេកទេស",
-    awardsLabel: "សមិទ្ធផល",
-    contactLabel: "ទំនាក់ទំនង",
-    contactLine: "បើកចំហសម្រាប់គម្រោងធ្ងន់ធ្ងរ និងការងារត្រឹមត្រូវ។",
-    experience: [
-      { period:"ធ្នូ 2025 – បច្ចុប្បន្ន", title:"Full-Stack Freelancer", org:"Freelancer · ភ្នំពេញ",
-        desc:"ផ្តល់ផលិតផលឌីជីថលពីដើមដល់ចប់ — POS, e-commerce, AgriTech។ Backend, DB, API។" },
-      { period:"មករា 2013 – មករា 2019", title:"ជំនួយការប្រតិបត្តិការ", org:"HHH Printer · តាកែវ",
-        desc:"គ្រប់គ្រងប្រតិបត្តិការការបោះពុម្ព រចនាក្រាហ្វិក និងសេវាកម្មអតិថិជន។" },
+    expLabel: "បទពិសោធន៍",
+    exp: [
+      { period:"2025 – Now", title:"Full-Stack Freelancer", org:"Freelancer · ភ្នំពេញ", desc:"ប្រព័ន្ធ POS និង e-commerce ពីដើមដល់ចប់។" },
+      { period:"2013 – 2019", title:"ជំនួយការប្រតិបត្តិការ", org:"HHH Printer · តាកែវ", desc:"ប្រតិបត្តិការការបោះពុម្ព, រចនាក្រាហ្វិក, សេវាកម្មអតិថិជន។" },
     ],
+    edu: "ការសិក្សា",
+    awards: "សមិទ្ធផល",
     achievements: [
       { date:"មិថុនា 2026", title:"លេខ ៣, UniPreneurCamp Cluster 1", org:"Khmer Enterprise" },
       { date:"ធ្នូ 2025", title:"វិញ្ញាបនបត្រ Big Data", org:"Hadoop · PySpark · Spark SQL" },
-      { date:"ធ្នូ 2024", title:"វិញ្ញាបនបត្រ Python", org:"Samsung Innovation Campus × RUPP" },
+      { date:"ធ្នូ 2024", title:"វិញ្ញាបនបត្រ Python", org:"Samsung × RUPP" },
     ],
     contact: { email:"hunphanut14@gmail.com", github:"Steven-Hazad", linkedin:"Hun Phanuth", location:"ភ្នំពេញ, កម្ពុជា", phone:"+855 715 303 622" },
+    contactLine: "បើកចំហសម្រាប់ឱកាសត្រឹមត្រូវ។",
     toggle: "EN",
-    nav: ["គម្រោង", "បទពិសោធន៍", "ជំនាញ", "ទំនាក់ទំនង"],
-    navIds: ["work", "experience", "skills", "contact"],
+    status: "AVAILABLE",
+    based: "PHNOM PENH",
+    year: String(new Date().getFullYear()),
   },
 };
 
-function ColumnRule() {
-  return <div style={{ width:1, background:RULE, alignSelf:"stretch", margin:"0 32px" }} />;
-}
-
-function CapsLabel({ children, style={} }) {
+// Full-screen panel
+function Panel({ id, children, bg="#000", style={} }) {
   return (
-    <div style={{
-      fontFamily:"'Barlow Condensed',sans-serif",
-      fontWeight:600, fontSize:11, letterSpacing:"0.18em",
-      textTransform:"uppercase", color:META,
+    <section id={id} style={{
+      minHeight:"100vh", background:bg, position:"relative",
+      display:"flex", alignItems:"center", justifyContent:"center",
       ...style,
-    }}>{children}</div>
+    }}>
+      {children}
+    </section>
   );
 }
 
-export default function Editorial() {
+// Side label — rotated vertical text
+function SideLabel({ children, side="left" }) {
+  return (
+    <div style={{
+      position:"fixed",
+      [side]: 24,
+      top:"50%",
+      transform:"translateY(-50%)",
+      zIndex:200,
+      display:"flex",
+      flexDirection:"column",
+      gap:24,
+      pointerEvents:"none",
+    }}>
+      {children}
+    </div>
+  );
+}
+
+export default function RashfordStyle() {
   const [lang, setLang] = useState("en");
+  const [menuOpen, setMenuOpen] = useState(false);
   const [apiEdu, setApiEdu] = useState([]);
   const [apiSkills, setApiSkills] = useState([]);
   const [apiProjects, setApiProjects] = useState([]);
@@ -140,304 +141,326 @@ export default function Editorial() {
     });
   }, []);
 
-  const d = CONTENT[lang];
+  const d = T[lang];
   const education = apiEdu.length > 0 ? apiEdu : DEFAULT_EDU;
   const skills    = apiSkills.length > 0 ? apiSkills : DEFAULT_SKILLS;
   const projects  = apiProjects.length > 0 ? apiProjects : DEFAULT_PROJECTS;
 
   return (
-    <div className={lang==="kh"?"font-khmer":""} style={{ minHeight:"100vh", background:PAPER, color:INK }}>
+    <div className={lang==="kh"?"font-khmer":""} style={{ background:"#000", color:"#fff", overflowX:"hidden" }}>
       <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Barlow+Condensed:wght@400;500;600;700&family=Battambang:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Battambang:wght@400;700&display=swap');
         * { box-sizing:border-box; margin:0; padding:0; }
-        body { background:${PAPER}; }
+        html { scroll-behavior:smooth; }
+        body { background:#000; overflow-x:hidden; }
         .font-khmer * { font-family:'Battambang',sans-serif!important; }
+        ::-webkit-scrollbar { width:2px; }
+        ::-webkit-scrollbar-track { background:#000; }
+        ::-webkit-scrollbar-thumb { background:#333; }
         @media(max-width:700px){
-          .hero-split{grid-template-columns:1fr!important}
-          .hero-img-cell{display:none!important}
-          .two-col-body{grid-template-columns:1fr!important}
-          .col-rule{display:none!important}
+          .side-label{display:none!important}
+          .hero-name{font-size:18vw!important}
         }
       `}</style>
 
-      {/* ══ MASTHEAD ══ */}
-      <header style={{ borderBottom:`2px solid ${INK}`, background:PAPER }}>
-        {/* Top strip */}
-        <div style={{ borderBottom:`1px solid ${RULE}`, padding:"8px 40px", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-          <div style={{ display:"flex", gap:20, alignItems:"center" }}>
-            <span style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700, fontSize:11, letterSpacing:"0.18em", textTransform:"uppercase", color:META }}>{d.issue}</span>
-            <span style={{ width:1, height:12, background:RULE, display:"inline-block" }} />
-            <span style={{ fontFamily:"'Barlow Condensed',sans-serif", fontSize:11, letterSpacing:"0.15em", textTransform:"uppercase", color:META }}>{d.location}</span>
-          </div>
-          <div style={{ display:"flex", gap:12, alignItems:"center" }}>
-            <button onClick={()=>setLang(l=>l==="en"?"kh":"en")} style={{
-              fontFamily:"'Barlow Condensed',sans-serif", fontWeight:600, fontSize:11,
-              letterSpacing:"0.15em", textTransform:"uppercase",
-              background:"transparent", border:`1px solid ${RULE}`, color:META,
-              padding:"3px 10px", cursor:"pointer",
-            }}>{d.toggle}</button>
-          </div>
+      {/* ── FIXED TOP NAV ── */}
+      <nav style={{
+        position:"fixed", top:0, left:0, right:0, zIndex:500,
+        display:"flex", alignItems:"center", justifyContent:"space-between",
+        padding:"20px 40px",
+        background:"linear-gradient(to bottom,rgba(0,0,0,0.9),transparent)",
+        pointerEvents:"none",
+      }}>
+        <span style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:18, letterSpacing:"0.15em", pointerEvents:"all" }}>
+          {d.name}
+        </span>
+        <div style={{ display:"flex", gap:32, alignItems:"center", pointerEvents:"all" }}>
+          {Object.entries(d.labels).map(([k,v]) => (
+            <a key={k} href={`#${k}`} style={{
+              fontFamily:"'Inter',sans-serif", fontWeight:500, fontSize:11,
+              letterSpacing:"0.2em", textTransform:"uppercase",
+              color:"rgba(255,255,255,0.55)", textDecoration:"none",
+              transition:"color 0.2s",
+            }}
+              onMouseEnter={e=>e.currentTarget.style.color="#fff"}
+              onMouseLeave={e=>e.currentTarget.style.color="rgba(255,255,255,0.55)"}>
+              {v}
+            </a>
+          ))}
+          <button onClick={()=>setLang(l=>l==="en"?"kh":"en")} style={{
+            fontFamily:"'Inter',sans-serif", fontWeight:500, fontSize:11,
+            letterSpacing:"0.15em", textTransform:"uppercase",
+            background:"transparent", border:"1px solid rgba(255,255,255,0.3)",
+            color:"rgba(255,255,255,0.55)", padding:"4px 12px", cursor:"pointer",
+          }}>{d.toggle}</button>
         </div>
+      </nav>
 
-        {/* Publication name */}
-        <div style={{ padding:"14px 40px 12px", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-          <div style={{ display:"flex", alignItems:"center", gap:16 }}>
-            <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700, fontSize:11, letterSpacing:"0.2em", textTransform:"uppercase", color:RED }}>■ {d.section}</div>
-          </div>
-          <div style={{ fontFamily:"'Playfair Display',serif", fontWeight:900, fontSize:28, letterSpacing:"-0.02em", color:INK, textAlign:"center", flex:1 }}>
-            THE PORTFOLIO
-          </div>
-          <nav style={{ display:"flex", gap:20 }}>
-            {d.nav.map((label, i) => (
-              <a key={i} href={`#${d.navIds[i]}`} style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:500, fontSize:12, letterSpacing:"0.12em", textTransform:"uppercase", color:INK2, textDecoration:"none" }}>{label}</a>
-            ))}
-          </nav>
+      {/* ── FIXED LEFT SIDEBAR ── */}
+      <div className="side-label" style={{ position:"fixed", left:20, top:"50%", transform:"translateY(-50%)", zIndex:200, display:"flex", flexDirection:"column", gap:0, alignItems:"center" }}>
+        <div style={{ writingMode:"vertical-rl", textOrientation:"mixed", transform:"rotate(180deg)" }}>
+          <span style={{ fontFamily:"'Inter',sans-serif", fontSize:9, letterSpacing:"0.25em", textTransform:"uppercase", color:"rgba(255,255,255,0.3)" }}>
+            {d.based} · {d.sector}
+          </span>
         </div>
-      </header>
-
-      {/* ══ HERO SPREAD ══ */}
-      <section className="hero-split" style={{ display:"grid", gridTemplateColumns:"1fr 420px", minHeight:480, borderBottom:`1px solid ${RULE}` }}>
-
-        {/* Text side */}
-        <div style={{ padding:"48px 40px 40px", display:"flex", flexDirection:"column", justifyContent:"space-between", borderRight:`1px solid ${RULE}` }}>
-          <div>
-            <CapsLabel style={{ marginBottom:16 }}>{d.kicker}</CapsLabel>
-            <h1 style={{
-              fontFamily:"'Playfair Display',serif",
-              fontWeight:900,
-              fontSize:"clamp(44px,5.5vw,80px)",
-              lineHeight:1.0,
-              letterSpacing:"-0.02em",
-              color:INK,
-              marginBottom:24,
-              whiteSpace:"pre-line",
-            }}>{d.headline}</h1>
-            <p style={{ fontFamily:"'Libre Baskerville',serif", fontSize:16, lineHeight:1.7, color:INK2, maxWidth:480 }}>{d.subhead}</p>
-          </div>
-
-          <div style={{ display:"flex", gap:24, alignItems:"center", marginTop:32, paddingTop:24, borderTop:`1px solid ${RULE}` }}>
-            <div>
-              <CapsLabel>Byline</CapsLabel>
-              <div style={{ fontFamily:"'Libre Baskerville',serif", fontSize:14, color:INK, marginTop:4 }}>{d.byline}</div>
-            </div>
-            <div style={{ width:1, height:32, background:RULE }} />
-            <div>
-              <CapsLabel>Contact</CapsLabel>
-              <a href={`mailto:${d.contact.email}`} style={{ fontFamily:"'Barlow Condensed',sans-serif", fontSize:14, fontWeight:500, color:INK, textDecoration:"none", letterSpacing:"0.04em", display:"block", marginTop:4 }}>{d.contact.email}</a>
-            </div>
-          </div>
-        </div>
-
-        {/* Photo side */}
-        <div className="hero-img-cell" style={{ overflow:"hidden", position:"relative" }}>
-          <img src="images/bl-steven.png" alt="Hun Phanuth"
-            style={{ width:"100%", height:"100%", objectFit:"cover", objectPosition:"center top", filter:"contrast(1.05)" }} />
-          <div style={{ position:"absolute", bottom:0, left:0, right:0, padding:"12px 16px", background:"rgba(248,246,240,0.92)", borderTop:`1px solid ${RULE}` }}>
-            <CapsLabel>Hun Phanuth, Phnom Penh — {new Date().getFullYear()}</CapsLabel>
-          </div>
-        </div>
-      </section>
-
-      <div style={{ maxWidth:1100, margin:"0 auto", padding:"0 40px" }}>
-
-        {/* ══ ARTICLE BODY — 2 col ══ */}
-        <section style={{ padding:"48px 0 0" }}>
-          <div className="two-col-body" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:0 }}>
-            <div style={{ paddingRight:32 }}>
-              <p style={{ fontFamily:"'Libre Baskerville',serif", fontSize:15, lineHeight:1.85, color:INK2, marginBottom:20 }}>{d.body1}</p>
-            </div>
-            <div className="col-rule" style={{ width:1, background:RULE }} />
-            <div style={{ paddingLeft:32 }}>
-              <p style={{ fontFamily:"'Libre Baskerville',serif", fontSize:15, lineHeight:1.85, color:INK2 }}>{d.body2}</p>
-            </div>
-          </div>
-        </section>
-
-        {/* ══ PULL QUOTE — signature element ══ */}
-        <section style={{ padding:"48px 0", borderTop:`1px solid ${RULE}`, borderBottom:`1px solid ${RULE}`, margin:"40px 0 0" }}>
-          <div style={{ position:"relative", paddingLeft:48 }}>
-            <span style={{
-              position:"absolute", left:0, top:-8,
-              fontFamily:"'Playfair Display',serif",
-              fontSize:80, lineHeight:1,
-              color:RED, fontWeight:900,
-              userSelect:"none",
-            }}>"</span>
-            <blockquote style={{
-              fontFamily:"'Playfair Display',serif",
-              fontStyle:"italic",
-              fontWeight:400,
-              fontSize:"clamp(22px,3vw,36px)",
-              lineHeight:1.4,
-              color:INK,
-              letterSpacing:"-0.01em",
-            }}>
-              {d.pullquote}
-            </blockquote>
-            <CapsLabel style={{ marginTop:20 }}>— Hun Phanuth</CapsLabel>
-          </div>
-        </section>
-
-        {/* ══ PROJECTS ══ */}
-        <section id="work" style={{ padding:"48px 0", borderBottom:`1px solid ${RULE}` }}>
-          <div style={{ display:"flex", alignItems:"baseline", gap:16, marginBottom:28 }}>
-            <CapsLabel>{d.workLabel}</CapsLabel>
-            <div style={{ flex:1, height:1, background:RULE }} />
-          </div>
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))", gap:0, border:`1px solid ${RULE}` }}>
-           {projects.map((p, i) => (
-  <motion.a 
-    key={p.id} 
-    href={p.link || "#"} 
-    target={p.link && p.link !== "#" ? "_blank" : undefined} 
-    rel="noreferrer"
-    initial={{ opacity: 0 }} 
-    whileInView={{ opacity: 1 }} 
-    viewport={{ once: true }} 
-    transition={{ delay: i * 0.07 }}
-    style={{
-      textDecoration: "none", 
-      display: "block",
-      padding: "24px 24px 20px",
-      borderRight: i < projects.length - 1 ? `1px solid ${RULE}` : "none",
-    }}
-  >
-    {/* Removed the stray arrow function line that was causing the error */}
-    <ProjectInner name={p.title || p.name} desc={p.description} />
-  </motion.a>
-))}
-          </div>
-        </section>
-
-        {/* ══ EXPERIENCE + EDUCATION ══ */}
-        <section id="experience" style={{ padding:"48px 0", borderBottom:`1px solid ${RULE}` }}>
-          <div className="two-col-body" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:0 }}>
-            {/* Experience */}
-            <div style={{ paddingRight:40 }}>
-              <div style={{ display:"flex", alignItems:"baseline", gap:12, marginBottom:24 }}>
-                <CapsLabel>{d.expLabel}</CapsLabel>
-                <div style={{ flex:1, height:1, background:RULE }} />
-              </div>
-              {d.experience.map((exp, i) => (
-                <div key={i} style={{ marginBottom:24, paddingBottom:24, borderBottom: i < d.experience.length-1 ? `1px solid ${RULE}` : "none" }}>
-                  <CapsLabel style={{ marginBottom:6 }}>{exp.period}</CapsLabel>
-                  <div style={{ fontFamily:"'Playfair Display',serif", fontWeight:700, fontSize:18, color:INK, marginBottom:3 }}>{exp.title}</div>
-                  <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontSize:13, fontWeight:500, letterSpacing:"0.08em", color:META, marginBottom:8 }}>{exp.org}</div>
-                  <p style={{ fontFamily:"'Libre Baskerville',serif", fontSize:13, lineHeight:1.7, color:INK2 }}>{exp.desc}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="col-rule" style={{ width:1, background:RULE }} />
-
-            {/* Education + Awards */}
-            <div style={{ paddingLeft:40 }}>
-              <div style={{ display:"flex", alignItems:"baseline", gap:12, marginBottom:24 }}>
-                <CapsLabel>{d.eduLabel}</CapsLabel>
-                <div style={{ flex:1, height:1, background:RULE }} />
-              </div>
-              {education.map((edu, i) => (
-                <div key={edu.id} style={{ marginBottom:18, paddingBottom:18, borderBottom:`1px solid ${RULE}` }}>
-                  <CapsLabel style={{ marginBottom:4 }}>{edu.startDate} – {edu.endDate}</CapsLabel>
-                  <div style={{ fontFamily:"'Playfair Display',serif", fontWeight:700, fontSize:15, color:INK, marginBottom:2 }}>{edu.degree}</div>
-                  <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontSize:13, color:META, letterSpacing:"0.06em" }}>{edu.university}</div>
-                </div>
-              ))}
-
-              <div style={{ display:"flex", alignItems:"baseline", gap:12, marginBottom:20, marginTop:8 }}>
-                <CapsLabel>{d.awardsLabel}</CapsLabel>
-                <div style={{ flex:1, height:1, background:RULE }} />
-              </div>
-              {d.achievements.map((ach, i) => (
-                <div key={i} style={{ marginBottom:14 }}>
-                  <div style={{ display:"flex", gap:12, alignItems:"baseline" }}>
-                    <CapsLabel style={{ flexShrink:0 }}>{ach.date}</CapsLabel>
-                    <span style={{ fontFamily:"'Libre Baskerville',serif", fontSize:13, color:INK, fontWeight:700 }}>{ach.title}</span>
-                  </div>
-                  <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontSize:12, color:META, letterSpacing:"0.06em", marginTop:2, paddingLeft:0 }}>{ach.org}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ══ SKILLS ══ */}
-        <section id="skills" style={{ padding:"48px 0", borderBottom:`1px solid ${RULE}` }}>
-          <div style={{ display:"flex", alignItems:"baseline", gap:16, marginBottom:28 }}>
-            <CapsLabel>{d.skillsLabel}</CapsLabel>
-            <div style={{ flex:1, height:1, background:RULE }} />
-          </div>
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(160px,1fr))", gap:"14px 32px" }}>
-            {skills.map((sk, i) => (
-              <div key={sk.id||i}>
-                <div style={{ display:"flex", justifyContent:"space-between", marginBottom:5 }}>
-                  <span style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:600, fontSize:13, letterSpacing:"0.06em", color:INK }}>{sk.name}</span>
-                  <span style={{ fontFamily:"'Barlow Condensed',sans-serif", fontSize:12, color:META }}>{sk.level||70}%</span>
-                </div>
-                <div style={{ height:1, background:RULE }}>
-                  <motion.div initial={{ width:0 }} whileInView={{ width:`${sk.level||70}%` }} viewport={{ once:true }} transition={{ duration:0.7, delay:i*0.04 }}
-                    style={{ height:"100%", background:INK }} />
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ══ CONTACT ══ */}
-        <section id="contact" style={{ padding:"56px 0 80px" }}>
-          <div style={{ display:"grid", gridTemplateColumns:"1fr auto", gap:40, alignItems:"start", flexWrap:"wrap" }} className="two-col-body">
-            <div>
-              <h2 style={{ fontFamily:"'Playfair Display',serif", fontWeight:900, fontSize:"clamp(32px,5vw,56px)", lineHeight:1.05, letterSpacing:"-0.02em", color:INK, marginBottom:12 }}>
-                {d.contactLabel}
-              </h2>
-              <p style={{ fontFamily:"'Libre Baskerville',serif", fontSize:15, color:INK2, lineHeight:1.7 }}>{d.contactLine}</p>
-            </div>
-            <div style={{ display:"flex", flexDirection:"column", gap:10, minWidth:220 }}>
-              {[
-                { icon:<Mail size={13}/>, v:d.contact.email, href:`mailto:${d.contact.email}` },
-                { icon:<Phone size={13}/>, v:d.contact.phone, href:`tel:${d.contact.phone}` },
-                { icon:<Github size={13}/>, v:`github.com/${d.contact.github}`, href:`https://github.com/${d.contact.github}` },
-                { icon:<Linkedin size={13}/>, v:"linkedin.com/in/Hun-Phanuth", href:"#" },
-                { icon:<MapPin size={13}/>, v:d.contact.location, href:null },
-              ].map((c,i) => (
-                <div key={i} style={{ display:"flex", alignItems:"center", gap:10 }}>
-                  <span style={{ color:META, flexShrink:0 }}>{c.icon}</span>
-                  {c.href ? (
-                    <a href={c.href} style={{ fontFamily:"'Barlow Condensed',sans-serif", fontSize:14, fontWeight:500, letterSpacing:"0.04em", color:INK, textDecoration:"none" }}
-                      onMouseEnter={e=>e.currentTarget.style.color=RED}
-                      onMouseLeave={e=>e.currentTarget.style.color=INK}>
-                      {c.v}
-                    </a>
-                  ) : (
-                    <span style={{ fontFamily:"'Barlow Condensed',sans-serif", fontSize:14, color:META, letterSpacing:"0.04em" }}>{c.v}</span>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
       </div>
 
-      {/* ══ FOOTER ══ */}
-      <footer style={{ borderTop:`2px solid ${INK}`, background:INK, padding:"16px 40px", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:12 }}>
-        <span style={{ fontFamily:"'Playfair Display',serif", fontWeight:900, fontSize:16, color:PAPER, letterSpacing:"-0.01em" }}>THE PORTFOLIO</span>
-        <span style={{ fontFamily:"'Barlow Condensed',sans-serif", fontSize:11, letterSpacing:"0.18em", textTransform:"uppercase", color:META }}>Hun Phanuth · Phnom Penh · {new Date().getFullYear()}</span>
+      {/* ── FIXED RIGHT SIDEBAR ── */}
+      <div className="side-label" style={{ position:"fixed", right:20, top:"50%", transform:"translateY(-50%)", zIndex:200, alignItems:"center" }}>
+        <div style={{ writingMode:"vertical-rl", textOrientation:"mixed" }}>
+          <span style={{ fontFamily:"'Inter',sans-serif", fontSize:9, letterSpacing:"0.25em", textTransform:"uppercase", color:"rgba(255,255,255,0.3)" }}>
+            {d.status} · {d.year}
+          </span>
+        </div>
+      </div>
+
+      {/* ══════════════ PANEL 01 — HERO ══════════════ */}
+      <Panel id="hero" style={{ overflow:"hidden" }}>
+        {/* Full-bleed photo */}
+        <div style={{ position:"absolute", inset:0 }}>
+          <img src="images/bl-steven.png" alt="Hun Phanuth" style={{ width:"100%", height:"100%", objectFit:"cover", objectPosition:"center top", filter:"brightness(0.35) contrast(1.1)" }} />
+        </div>
+
+        {/* Overlay gradient */}
+        <div style={{ position:"absolute", inset:0, background:"linear-gradient(to top, rgba(0,0,0,0.95) 0%, transparent 50%, rgba(0,0,0,0.4) 100%)" }} />
+
+        {/* Name — centred, massive */}
+        <div style={{ position:"relative", textAlign:"center", zIndex:10, padding:"0 40px" }}>
+          <motion.h1
+            initial={{ opacity:0, y:40 }}
+            animate={{ opacity:1, y:0 }}
+            transition={{ duration:1, ease:[0.16,1,0.3,1] }}
+            className="hero-name"
+            style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"clamp(64px,12vw,160px)", lineHeight:0.9, letterSpacing:"0.04em", color:"#fff", marginBottom:24 }}>
+            {d.name}
+          </motion.h1>
+          <motion.div
+            initial={{ opacity:0, y:20 }}
+            animate={{ opacity:1, y:0 }}
+            transition={{ duration:0.8, delay:0.3 }}
+            style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:20 }}>
+            <div style={{ height:1, width:60, background:"rgba(255,255,255,0.3)" }} />
+            <span style={{ fontFamily:"'Inter',sans-serif", fontWeight:400, fontSize:12, letterSpacing:"0.3em", textTransform:"uppercase", color:"rgba(255,255,255,0.6)" }}>
+              {d.role}
+            </span>
+            <div style={{ height:1, width:60, background:"rgba(255,255,255,0.3)" }} />
+          </motion.div>
+        </div>
+
+        {/* Scroll hint */}
+        <div style={{ position:"absolute", bottom:40, left:"50%", transform:"translateX(-50%)", display:"flex", flexDirection:"column", alignItems:"center", gap:8 }}>
+          <motion.div
+            animate={{ y:[0,8,0] }}
+            transition={{ duration:1.5, repeat:Infinity, ease:"easeInOut" }}
+            style={{ width:1, height:40, background:"rgba(255,255,255,0.25)" }} />
+          <span style={{ fontFamily:"'Inter',sans-serif", fontSize:9, letterSpacing:"0.3em", textTransform:"uppercase", color:"rgba(255,255,255,0.25)" }}>SCROLL</span>
+        </div>
+      </Panel>
+
+      {/* ══════════════ PANEL 02 — ABOUT ══════════════ */}
+      <Panel id="about" bg="#0A0A0A">
+        {/* Big label */}
+        <div style={{ position:"absolute", top:"50%", left:"50%", transform:"translate(-50%,-50%)", pointerEvents:"none" }}>
+          <span style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"clamp(80px,18vw,260px)", lineHeight:1, letterSpacing:"0.05em", color:"rgba(255,255,255,0.03)", whiteSpace:"nowrap" }}>
+            {d.labels.about}
+          </span>
+        </div>
+
+        <div style={{ position:"relative", zIndex:10, maxWidth:800, padding:"80px 40px", textAlign:"center" }}>
+          <motion.p
+            initial={{ opacity:0, y:30 }}
+            whileInView={{ opacity:1, y:0 }}
+            viewport={{ once:true }}
+            transition={{ duration:0.9 }}
+            style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"clamp(28px,4vw,52px)", lineHeight:1.2, letterSpacing:"0.06em", color:"#fff", marginBottom:32 }}>
+            {d.about1}
+          </motion.p>
+          <motion.p
+            initial={{ opacity:0, y:20 }}
+            whileInView={{ opacity:1, y:0 }}
+            viewport={{ once:true }}
+            transition={{ duration:0.8, delay:0.15 }}
+            style={{ fontFamily:"'Inter',sans-serif", fontWeight:300, fontSize:18, lineHeight:1.8, color:"rgba(255,255,255,0.6)", marginBottom:20 }}>
+            {d.about2}
+          </motion.p>
+          <motion.p
+            initial={{ opacity:0, y:20 }}
+            whileInView={{ opacity:1, y:0 }}
+            viewport={{ once:true }}
+            transition={{ duration:0.8, delay:0.28 }}
+            style={{ fontFamily:"'Inter',sans-serif", fontWeight:300, fontSize:18, lineHeight:1.8, color:"rgba(255,255,255,0.45)" }}>
+            {d.about3}
+          </motion.p>
+
+          {/* Experience inline */}
+          <div style={{ marginTop:64, display:"grid", gridTemplateColumns:"1fr 1fr", gap:1, background:"rgba(255,255,255,0.08)" }}>
+            {d.exp.map((exp,i)=>(
+              <motion.div key={i}
+                initial={{ opacity:0 }}
+                whileInView={{ opacity:1 }}
+                viewport={{ once:true }}
+                transition={{ delay:i*0.1 }}
+                style={{ background:"#0A0A0A", padding:"28px 24px", textAlign:"left" }}>
+                <div style={{ fontFamily:"'Inter',sans-serif", fontSize:10, letterSpacing:"0.2em", textTransform:"uppercase", color:"rgba(255,255,255,0.3)", marginBottom:10 }}>{exp.period}</div>
+                <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:22, letterSpacing:"0.06em", color:"#fff", marginBottom:4 }}>{exp.title}</div>
+                <div style={{ fontFamily:"'Inter',sans-serif", fontSize:11, letterSpacing:"0.1em", color:"rgba(255,255,255,0.4)", marginBottom:10 }}>{exp.org}</div>
+                <p style={{ fontFamily:"'Inter',sans-serif", fontSize:13, lineHeight:1.65, color:"rgba(255,255,255,0.45)", fontWeight:300 }}>{exp.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </Panel>
+
+      {/* ══════════════ PANEL 03 — WORK ══════════════ */}
+      <Panel id="work" bg="#000">
+        <div style={{ position:"absolute", top:"50%", left:"50%", transform:"translate(-50%,-50%)", pointerEvents:"none" }}>
+          <span style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"clamp(80px,18vw,260px)", lineHeight:1, letterSpacing:"0.05em", color:"rgba(255,255,255,0.03)", whiteSpace:"nowrap" }}>
+            {d.labels.work}
+          </span>
+        </div>
+
+        <div style={{ position:"relative", zIndex:10, width:"100%", maxWidth:960, padding:"80px 40px" }}>
+          <div style={{ fontFamily:"'Inter',sans-serif", fontSize:10, letterSpacing:"0.25em", textTransform:"uppercase", color:"rgba(255,255,255,0.3)", marginBottom:40, textAlign:"center" }}>
+            {d.workLabel}
+          </div>
+
+          <div style={{ display:"flex", flexDirection:"column", gap:1, background:"rgba(255,255,255,0.08)" }}>
+            {projects.map((p,i)=>(
+              <ProjectRow key={p.id} index={i+1} name={p.title||p.name} desc={p.description} link={p.link} />
+            ))}
+          </div>
+
+          {/* Education + Awards */}
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:40, marginTop:64 }}>
+            <div>
+              <div style={{ fontFamily:"'Inter',sans-serif", fontSize:10, letterSpacing:"0.25em", textTransform:"uppercase", color:"rgba(255,255,255,0.3)", marginBottom:20 }}>{d.edu}</div>
+              {education.map((edu,i)=>(
+                <div key={edu.id} style={{ marginBottom:16, paddingBottom:16, borderBottom:"1px solid rgba(255,255,255,0.07)" }}>
+                  <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:15, letterSpacing:"0.06em", color:"#fff", marginBottom:2 }}>{edu.degree}</div>
+                  <div style={{ fontFamily:"'Inter',sans-serif", fontSize:11, color:"rgba(255,255,255,0.35)", letterSpacing:"0.04em" }}>{edu.university}</div>
+                  <div style={{ fontFamily:"'Inter',sans-serif", fontSize:10, color:"rgba(255,255,255,0.2)", letterSpacing:"0.1em", marginTop:4, textTransform:"uppercase" }}>{edu.startDate} – {edu.endDate}</div>
+                </div>
+              ))}
+            </div>
+            <div>
+              <div style={{ fontFamily:"'Inter',sans-serif", fontSize:10, letterSpacing:"0.25em", textTransform:"uppercase", color:"rgba(255,255,255,0.3)", marginBottom:20 }}>{d.awards}</div>
+              {d.achievements.map((ach,i)=>(
+                <div key={i} style={{ marginBottom:16, paddingBottom:16, borderBottom:"1px solid rgba(255,255,255,0.07)" }}>
+                  <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:15, letterSpacing:"0.06em", color:"#fff", marginBottom:2 }}>{ach.title}</div>
+                  <div style={{ fontFamily:"'Inter',sans-serif", fontSize:11, color:"rgba(255,255,255,0.35)" }}>{ach.org}</div>
+                  <div style={{ fontFamily:"'Inter',sans-serif", fontSize:10, color:"rgba(255,255,255,0.2)", letterSpacing:"0.1em", marginTop:4, textTransform:"uppercase" }}>{ach.date}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </Panel>
+
+      {/* ══════════════ PANEL 04 — SKILLS ══════════════ */}
+      <Panel id="skills" bg="#0A0A0A">
+        <div style={{ position:"absolute", top:"50%", left:"50%", transform:"translate(-50%,-50%)", pointerEvents:"none" }}>
+          <span style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"clamp(80px,18vw,260px)", lineHeight:1, letterSpacing:"0.05em", color:"rgba(255,255,255,0.03)", whiteSpace:"nowrap" }}>
+            {d.labels.skills}
+          </span>
+        </div>
+
+        <div style={{ position:"relative", zIndex:10, width:"100%", maxWidth:800, padding:"80px 40px" }}>
+          <div style={{ fontFamily:"'Inter',sans-serif", fontSize:10, letterSpacing:"0.25em", textTransform:"uppercase", color:"rgba(255,255,255,0.3)", marginBottom:48, textAlign:"center" }}>{d.labels.skills}</div>
+
+          <div style={{ display:"flex", flexDirection:"column", gap:20 }}>
+            {skills.map((sk,i)=>(
+              <motion.div key={sk.id||i}
+                initial={{ opacity:0, x:-20 }}
+                whileInView={{ opacity:1, x:0 }}
+                viewport={{ once:true }}
+                transition={{ duration:0.5, delay:i*0.05 }}>
+                <div style={{ display:"flex", justifyContent:"space-between", marginBottom:8 }}>
+                  <span style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:20, letterSpacing:"0.08em", color:"#fff" }}>{sk.name}</span>
+                  <span style={{ fontFamily:"'Inter',sans-serif", fontSize:11, color:"rgba(255,255,255,0.3)", letterSpacing:"0.1em" }}>{sk.level||70}%</span>
+                </div>
+                <div style={{ height:1, background:"rgba(255,255,255,0.1)", position:"relative" }}>
+                  <motion.div
+                    initial={{ width:0 }}
+                    whileInView={{ width:`${sk.level||70}%` }}
+                    viewport={{ once:true }}
+                    transition={{ duration:1, delay:i*0.05, ease:"easeOut" }}
+                    style={{ position:"absolute", top:0, left:0, height:"100%", background:"#fff" }} />
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </Panel>
+
+      {/* ══════════════ PANEL 05 — CONTACT ══════════════ */}
+      <Panel id="contact" bg="#000" style={{ minHeight:"80vh" }}>
+        <div style={{ position:"absolute", top:"50%", left:"50%", transform:"translate(-50%,-50%)", pointerEvents:"none" }}>
+          <span style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"clamp(80px,18vw,260px)", lineHeight:1, letterSpacing:"0.05em", color:"rgba(255,255,255,0.03)", whiteSpace:"nowrap" }}>
+            {d.labels.contact}
+          </span>
+        </div>
+
+        <div style={{ position:"relative", zIndex:10, textAlign:"center", padding:"80px 40px" }}>
+          <motion.h2
+            initial={{ opacity:0, y:30 }}
+            whileInView={{ opacity:1, y:0 }}
+            viewport={{ once:true }}
+            style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"clamp(48px,8vw,100px)", lineHeight:0.95, letterSpacing:"0.04em", color:"#fff", marginBottom:20 }}>
+            {d.labels.contact}
+          </motion.h2>
+          <p style={{ fontFamily:"'Inter',sans-serif", fontWeight:300, fontSize:16, color:"rgba(255,255,255,0.4)", letterSpacing:"0.1em", textTransform:"uppercase", marginBottom:48 }}>
+            {d.contactLine}
+          </p>
+
+          <a href={`mailto:${d.contact.email}`} style={{
+            fontFamily:"'Bebas Neue',sans-serif", fontSize:18, letterSpacing:"0.2em",
+            color:"#000", background:"#fff", padding:"16px 48px",
+            textDecoration:"none", display:"inline-block", marginBottom:48,
+            transition:"opacity 0.2s",
+          }}
+            onMouseEnter={e=>e.currentTarget.style.opacity="0.8"}
+            onMouseLeave={e=>e.currentTarget.style.opacity="1"}>
+            {d.contact.email}
+          </a>
+
+          <div style={{ display:"flex", justifyContent:"center", gap:40, flexWrap:"wrap" }}>
+            {[
+              { icon:<Phone size={14}/>, v:d.contact.phone },
+              { icon:<Github size={14}/>, v:`github.com/${d.contact.github}` },
+              { icon:<Linkedin size={14}/>, v:"linkedin.com/in/Hun-Phanuth" },
+              { icon:<MapPin size={14}/>, v:d.contact.location },
+            ].map((c,i)=>(
+              <div key={i} style={{ display:"flex", alignItems:"center", gap:8, fontFamily:"'Inter',sans-serif", fontSize:12, color:"rgba(255,255,255,0.3)", letterSpacing:"0.06em" }}>
+                {c.icon}{c.v}
+              </div>
+            ))}
+          </div>
+        </div>
+      </Panel>
+
+      {/* ── FOOTER ── */}
+      <footer style={{ background:"#000", borderTop:"1px solid rgba(255,255,255,0.08)", padding:"24px 40px", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:12 }}>
+        <span style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:14, letterSpacing:"0.15em", color:"rgba(255,255,255,0.3)" }}>{d.name}</span>
+        <span style={{ fontFamily:"'Inter',sans-serif", fontSize:10, letterSpacing:"0.2em", textTransform:"uppercase", color:"rgba(255,255,255,0.2)" }}>© {new Date().getFullYear()} · PHNOM PENH, CAMBODIA</span>
       </footer>
     </div>
   );
 }
 
-// Extracted to avoid inline anonymous component issue with hover
-function ProjectInner({ name, desc }) {
+function ProjectRow({ index, name, desc, link }) {
   const [hov, setHov] = useState(false);
   return (
-    <div onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
-      style={{ cursor:"pointer", padding:"24px", margin:"-24px", transition:"background 0.15s", background: hov ? INK : "transparent" }}>
-      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:8 }}>
-        <span style={{ fontFamily:"'Playfair Display',serif", fontWeight:700, fontSize:18, color: hov ? PAPER : INK, transition:"color 0.15s" }}>{name}</span>
-        <ArrowUpRight size={16} style={{ color: hov ? PAPER : META, transition:"color 0.15s", flexShrink:0 }} />
+    <a href={link||"#"} target={link&&link!=="#"?"_blank":undefined} rel="noreferrer"
+      style={{ textDecoration:"none", display:"block", background: hov ? "#fff" : "#000", transition:"background 0.2s", padding:"24px 28px" }}
+      onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}>
+      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:20 }}>
+        <div style={{ display:"flex", alignItems:"baseline", gap:20 }}>
+          <span style={{ fontFamily:"'Inter',sans-serif", fontSize:10, letterSpacing:"0.15em", color: hov ? "rgba(0,0,0,0.35)" : "rgba(255,255,255,0.25)" }}>0{index}</span>
+          <span style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"clamp(20px,3vw,36px)", letterSpacing:"0.06em", color: hov ? "#000" : "#fff", transition:"color 0.2s" }}>{name}</span>
+          <span style={{ fontFamily:"'Inter',sans-serif", fontSize:13, fontWeight:300, color: hov ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.35)", transition:"color 0.2s" }}>{desc}</span>
+        </div>
+        <ArrowUpRight size={18} style={{ color: hov ? "#000" : "rgba(255,255,255,0.25)", transition:"color 0.2s", flexShrink:0 }} />
       </div>
-      <p style={{ fontFamily:"'Libre Baskerville',serif", fontSize:13, lineHeight:1.65, color: hov ? "#C8C0B4" : META, transition:"color 0.15s", margin:0 }}>{desc}</p>
-    </div>
+    </a>
   );
 }
