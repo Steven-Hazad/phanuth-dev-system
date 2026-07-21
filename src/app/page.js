@@ -438,7 +438,7 @@ export default function RashfordStyle() {
         </div>
       </Panel>
 
-      {/* ── FOOTER ── */}
+      {/* ── FOOTER Streak ── */}
       <footer style={{ background:"#000", borderTop:"1px solid rgba(255,255,255,0.08)", padding:"24px 40px", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:12 }}>
         <span style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:14, letterSpacing:"0.15em", color:"rgba(255,255,255,0.3)" }}>{d.name}</span>
         <span style={{ fontFamily:"'Inter',sans-serif", fontSize:10, letterSpacing:"0.2em", textTransform:"uppercase", color:"rgba(255,255,255,0.2)" }}>© {new Date().getFullYear()} · PHNOM PENH, CAMBODIA</span>
