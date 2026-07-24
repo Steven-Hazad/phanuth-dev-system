@@ -12,7 +12,7 @@ import { Mail, Github, Linkedin, MapPin, Phone, ArrowUpRight, ChevronRight } fro
 // Signature: "HUN PHANUTH" in huge outlined ghost text behind photo
 // ============================================================
 
-const BLUE   = "#0085C3";
+const BLUE   = "#ff0000";
 const LBLUE  = "#E8F4FC";
 const INK    = "#111111";
 const SUB    = "#555555";
