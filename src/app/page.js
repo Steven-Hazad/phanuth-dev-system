@@ -255,7 +255,7 @@ export default function MessiLight() {
 
         {/* Photo — centre */}
         <div style={{ position:"absolute", inset:0, zIndex:2, display:"flex", alignItems:"flex-end", justifyContent:"center" }}>
-          <img src="images/bl-steven.png" alt="Hun Phanuth" style={{ height:"88vh", width:"auto", objectFit:"cover", objectPosition:"center top", display:"block" }} />
+          <img src="images/Phanuth.png" alt="Hun Phanuth" style={{ height:"88vh", width:"auto", objectFit:"cover", objectPosition:"center top", display:"block" }} />
         </div>
 
         {/* Left info panel */}
