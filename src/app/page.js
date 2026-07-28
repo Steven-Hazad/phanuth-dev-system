@@ -47,7 +47,7 @@ const T = {
   en: {
     logoLine1:"HUN",
     logoLine2:"PHANUTH",
-    ghostName:"HUN PHANUTH",
+    ghostName:"HUNNNN PHANUTH",
     heroSub:"Full-Stack Developer · Computer Science · Air Traffic Management",
     heroDesc:"Building production software and studying airspace — based in Phnom Penh, Cambodia.",
     aboutTitle:"ABOUT",
