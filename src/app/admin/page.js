@@ -81,7 +81,7 @@ export default function AdminDashboard() {
 
                 {tab === "project" && (
                   <>
-                    <input name="title" defaultValue={editingItem?.title} placeholder="Project Title" required className="form-input" />
+                    <input name="title" defaultValue={editingItem?.title} placeholder="ProjectTitle" required className="form-input" />
                     <input name="category" defaultValue={editingItem?.category} placeholder="Category" className="form-input" />
                     <input name="imageUrl" defaultValue={editingItem?.imageUrl} placeholder="Image URL" className="form-input" />
                     <textarea name="description" defaultValue={editingItem?.description} placeholder="Description" className="form-input h-24" />
