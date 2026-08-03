@@ -53,7 +53,7 @@ export default function Home() {
       edu: "EDUCATION",
       github: "CONTRIBUTION LOG",
       contact: "GET IN TOUCH",
-      contactDesc: "OPEN TO OPPORTUNITIES AND COLLABORATIONNNNNNNNNNNNNNNNNNNNNNMNMMNNN",
+      contactDesc: "OPEN TO OPPORTUNITIES AND COLLABORATIONNNNNNNNNNNNNNNNNNNNNNMNMMNNNVVVVVVVVVVVVV",
       btn: "SEND EMAIL",
       nav: { about: "ABOUT", skills: "SKILLS", work: "WORK", edu: "EDU" },
     },
