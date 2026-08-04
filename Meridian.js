@@ -1,128 +1,163 @@
 "use client";
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Mail, Github, Linkedin, MapPin, Phone, ArrowUpRight } from "lucide-react";
 
 // ============================================================
-// THE PROFILE — editorial magazine portfolio
-// Wired / Fast Company profile feature aesthetic
-// Font: Playfair Display Condensed (headline) + Libre Baskerville
-//       (body/article) + Barlow Condensed (masthead/labels)
-// Ink: #1A1714 print-black · Paper: #F8F6F0 newsprint-white
-// Red: #C41A1A — masthead marker + pull-quote mark ONLY
-// Signature: "The developer who reads radar." pull quote at 48px
+// MERIDIAN — Clean professional portfolio website
+// Like Linear / Vercel / Stripe's about pages.
+// Font: DM Sans — geometric, trusted, not the Inter AI default
+// Accent: #0057FF electric blue — links, hover, CTA only
+// Signature: hero tagline swaps between two identities on load
+// No gradients. No glass. No animations except the one that matters.
 // ============================================================
 
-const RED   = "#C41A1A";
-const INK   = "#1A1714";
-const INK2  = "#2B2825";
-const META  = "#8C7B6B";
-const PAPER = "#F8F6F0";
-const RULE  = "#E8E4DC";
+const BLUE = "#200112";
+const INK  = "#0A0A0A";
+const SUB  = "#6B7280";
+const RULE = "#E5E7EB";
+const ALT  = "#F9FAFB";
 
 const DEFAULT_EDU = [
   { id:1, degree:"Bachelor of Air Traffic Management", university:"National Institute of Civil Aviation (NICA)", startDate:"2022", endDate:"Present" },
   { id:2, degree:"Bachelor of Computer Science", university:"Cambodian University for Specialties (CUS)", startDate:"2022", endDate:"Present" },
 ];
 const DEFAULT_SKILLS = [
-  { id:1, name:"React / Next.js", level:80 }, { id:2, name:"Node.js", level:70 },
-  { id:3, name:"PostgreSQL", level:70 }, { id:4, name:"Python", level:75 },
-  { id:5, name:"Aviation Safety", level:70 }, { id:6, name:"Data Analysis", level:70 },
-  { id:7, name:"POS Systems", level:80 }, { id:8, name:"Air Traffic Mgmt", level:70 },
+  { id:1, name:"React / Next.js" }, { id:2, name:"Node.js" },
+  { id:3, name:"PostgreSQL" }, { id:4, name:"REST APIs" },
+  { id:5, name:"Python" }, { id:6, name:"Data Analysis" },
+  { id:7, name:"Aviation Safety" }, { id:8, name:"Air Traffic Management" },
+  { id:9, name:"POS Systems" }, { id:10, name:"E-commerce" },
 ];
 const DEFAULT_PROJECTS = [
   { id:1, name:"SrovChlart", description:"Rice marketplace mobile app for Cambodian farmers — React Native + TypeScript.", link:"#" },
   { id:2, name:"SafeHire", description:"Anti-scam job verification platform — React Native Expo.", link:"#" },
-  { id:3, name:"KourSrov", description:"AgriTech pitch platform for Cambodia's rice industry.", link:"#" },
+  { id:3, name:"KourSrov", description:"AgriTech platform pitch for Cambodia's rice industry.", link:"#" },
 ];
 
-const CONTENT = {
+const T = {
   en: {
-    issue: `Vol. ${new Date().getFullYear()} — Issue 01`,
-    section: "PROFILE",
-    kicker: "BUILDERS & PIONEERS",
-    headline: "The developer\nwho reads radar.",
-    subhead: "Hun Phanuth writes code by day and studies airspace by night. Meet the student who won't choose between two disciplines.",
-    pullquote: "I don't see them as separate fields. Aviation and software engineering both come down to one thing: if you get it wrong, something fails.",
-    byline: "Portfolio of Hun Phanuth",
-    location: "Phnom Penh, Cambodia",
-    body1: "There's a particular kind of discipline that comes from studying Air Traffic Management. Every decision is consequential. Ambiguity isn't tolerated. Procedures exist for a reason. It's not the obvious background for a full-stack developer — but for Hun Phanuth, it's exactly what makes him different.",
-    body2: "Since December 2025, Phanuth has been building production software for Cambodian businesses — POS systems, e-commerce platforms, agritech applications — while simultaneously cross-training at the National Institute of Civil Aviation in Phnom Penh. He's not choosing one path. He's building both.",
-    workLabel: "Selected work",
-    expLabel: "Career",
-    eduLabel: "Education",
-    skillsLabel: "Technical profile",
-    awardsLabel: "Recognition",
-    contactLabel: "Contact",
-    contactLine: "Open to serious projects and the right full-time role.",
+    greeting: "Hi, I'm",
+    name: "Hun Phanuth",
+    identities: ["Full-Stack Developer.", "ATM Student."],
+    about: "I build production software and I'm cross-training in Air Traffic Management at NICA. My work lives at the intersection of engineering and aviation — two disciplines that both demand precision.",
+    workTitle: "What I've built",
+    expTitle: "Experience",
+    eduTitle: "Education",
+    skillsTitle: "Skills",
+    contactTitle: "Get in touch",
+    contactSub: "Open to freelance projects, full-time roles, and interesting problems.",
+    contactBtn: "Send a message",
+    contact: { email:"hunphanut14@gmail.com", github:"Steven-Hazad", linkedin:"Hun Phanuth", location:"Phnom Penh, Cambodia", phone:"+855 715 303 622" },
     experience: [
       { period:"Dec 2025 – Present", title:"Full-Stack Freelancer", org:"Independent · Phnom Penh",
-        desc:"Delivers end-to-end digital products for Cambodian businesses — POS systems, e-commerce storefronts, and agritech platforms. Backend architecture, database design, API routing." },
+        desc:"Building end-to-end POS systems and e-commerce platforms for Cambodian businesses. Backend architecture, database design, API routing, and client-facing storefronts — full stack, soup to nuts." },
       { period:"Jan 2013 – Jan 2019", title:"Operations Assistant", org:"HHH Printer · Takeo",
-        desc:"Managed print operations, digital design, and client service at a family printing business. First exposure to operational systems and business workflow." },
+        desc:"Managed daily print operations, digital design, and direct client service at a family printing business. First exposure to operational systems and business workflows." },
     ],
     achievements: [
       { date:"Jun 2026", title:"3rd Place, UniPreneurCamp Cluster 1", org:"Khmer Enterprise" },
-      { date:"Dec 2025", title:"Big Data Certification", org:"Hadoop · PySpark · Spark SQL · Parquet" },
-      { date:"Dec 2024", title:"Python Certification", org:"Samsung Innovation Campus × RUPP" },
+      { date:"Dec 2025", title:"Big Data Certification", org:"Professional Training — Hadoop, PySpark, Spark SQL" },
+      { date:"Dec 2024", title:"Python Programming Certification", org:"Samsung Innovation Campus × RUPP" },
     ],
-    contact: { email:"hunphanut14@gmail.com", github:"Steven-Hazad", linkedin:"Hun Phanuth", location:"Phnom Penh, Cambodia", phone:"+855 715 303 622" },
     toggle: "KH",
-    nav: ["Work", "Experience", "Skills", "Contact"],
-    navIds: ["work", "experience", "skills", "contact"],
+    nav: { work:"Work", experience:"Experience", skills:"Skills", contact:"Contact" },
   },
   kh: {
-    issue: `ឆ្នាំ ${new Date().getFullYear()} — លេខ ០១`,
-    section: "ប្រវត្តិរូប",
-    kicker: "អ្នកបង្កើត",
-    headline: "អ្នកបង្កើតកម្មវិធី\nដែលអានរ៉ាដា។",
-    subhead: "ហ៊ុន ផានុត សរសេរកូដពេលថ្ងៃ និងសិក្សាចរាចរណ៍អាកាសពេលយប់។",
-    pullquote: "ខ្ញុំមិនមើលពួកវាជាវិស័យដាច់ដោយឡែកទេ។ Aviation និង software engineering ទាំងពីរអាស្រ័យលើរឿងតែមួយ: ប្រសិនបើខ្ញុំខុស វានឹងបរាជ័យ។",
-    byline: "ប្រវត្តិរូបរបស់ ហ៊ុន ផានុត",
-    location: "ភ្នំពេញ, កម្ពុជា",
-    body1: "មានវិន័យពិសេសមួយដែលមកពីការសិក្សាការគ្រប់គ្រងចរាចរណ៍អាកាស។ ការសម្រេចចិត្តគ្រប់យ៉ាងមានផលប៉ះពាល់។ ភាពមិនច្បាស់លាស់មិនត្រូវបានអត់ឱននោះទេ។",
-    body2: "ចាប់តាំងពីខែធ្នូ ២០២៥ ផានុតកំពុងបង្កើតកម្មវិធីផលិតផលសម្រាប់អាជីវកម្មខ្មែរ — ប្រព័ន្ធ POS, e-commerce, AgriTech — ខណៈពេលសិក្សានៅ NICA។",
-    workLabel: "គម្រោងដែលបានជ្រើស",
-    expLabel: "អាជីព",
-    eduLabel: "ការសិក្សា",
-    skillsLabel: "ប្រវត្តិបច្ចេកទេស",
-    awardsLabel: "សមិទ្ធផល",
-    contactLabel: "ទំនាក់ទំនង",
-    contactLine: "បើកចំហសម្រាប់គម្រោងធ្ងន់ធ្ងរ និងការងារត្រឹមត្រូវ។",
+    greeting: "សួស្ដី, ខ្ញុំគឺ",
+    name: "ហ៊ុន ផានុត",
+    identities: ["អ្នកអភិវឌ្ឍន៍ Full-Stack.", "និស្សិត ATM."],
+    about: "ខ្ញុំបង្កើតកម្មវិធីផលិតផល និងកំពុងសិក្សាការគ្រប់គ្រងចរាចរណ៍អាកាសនៅ NICA។ ការងាររបស់ខ្ញុំស្ថិតនៅចំណុចប្រសព្វរវាង CS និង aviation — ជំនាញទាំងពីរដែលតម្រូវភាពត្រឹមត្រូវ។",
+    workTitle: "គម្រោងដែលខ្ញុំបានបង្កើត",
+    expTitle: "បទពិសោធន៍",
+    eduTitle: "ការសិក្សា",
+    skillsTitle: "ជំនាញ",
+    contactTitle: "ទំនាក់ទំនងមកខ្ញុំ",
+    contactSub: "បើកចំហសម្រាប់គម្រោង freelance, ការងារពេញម៉ោង, និងបញ្ហាគួរឱ្យចាប់អារម្មណ៍។",
+    contactBtn: "ផ្ញើសារ",
+    contact: { email:"hunphanut14@gmail.com", github:"Steven-Hazad", linkedin:"Hun Phanuth", location:"ភ្នំពេញ, កម្ពុជា", phone:"+855 715 303 622" },
     experience: [
       { period:"ធ្នូ 2025 – បច្ចុប្បន្ន", title:"Full-Stack Freelancer", org:"Freelancer · ភ្នំពេញ",
-        desc:"ផ្តល់ផលិតផលឌីជីថលពីដើមដល់ចប់ — POS, e-commerce, AgriTech។ Backend, DB, API។" },
+        desc:"បង្កើតប្រព័ន្ធ POS និង e-commerce ពីដើមដល់ចប់ — backend, DB, API, storefront។" },
       { period:"មករា 2013 – មករា 2019", title:"ជំនួយការប្រតិបត្តិការ", org:"HHH Printer · តាកែវ",
         desc:"គ្រប់គ្រងប្រតិបត្តិការការបោះពុម្ព រចនាក្រាហ្វិក និងសេវាកម្មអតិថិជន។" },
     ],
     achievements: [
       { date:"មិថុនា 2026", title:"លេខ ៣, UniPreneurCamp Cluster 1", org:"Khmer Enterprise" },
-      { date:"ធ្នូ 2025", title:"វិញ្ញាបនបត្រ Big Data", org:"Hadoop · PySpark · Spark SQL" },
+      { date:"ធ្នូ 2025", title:"វិញ្ញាបនបត្រ Big Data", org:"Hadoop, PySpark, Spark SQL" },
       { date:"ធ្នូ 2024", title:"វិញ្ញាបនបត្រ Python", org:"Samsung Innovation Campus × RUPP" },
     ],
-    contact: { email:"hunphanut14@gmail.com", github:"Steven-Hazad", linkedin:"Hun Phanuth", location:"ភ្នំពេញ, កម្ពុជា", phone:"+855 715 303 622" },
     toggle: "EN",
-    nav: ["គម្រោង", "បទពិសោធន៍", "ជំនាញ", "ទំនាក់ទំនង"],
-    navIds: ["work", "experience", "skills", "contact"],
+    nav: { work:"គម្រោង", experience:"បទពិសោធន៍", skills:"ជំនាញ", contact:"ទំនាក់ទំនង" },
   },
 };
 
-function ColumnRule() {
-  return <div style={{ width:1, background:RULE, alignSelf:"stretch", margin:"0 32px" }} />;
-}
-
-function CapsLabel({ children, style={} }) {
+// Rotating identity tagline — the one animation
+function IdentityLine({ identities }) {
+  const [idx, setIdx] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setIdx(i => (i + 1) % identities.length), 3000);
+    return () => clearInterval(t);
+  }, [identities.length]);
   return (
-    <div style={{
-      fontFamily:"'Barlow Condensed',sans-serif",
-      fontWeight:600, fontSize:11, letterSpacing:"0.18em",
-      textTransform:"uppercase", color:META,
-      ...style,
-    }}>{children}</div>
+    <span style={{ display:"inline-block", minWidth:280 }}>
+      <AnimatePresence mode="wait">
+        <motion.span
+          key={idx}
+          initial={{ opacity:0, y:8 }}
+          animate={{ opacity:1, y:0 }}
+          exit={{ opacity:0, y:-8 }}
+          transition={{ duration:0.35, ease:"easeInOut" }}
+          style={{ display:"inline-block", color:BLUE }}
+        >
+          {identities[idx]}
+        </motion.span>
+      </AnimatePresence>
+    </span>
   );
 }
 
-export default function Editorial() {
+// Skill pill
+function Pill({ name }) {
+  return (
+    <span style={{
+      fontFamily:"'DM Sans',sans-serif", fontSize:13, fontWeight:500,
+      padding:"6px 14px", border:`1px solid ${RULE}`,
+      color:SUB, display:"inline-block",
+      transition:"all 0.15s",
+    }}
+      onMouseEnter={e => { e.currentTarget.style.borderColor = BLUE; e.currentTarget.style.color = BLUE; }}
+      onMouseLeave={e => { e.currentTarget.style.borderColor = RULE; e.currentTarget.style.color = SUB; }}
+    >
+      {name}
+    </span>
+  );
+}
+
+// Project card
+function ProjectCard({ name, description, link }) {
+  const [hov, setHov] = useState(false);
+  return (
+    <a href={link || "#"} target={link && link !== "#" ? "_blank" : undefined} rel="noreferrer"
+      style={{ textDecoration:"none", display:"block" }}
+      onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}>
+      <div style={{
+        padding:"28px 28px 24px",
+        border:`1px solid ${hov ? BLUE : RULE}`,
+        transition:"border-color 0.15s, transform 0.15s",
+        transform: hov ? "translateY(-3px)" : "translateY(0)",
+      }}>
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:10 }}>
+          <span style={{ fontFamily:"'DM Sans',sans-serif", fontWeight:700, fontSize:17, color:INK }}>{name}</span>
+          <ArrowUpRight size={18} style={{ color: hov ? BLUE : RULE, transition:"color 0.15s", flexShrink:0 }} />
+        </div>
+        <p style={{ fontFamily:"'DM Sans',sans-serif", fontSize:14, color:SUB, lineHeight:1.65, margin:0 }}>{description}</p>
+      </div>
+    </a>
+  );
+}
+
+export default function Meridian() {
   const [lang, setLang] = useState("en");
   const [apiEdu, setApiEdu] = useState([]);
   const [apiSkills, setApiSkills] = useState([]);
@@ -133,304 +168,230 @@ export default function Editorial() {
       fetch("/api/admin?type=education").then(r=>r.json()).catch(()=>[]),
       fetch("/api/admin?type=skill").then(r=>r.json()).catch(()=>[]),
       fetch("/api/admin?type=project").then(r=>r.json()).catch(()=>[]),
-    ]).then(([e,s,p])=>{
+    ]).then(([e,s,p]) => {
       setApiEdu(Array.isArray(e)?e:[]);
       setApiSkills(Array.isArray(s)?s:[]);
       setApiProjects(Array.isArray(p)?p:[]);
     });
   }, []);
 
-  const d = CONTENT[lang];
+  const d = T[lang];
   const education = apiEdu.length > 0 ? apiEdu : DEFAULT_EDU;
-  const skills    = apiSkills.length > 0 ? apiSkills : DEFAULT_SKILLS;
+  const skills    = apiSkills.length > 0 ? apiSkills.map(s=>({id:s.id,name:s.name})) : DEFAULT_SKILLS;
   const projects  = apiProjects.length > 0 ? apiProjects : DEFAULT_PROJECTS;
 
   return (
-    <div className={lang==="kh"?"font-khmer":""} style={{ minHeight:"100vh", background:PAPER, color:INK }}>
+    <div className={lang==="kh"?"font-khmer":""} style={{ minHeight:"100vh", background:"#fff", color:INK }}>
       <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400;1,700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Barlow+Condensed:wght@400;500;600;700&family=Battambang:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=Battambang:wght@400;700&display=swap');
         * { box-sizing:border-box; margin:0; padding:0; }
-        body { background:${PAPER}; }
+        body { background:#fff; }
         .font-khmer * { font-family:'Battambang',sans-serif!important; }
-        @media(max-width:700px){
-          .hero-split{grid-template-columns:1fr!important}
-          .hero-img-cell{display:none!important}
-          .two-col-body{grid-template-columns:1fr!important}
-          .col-rule{display:none!important}
-        }
+        @media(max-width:640px){ .hero-grid{grid-template-columns:1fr!important} .hero-img{display:none!important} }
       `}</style>
 
-      {/* ══ MASTHEAD ══ */}
-      <header style={{ borderBottom:`2px solid ${INK}`, background:PAPER }}>
-        {/* Top strip */}
-        <div style={{ borderBottom:`1px solid ${RULE}`, padding:"8px 40px", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-          <div style={{ display:"flex", gap:20, alignItems:"center" }}>
-            <span style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700, fontSize:11, letterSpacing:"0.18em", textTransform:"uppercase", color:META }}>{d.issue}</span>
-            <span style={{ width:1, height:12, background:RULE, display:"inline-block" }} />
-            <span style={{ fontFamily:"'Barlow Condensed',sans-serif", fontSize:11, letterSpacing:"0.15em", textTransform:"uppercase", color:META }}>{d.location}</span>
-          </div>
-          <div style={{ display:"flex", gap:12, alignItems:"center" }}>
-            <button onClick={()=>setLang(l=>l==="en"?"kh":"en")} style={{
-              fontFamily:"'Barlow Condensed',sans-serif", fontWeight:600, fontSize:11,
-              letterSpacing:"0.15em", textTransform:"uppercase",
-              background:"transparent", border:`1px solid ${RULE}`, color:META,
-              padding:"3px 10px", cursor:"pointer",
-            }}>{d.toggle}</button>
-          </div>
-        </div>
-
-        {/* Publication name */}
-        <div style={{ padding:"14px 40px 12px", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-          <div style={{ display:"flex", alignItems:"center", gap:16 }}>
-            <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700, fontSize:11, letterSpacing:"0.2em", textTransform:"uppercase", color:RED }}>■ {d.section}</div>
-          </div>
-          <div style={{ fontFamily:"'Playfair Display',serif", fontWeight:900, fontSize:28, letterSpacing:"-0.02em", color:INK, textAlign:"center", flex:1 }}>
-            THE PORTFOLIO
-          </div>
-          <nav style={{ display:"flex", gap:20 }}>
-            {d.nav.map((label, i) => (
-              <a key={i} href={`#${d.navIds[i]}`} style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:500, fontSize:12, letterSpacing:"0.12em", textTransform:"uppercase", color:INK2, textDecoration:"none" }}>{label}</a>
+      {/* ── NAV ── */}
+      <header style={{
+        position:"sticky", top:0, zIndex:50,
+        background:"rgba(255,255,255,0.92)", backdropFilter:"blur(8px)",
+        borderBottom:`1px solid ${RULE}`,
+      }}>
+        <div style={{ maxWidth:1080, margin:"0 auto", padding:"0 32px", height:60, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+          <span style={{ fontFamily:"'DM Sans',sans-serif", fontWeight:800, fontSize:16, letterSpacing:"-0.02em", color:INK }}>
+            Phanuth<span style={{ color:BLUE }}>.</span>
+          </span>
+          <nav style={{ display:"flex", gap:32, alignItems:"center" }}>
+            {Object.entries(d.nav).map(([k,v]) => (
+              <a key={k} href={`#${k}`} style={{ fontFamily:"'DM Sans',sans-serif", fontSize:14, fontWeight:500, color:SUB, textDecoration:"none" }}
+                onMouseEnter={e=>e.currentTarget.style.color=INK}
+                onMouseLeave={e=>e.currentTarget.style.color=SUB}>
+                {v}
+              </a>
             ))}
+            <button onClick={()=>setLang(l=>l==="en"?"kh":"en")} style={{
+              fontFamily:"'DM Sans',sans-serif", fontWeight:600, fontSize:13,
+              background:"transparent", border:`1px solid ${RULE}`, color:SUB,
+              padding:"5px 14px", cursor:"pointer",
+              transition:"border-color 0.15s, color 0.15s",
+            }}
+              onMouseEnter={e=>{e.currentTarget.style.borderColor=BLUE;e.currentTarget.style.color=BLUE;}}
+              onMouseLeave={e=>{e.currentTarget.style.borderColor=RULE;e.currentTarget.style.color=SUB;}}>
+              {d.toggle}
+            </button>
           </nav>
         </div>
       </header>
 
-      {/* ══ HERO SPREAD ══ */}
-      <section className="hero-split" style={{ display:"grid", gridTemplateColumns:"1fr 420px", minHeight:480, borderBottom:`1px solid ${RULE}` }}>
-
-        {/* Text side */}
-        <div style={{ padding:"48px 40px 40px", display:"flex", flexDirection:"column", justifyContent:"space-between", borderRight:`1px solid ${RULE}` }}>
+      {/* ── HERO ── */}
+      <section style={{ maxWidth:1080, margin:"0 auto", padding:"96px 32px 88px" }}>
+        <div className="hero-grid" style={{ display:"grid", gridTemplateColumns:"1fr 340px", gap:"0 64px", alignItems:"center" }}>
           <div>
-            <CapsLabel style={{ marginBottom:16 }}>{d.kicker}</CapsLabel>
-            <h1 style={{
-              fontFamily:"'Playfair Display',serif",
-              fontWeight:900,
-              fontSize:"clamp(44px,5.5vw,80px)",
-              lineHeight:1.0,
-              letterSpacing:"-0.02em",
-              color:INK,
-              marginBottom:24,
-              whiteSpace:"pre-line",
-            }}>{d.headline}</h1>
-            <p style={{ fontFamily:"'Libre Baskerville',serif", fontSize:16, lineHeight:1.7, color:INK2, maxWidth:480 }}>{d.subhead}</p>
+            <p style={{ fontFamily:"'DM Sans',sans-serif", fontSize:14, fontWeight:500, color:SUB, marginBottom:16 }}>
+              {d.greeting}
+            </p>
+            <h1 style={{ fontFamily:"'DM Sans',sans-serif", fontWeight:800, fontSize:"clamp(40px,6vw,72px)", lineHeight:1.05, letterSpacing:"-0.03em", color:INK, marginBottom:16 }}>
+              {d.name}
+            </h1>
+            <div style={{ fontFamily:"'DM Sans',sans-serif", fontWeight:700, fontSize:"clamp(22px,3.5vw,36px)", lineHeight:1.2, letterSpacing:"-0.02em", marginBottom:28, minHeight:"1.3em" }}>
+              <IdentityLine identities={d.identities} />
+            </div>
+            <p style={{ fontFamily:"'DM Sans',sans-serif", fontSize:17, lineHeight:1.75, color:SUB, maxWidth:480, marginBottom:36 }}>
+              {d.about}
+            </p>
+            <div style={{ display:"flex", gap:12, flexWrap:"wrap" }}>
+              <a href={`mailto:${d.contact.email}`} style={{
+                fontFamily:"'DM Sans',sans-serif", fontWeight:600, fontSize:14,
+                background:BLUE, color:"#fff", padding:"12px 28px",
+                textDecoration:"none", display:"inline-flex", alignItems:"center", gap:8,
+                transition:"opacity 0.15s",
+              }}
+                onMouseEnter={e=>e.currentTarget.style.opacity="0.88"}
+                onMouseLeave={e=>e.currentTarget.style.opacity="1"}>
+                <Mail size={15}/>{d.contactBtn}
+              </a>
+              <a href={`https://github.com/${d.contact.github}`} target="_blank" rel="noreferrer" style={{
+                fontFamily:"'DM Sans',sans-serif", fontWeight:600, fontSize:14,
+                background:"transparent", color:INK, padding:"12px 24px",
+                textDecoration:"none", border:`1px solid ${RULE}`,
+                display:"inline-flex", alignItems:"center", gap:8,
+                transition:"border-color 0.15s",
+              }}
+                onMouseEnter={e=>e.currentTarget.style.borderColor=INK}
+                onMouseLeave={e=>e.currentTarget.style.borderColor=RULE}>
+                <Github size={15}/>GitHub
+              </a>
+            </div>
           </div>
 
-          <div style={{ display:"flex", gap:24, alignItems:"center", marginTop:32, paddingTop:24, borderTop:`1px solid ${RULE}` }}>
-            <div>
-              <CapsLabel>Byline</CapsLabel>
-              <div style={{ fontFamily:"'Libre Baskerville',serif", fontSize:14, color:INK, marginTop:4 }}>{d.byline}</div>
-            </div>
-            <div style={{ width:1, height:32, background:RULE }} />
-            <div>
-              <CapsLabel>Contact</CapsLabel>
-              <a href={`mailto:${d.contact.email}`} style={{ fontFamily:"'Barlow Condensed',sans-serif", fontSize:14, fontWeight:500, color:INK, textDecoration:"none", letterSpacing:"0.04em", display:"block", marginTop:4 }}>{d.contact.email}</a>
-            </div>
-          </div>
-        </div>
-
-        {/* Photo side */}
-        <div className="hero-img-cell" style={{ overflow:"hidden", position:"relative" }}>
-          <img src="images/bl-steven.png" alt="Hun Phanuth"
-            style={{ width:"100%", height:"100%", objectFit:"cover", objectPosition:"center top", filter:"contrast(1.05)" }} />
-          <div style={{ position:"absolute", bottom:0, left:0, right:0, padding:"12px 16px", background:"rgba(248,246,240,0.92)", borderTop:`1px solid ${RULE}` }}>
-            <CapsLabel>Hun Phanuth, Phnom Penh — {new Date().getFullYear()}</CapsLabel>
+          {/* Photo */}
+          <div className="hero-img" style={{ aspectRatio:"3/4", overflow:"hidden", background:ALT }}>
+            <img src="images/bl-steven.png" alt="Hun Phanuth"
+              style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }} />
           </div>
         </div>
       </section>
 
-      <div style={{ maxWidth:1100, margin:"0 auto", padding:"0 40px" }}>
-
-        {/* ══ ARTICLE BODY — 2 col ══ */}
-        <section style={{ padding:"48px 0 0" }}>
-          <div className="two-col-body" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:0 }}>
-            <div style={{ paddingRight:32 }}>
-              <p style={{ fontFamily:"'Libre Baskerville',serif", fontSize:15, lineHeight:1.85, color:INK2, marginBottom:20 }}>{d.body1}</p>
-            </div>
-            <div className="col-rule" style={{ width:1, background:RULE }} />
-            <div style={{ paddingLeft:32 }}>
-              <p style={{ fontFamily:"'Libre Baskerville',serif", fontSize:15, lineHeight:1.85, color:INK2 }}>{d.body2}</p>
-            </div>
-          </div>
-        </section>
-
-        {/* ══ PULL QUOTE — signature element ══ */}
-        <section style={{ padding:"48px 0", borderTop:`1px solid ${RULE}`, borderBottom:`1px solid ${RULE}`, margin:"40px 0 0" }}>
-          <div style={{ position:"relative", paddingLeft:48 }}>
-            <span style={{
-              position:"absolute", left:0, top:-8,
-              fontFamily:"'Playfair Display',serif",
-              fontSize:80, lineHeight:1,
-              color:RED, fontWeight:900,
-              userSelect:"none",
-            }}>"</span>
-            <blockquote style={{
-              fontFamily:"'Playfair Display',serif",
-              fontStyle:"italic",
-              fontWeight:400,
-              fontSize:"clamp(22px,3vw,36px)",
-              lineHeight:1.4,
-              color:INK,
-              letterSpacing:"-0.01em",
-            }}>
-              {d.pullquote}
-            </blockquote>
-            <CapsLabel style={{ marginTop:20 }}>— Hun Phanuth</CapsLabel>
-          </div>
-        </section>
-
-        {/* ══ PROJECTS ══ */}
-        <section id="work" style={{ padding:"48px 0", borderBottom:`1px solid ${RULE}` }}>
-          <div style={{ display:"flex", alignItems:"baseline", gap:16, marginBottom:28 }}>
-            <CapsLabel>{d.workLabel}</CapsLabel>
-            <div style={{ flex:1, height:1, background:RULE }} />
-          </div>
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))", gap:0, border:`1px solid ${RULE}` }}>
-            {projects.map((p, i) => (
-              <motion.a key={p.id} href={p.link||"#"} target={p.link&&p.link!=="#"?"_blank":undefined} rel="noreferrer"
-                initial={{ opacity:0 }} whileInView={{ opacity:1 }} viewport={{ once:true }} transition={{ delay:i*0.07 }}
-                style={{
-                  textDecoration:"none", display:"block",
-                  padding:"24px 24px 20px",
-                  borderRight: i < projects.length-1 ? `1px solid ${RULE}` : "none",
-                }}
-                onMouseEnter={e=>e.currentTarget.style.background=INK}
-                onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
-                {({ background }={}) => null}
-                <ProjectInner name={p.title||p.name} desc={p.description} />
-              </motion.a>
+      {/* ── WORK / PROJECTS ── */}
+      <section id="work" style={{ background:ALT, padding:"80px 0" }}>
+        <div style={{ maxWidth:1080, margin:"0 auto", padding:"0 32px" }}>
+          <h2 style={{ fontFamily:"'DM Sans',sans-serif", fontWeight:800, fontSize:32, letterSpacing:"-0.02em", color:INK, marginBottom:8 }}>{d.workTitle}</h2>
+          <p style={{ fontFamily:"'DM Sans',sans-serif", fontSize:15, color:SUB, marginBottom:40 }}>
+            Selected projects — more on <a href={`https://github.com/${d.contact.github}`} style={{ color:BLUE, textDecoration:"none" }}>GitHub</a>.
+          </p>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))", gap:16 }}>
+            {projects.map(p => (
+              <ProjectCard key={p.id} name={p.title||p.name} description={p.description} link={p.link} />
             ))}
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* ══ EXPERIENCE + EDUCATION ══ */}
-        <section id="experience" style={{ padding:"48px 0", borderBottom:`1px solid ${RULE}` }}>
-          <div className="two-col-body" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:0 }}>
-            {/* Experience */}
-            <div style={{ paddingRight:40 }}>
-              <div style={{ display:"flex", alignItems:"baseline", gap:12, marginBottom:24 }}>
-                <CapsLabel>{d.expLabel}</CapsLabel>
-                <div style={{ flex:1, height:1, background:RULE }} />
-              </div>
-              {d.experience.map((exp, i) => (
-                <div key={i} style={{ marginBottom:24, paddingBottom:24, borderBottom: i < d.experience.length-1 ? `1px solid ${RULE}` : "none" }}>
-                  <CapsLabel style={{ marginBottom:6 }}>{exp.period}</CapsLabel>
-                  <div style={{ fontFamily:"'Playfair Display',serif", fontWeight:700, fontSize:18, color:INK, marginBottom:3 }}>{exp.title}</div>
-                  <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontSize:13, fontWeight:500, letterSpacing:"0.08em", color:META, marginBottom:8 }}>{exp.org}</div>
-                  <p style={{ fontFamily:"'Libre Baskerville',serif", fontSize:13, lineHeight:1.7, color:INK2 }}>{exp.desc}</p>
+      {/* ── EXPERIENCE ── */}
+      <section id="experience" style={{ padding:"80px 0" }}>
+        <div style={{ maxWidth:1080, margin:"0 auto", padding:"0 32px" }}>
+          <h2 style={{ fontFamily:"'DM Sans',sans-serif", fontWeight:800, fontSize:32, letterSpacing:"-0.02em", color:INK, marginBottom:48 }}>{d.expTitle}</h2>
+
+          {/* Experience rows */}
+          <div style={{ marginBottom:56 }}>
+            {d.experience.map((exp, i) => (
+              <div key={i} style={{ display:"grid", gridTemplateColumns:"160px 1fr", gap:"0 48px", paddingTop:28, paddingBottom:28, borderTop:`1px solid ${RULE}` }}>
+                <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:13, color:SUB, paddingTop:3 }}>{exp.period}</div>
+                <div>
+                  <div style={{ fontFamily:"'DM Sans',sans-serif", fontWeight:700, fontSize:17, color:INK, marginBottom:3 }}>{exp.title}</div>
+                  <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:13, color:BLUE, fontWeight:500, marginBottom:10 }}>{exp.org}</div>
+                  <p style={{ fontFamily:"'DM Sans',sans-serif", fontSize:14, color:SUB, lineHeight:1.7 }}>{exp.desc}</p>
                 </div>
-              ))}
-            </div>
-
-            <div className="col-rule" style={{ width:1, background:RULE }} />
-
-            {/* Education + Awards */}
-            <div style={{ paddingLeft:40 }}>
-              <div style={{ display:"flex", alignItems:"baseline", gap:12, marginBottom:24 }}>
-                <CapsLabel>{d.eduLabel}</CapsLabel>
-                <div style={{ flex:1, height:1, background:RULE }} />
               </div>
+            ))}
+
+            {/* Education inline */}
+            <div style={{ paddingTop:28, borderTop:`1px solid ${RULE}` }}>
+              <div style={{ fontFamily:"'DM Sans',sans-serif", fontWeight:700, fontSize:17, color:INK, marginBottom:20 }}>{d.eduTitle}</div>
               {education.map((edu, i) => (
-                <div key={edu.id} style={{ marginBottom:18, paddingBottom:18, borderBottom:`1px solid ${RULE}` }}>
-                  <CapsLabel style={{ marginBottom:4 }}>{edu.startDate} – {edu.endDate}</CapsLabel>
-                  <div style={{ fontFamily:"'Playfair Display',serif", fontWeight:700, fontSize:15, color:INK, marginBottom:2 }}>{edu.degree}</div>
-                  <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontSize:13, color:META, letterSpacing:"0.06em" }}>{edu.university}</div>
-                </div>
-              ))}
-
-              <div style={{ display:"flex", alignItems:"baseline", gap:12, marginBottom:20, marginTop:8 }}>
-                <CapsLabel>{d.awardsLabel}</CapsLabel>
-                <div style={{ flex:1, height:1, background:RULE }} />
-              </div>
-              {d.achievements.map((ach, i) => (
-                <div key={i} style={{ marginBottom:14 }}>
-                  <div style={{ display:"flex", gap:12, alignItems:"baseline" }}>
-                    <CapsLabel style={{ flexShrink:0 }}>{ach.date}</CapsLabel>
-                    <span style={{ fontFamily:"'Libre Baskerville',serif", fontSize:13, color:INK, fontWeight:700 }}>{ach.title}</span>
+                <div key={edu.id} style={{ display:"grid", gridTemplateColumns:"160px 1fr", gap:"0 48px", marginBottom: i < education.length-1 ? 18 : 0 }}>
+                  <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:13, color:SUB }}>{edu.startDate} – {edu.endDate}</div>
+                  <div>
+                    <div style={{ fontFamily:"'DM Sans',sans-serif", fontWeight:600, fontSize:15, color:INK }}>{edu.degree}</div>
+                    <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:13, color:SUB, marginTop:2 }}>{edu.university}</div>
                   </div>
-                  <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontSize:12, color:META, letterSpacing:"0.06em", marginTop:2, paddingLeft:0 }}>{ach.org}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Achievements inline */}
+            <div style={{ paddingTop:28, borderTop:`1px solid ${RULE}`, marginTop:28 }}>
+              <div style={{ fontFamily:"'DM Sans',sans-serif", fontWeight:700, fontSize:17, color:INK, marginBottom:20 }}>Awards & Certifications</div>
+              {d.achievements.map((ach, i) => (
+                <div key={i} style={{ display:"grid", gridTemplateColumns:"160px 1fr", gap:"0 48px", marginBottom: i < d.achievements.length-1 ? 14 : 0 }}>
+                  <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:13, color:SUB }}>{ach.date}</div>
+                  <div>
+                    <div style={{ fontFamily:"'DM Sans',sans-serif", fontWeight:600, fontSize:14, color:INK }}>{ach.title}</div>
+                    <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:13, color:SUB, marginTop:2 }}>{ach.org}</div>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* ══ SKILLS ══ */}
-        <section id="skills" style={{ padding:"48px 0", borderBottom:`1px solid ${RULE}` }}>
-          <div style={{ display:"flex", alignItems:"baseline", gap:16, marginBottom:28 }}>
-            <CapsLabel>{d.skillsLabel}</CapsLabel>
-            <div style={{ flex:1, height:1, background:RULE }} />
+      {/* ── SKILLS ── */}
+      <section id="skills" style={{ background:ALT, padding:"80px 0" }}>
+        <div style={{ maxWidth:1080, margin:"0 auto", padding:"0 32px" }}>
+          <h2 style={{ fontFamily:"'DM Sans',sans-serif", fontWeight:800, fontSize:32, letterSpacing:"-0.02em", color:INK, marginBottom:32 }}>{d.skillsTitle}</h2>
+          <div style={{ display:"flex", flexWrap:"wrap", gap:10 }}>
+            {skills.map(sk => <Pill key={sk.id} name={sk.name} />)}
           </div>
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(160px,1fr))", gap:"14px 32px" }}>
-            {skills.map((sk, i) => (
-              <div key={sk.id||i}>
-                <div style={{ display:"flex", justifyContent:"space-between", marginBottom:5 }}>
-                  <span style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:600, fontSize:13, letterSpacing:"0.06em", color:INK }}>{sk.name}</span>
-                  <span style={{ fontFamily:"'Barlow Condensed',sans-serif", fontSize:12, color:META }}>{sk.level||70}%</span>
-                </div>
-                <div style={{ height:1, background:RULE }}>
-                  <motion.div initial={{ width:0 }} whileInView={{ width:`${sk.level||70}%` }} viewport={{ once:true }} transition={{ duration:0.7, delay:i*0.04 }}
-                    style={{ height:"100%", background:INK }} />
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+        </div>
+      </section>
 
-        {/* ══ CONTACT ══ */}
-        <section id="contact" style={{ padding:"56px 0 80px" }}>
-          <div style={{ display:"grid", gridTemplateColumns:"1fr auto", gap:40, alignItems:"start", flexWrap:"wrap" }} className="two-col-body">
-            <div>
-              <h2 style={{ fontFamily:"'Playfair Display',serif", fontWeight:900, fontSize:"clamp(32px,5vw,56px)", lineHeight:1.05, letterSpacing:"-0.02em", color:INK, marginBottom:12 }}>
-                {d.contactLabel}
-              </h2>
-              <p style={{ fontFamily:"'Libre Baskerville',serif", fontSize:15, color:INK2, lineHeight:1.7 }}>{d.contactLine}</p>
-            </div>
-            <div style={{ display:"flex", flexDirection:"column", gap:10, minWidth:220 }}>
+      {/* ── CONTACT ── */}
+      <section id="contact" style={{ padding:"96px 0" }}>
+        <div style={{ maxWidth:1080, margin:"0 auto", padding:"0 32px" }}>
+          <div style={{ maxWidth:560 }}>
+            <h2 style={{ fontFamily:"'DM Sans',sans-serif", fontWeight:800, fontSize:"clamp(32px,5vw,52px)", letterSpacing:"-0.03em", lineHeight:1.05, color:INK, marginBottom:16 }}>
+              {d.contactTitle}
+            </h2>
+            <p style={{ fontFamily:"'DM Sans',sans-serif", fontSize:16, color:SUB, lineHeight:1.7, marginBottom:36 }}>{d.contactSub}</p>
+
+            <a href={`mailto:${d.contact.email}`} style={{
+              fontFamily:"'DM Sans',sans-serif", fontWeight:700, fontSize:15,
+              background:BLUE, color:"#fff", padding:"14px 32px",
+              textDecoration:"none", display:"inline-flex", alignItems:"center", gap:10, marginBottom:40,
+            }}
+              onMouseEnter={e=>e.currentTarget.style.opacity="0.88"}
+              onMouseLeave={e=>e.currentTarget.style.opacity="1"}>
+              <Mail size={16}/>{d.contactBtn} →
+            </a>
+
+            <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
               {[
-                { icon:<Mail size={13}/>, v:d.contact.email, href:`mailto:${d.contact.email}` },
-                { icon:<Phone size={13}/>, v:d.contact.phone, href:`tel:${d.contact.phone}` },
-                { icon:<Github size={13}/>, v:`github.com/${d.contact.github}`, href:`https://github.com/${d.contact.github}` },
-                { icon:<Linkedin size={13}/>, v:"linkedin.com/in/Hun-Phanuth", href:"#" },
-                { icon:<MapPin size={13}/>, v:d.contact.location, href:null },
+                { icon:<Phone size={14}/>, v:d.contact.phone },
+                { icon:<Mail size={14}/>, v:d.contact.email },
+                { icon:<Github size={14}/>, v:`github.com/${d.contact.github}` },
+                { icon:<Linkedin size={14}/>, v:`linkedin.com/in/Hun-Phanuth` },
+                { icon:<MapPin size={14}/>, v:d.contact.location },
               ].map((c,i) => (
-                <div key={i} style={{ display:"flex", alignItems:"center", gap:10 }}>
-                  <span style={{ color:META, flexShrink:0 }}>{c.icon}</span>
-                  {c.href ? (
-                    <a href={c.href} style={{ fontFamily:"'Barlow Condensed',sans-serif", fontSize:14, fontWeight:500, letterSpacing:"0.04em", color:INK, textDecoration:"none" }}
-                      onMouseEnter={e=>e.currentTarget.style.color=RED}
-                      onMouseLeave={e=>e.currentTarget.style.color=INK}>
-                      {c.v}
-                    </a>
-                  ) : (
-                    <span style={{ fontFamily:"'Barlow Condensed',sans-serif", fontSize:14, color:META, letterSpacing:"0.04em" }}>{c.v}</span>
-                  )}
+                <div key={i} style={{ display:"flex", alignItems:"center", gap:12, fontFamily:"'DM Sans',sans-serif", fontSize:14, color:SUB }}>
+                  <span style={{ color:INK }}>{c.icon}</span>{c.v}
                 </div>
               ))}
             </div>
           </div>
-        </section>
-      </div>
+        </div>
+      </section>
 
-      {/* ══ FOOTER ══ */}
-      <footer style={{ borderTop:`2px solid ${INK}`, background:INK, padding:"16px 40px", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:12 }}>
-        <span style={{ fontFamily:"'Playfair Display',serif", fontWeight:900, fontSize:16, color:PAPER, letterSpacing:"-0.01em" }}>THE PORTFOLIO</span>
-        <span style={{ fontFamily:"'Barlow Condensed',sans-serif", fontSize:11, letterSpacing:"0.18em", textTransform:"uppercase", color:META }}>Hun Phanuth · Phnom Penh · {new Date().getFullYear()}</span>
+      {/* ── FOOTER ── */}
+      <footer style={{ borderTop:`1px solid ${RULE}`, padding:"24px 32px" }}>
+        <div style={{ maxWidth:1080, margin:"0 auto", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:12 }}>
+          <span style={{ fontFamily:"'DM Sans',sans-serif", fontSize:13, color:SUB }}>
+            © {new Date().getFullYear()} Hun Phanuth
+          </span>
+          <span style={{ fontFamily:"'DM Sans',sans-serif", fontSize:13, color:SUB }}>
+            Phnom Penh, Cambodia
+          </span>
+        </div>
       </footer>
-    </div>
-  );
-}
-
-// Extracted to avoid inline anonymous component issue with hover
-function ProjectInner({ name, desc }) {
-  const [hov, setHov] = useState(false);
-  return (
-    <div onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
-      style={{ cursor:"pointer", padding:"24px", margin:"-24px", transition:"background 0.15s", background: hov ? INK : "transparent" }}>
-      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:8 }}>
-        <span style={{ fontFamily:"'Playfair Display',serif", fontWeight:700, fontSize:18, color: hov ? PAPER : INK, transition:"color 0.15s" }}>{name}</span>
-        <ArrowUpRight size={16} style={{ color: hov ? PAPER : META, transition:"color 0.15s", flexShrink:0 }} />
-      </div>
-      <p style={{ fontFamily:"'Libre Baskerville',serif", fontSize:13, lineHeight:1.65, color: hov ? "#C8C0B4" : META, transition:"color 0.15s", margin:0 }}>{desc}</p>
     </div>
   );
 }
