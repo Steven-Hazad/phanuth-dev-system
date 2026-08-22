@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Phone, Mail, Github, Linkedin, MapPin } from "lucide-react";
 
 // ============================================================
-// FORMAL — weight contrast + negative space. One red. That's it.
+// FORMAL —     weight contrast + negative space. One red. That's it.
 // Font: Syne 900 display / Syne 400–600 body (one family)
 // Colour: #FAFAFA bg · #111111 ink · #E8000D ONE accent (name H + CTA)
 // Layout: full-width name → hairline → two-col label/content rows
