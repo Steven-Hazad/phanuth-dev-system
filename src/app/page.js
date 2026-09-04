@@ -1,404 +1,467 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Phone, Mail, Github, Linkedin, MapPin } from "lucide-react";
+import { motion } from "framer-motion";
+import { Mail, Github, Linkedin, MapPin, Phone } from "lucide-react";
 
 // ============================================================
-// FORMAL —     weight contrast + negative space. One red. That's it.
-// Font: Syne 900 display / Syne 400–600 body (one family)
-// Colour: #FAFAFA bg · #111111 ink · #E8000D ONE accent (name H + CTA)
-// Layout: full-width name → hairline → two-col label/content rows
-// Signature: red H in the name, dead silence everywhere else
-// Now responsive (mobile-first breakpoints) + print-tuned for PDF export
+// SCRAPBOOK — torn paper, tape strips, pinned photos,
+// handwritten labels, rubber stamps, sticky notes.
+// Paper: #FBF7F0 · Ink: #2C1810 · Tape: #D4C5A9
+// Accents: highlighter yellow #FFE566, stamp red #C0392B,
+//          washi blue #7EB8D4, sticky pink #FFB3BA
+// Font: Caveat (handwritten) + Kalam (printed handwriting)
+// Signature: everything is slightly rotated, nothing is perfect
 // ============================================================
 
-const DEFAULT_EDU = [
-  { id:1, degree:"Bachelor of Air Traffic Management", university:"National Institute of Civil Aviation (NICA)", startDate:"2022", endDate:"Present" },
-  { id:2, degree:"Bachelor of Computer Science", university:"Cambodian University for Specialties (CUS)", startDate:"2022", endDate:"Present" },
+const PAPER  = "#FBF7F0";
+const INK    = "#2C1810";
+const TAPE   = "rgba(212,197,169,0.7)";
+const YELLOW = "#FFE566";
+const RED    = "#C0392B";
+const BLUE   = "#7EB8D4";
+const PINK   = "#FFB3BA";
+const MINT   = "#B5EAD7";
+const AGED   = "#F0E6D3";
+
+const DEFAULT_PROJECTS = [
+  { id:1, name:"SrovChlart", tag:"AgriTech", year:"'24", desc:"Rice marketplace for Cambodian farmers. React Native + TypeScript.", color:MINT },
+  { id:2, name:"SafeHire", tag:"Safety App", year:"'24", desc:"Anti-scam job verification platform. React Native Expo.", color:PINK },
+  { id:3, name:"KourSrov", tag:"AgriTech", year:"'23", desc:"AgriTech platform for Cambodia's rice industry.", color:YELLOW },
 ];
 const DEFAULT_SKILLS = [
-  { id:1, name:"Frontend", level:80 }, { id:2, name:"Backend", level:70 },
-  { id:3, name:"Data Analysis", level:70 }, { id:4, name:"Aviation Safety", level:70 },
-  { id:5, name:"Law of Aviation", level:70 }, { id:6, name:"Quality Management", level:60 },
+  "React","Next.js","Node.js","PostgreSQL","Python",
+  "React Native","TypeScript","Tailwind","Supabase","Expo",
+  "PySpark","Spark SQL","Hadoop","Aviation Safety","Air Traffic Mgmt",
+];
+const DEFAULT_EDU = [
+  { id:1, degree:"Air Traffic Management", university:"NICA — National Institute of Civil Aviation", period:"2022 – now" },
+  { id:2, degree:"Computer Science", university:"CUS — Cambodian University for Specialties", period:"2022 – now" },
 ];
 
-const CONTENT = {
+// Washi tape strip — horizontal
+function Tape({ color = TAPE, rotate = "-1deg", top = -10, width = "60%", left = "20%" }) {
+  return (
+    <div style={{
+      position:"absolute", top, left, width, height:22,
+      background:color, opacity:0.75,
+      transform:`rotate(${rotate})`,
+      zIndex:10,
+      borderLeft:"1px solid rgba(0,0,0,0.04)",
+      borderRight:"1px solid rgba(0,0,0,0.04)",
+    }} />
+  );
+}
+
+// Torn edge — bottom of a paper piece
+function TornBottom() {
+  return (
+    <svg viewBox="0 0 400 16" style={{ display:"block", width:"100%", height:16, marginTop:-1 }} preserveAspectRatio="none">
+      <path d="M0,0 Q20,14 40,6 Q60,0 80,10 Q100,18 120,8 Q140,0 160,12 Q180,20 200,6 Q220,0 240,10 Q260,18 280,4 Q300,0 320,12 Q340,20 360,6 Q380,0 400,10 L400,0 Z"
+        fill={PAPER} />
+    </svg>
+  );
+}
+
+// Sticky note
+function Sticky({ children, color = YELLOW, rotate = "2deg", style = {} }) {
+  return (
+    <div style={{
+      background: color,
+      padding:"14px 16px 18px",
+      boxShadow:"2px 3px 8px rgba(0,0,0,0.15), inset 0 -1px 0 rgba(0,0,0,0.05)",
+      transform:`rotate(${rotate})`,
+      position:"relative",
+      ...style,
+    }}>
+      {/* Top fold */}
+      <div style={{ position:"absolute", top:0, right:0, width:0, height:0, borderStyle:"solid", borderWidth:"0 14px 14px 0", borderColor:`transparent rgba(0,0,0,0.08) transparent transparent` }} />
+      {children}
+    </div>
+  );
+}
+
+// Rubber stamp
+function Stamp({ children, color = RED }) {
+  return (
+    <div style={{
+      display:"inline-block",
+      border:`2.5px solid ${color}`,
+      color, padding:"4px 12px",
+      fontFamily:"'Kalam',cursive",
+      fontWeight:700, fontSize:13,
+      letterSpacing:"0.12em",
+      textTransform:"uppercase",
+      transform:"rotate(-3deg)",
+      opacity:0.75,
+      filter:"url(#roughen)",
+    }}>
+      {children}
+    </div>
+  );
+}
+
+// Pinned card — paper with a pin hole
+function PinnedCard({ children, rotate = "1deg", bg = AGED, style = {} }) {
+  return (
+    <div style={{ position:"relative", transform:`rotate(${rotate})`, ...style }}>
+      {/* Pin */}
+      <div style={{
+        position:"absolute", top:-10, left:"50%", transform:"translateX(-50%)",
+        width:14, height:14, borderRadius:"50%",
+        background:"radial-gradient(circle at 35% 35%, #E8D5C4, #C4956A)",
+        boxShadow:"0 2px 4px rgba(0,0,0,0.3)",
+        zIndex:20,
+      }} />
+      <div style={{
+        background:bg,
+        padding:"24px 20px 20px",
+        boxShadow:"2px 4px 12px rgba(0,0,0,0.12), 0 1px 3px rgba(0,0,0,0.08)",
+      }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+const T = {
   en: {
-    first: "H", rest: "UN PHANUTH",
-    role: "Full-Stack Developer",
-    sector: "Computer Science — Air Traffic Management",
-    about: "CS student and full-stack developer, cross-training in Air Traffic Management at NICA. I build production software — POS systems, e-commerce platforms, agritech apps — and I'm working toward a career that bridges engineering and aviation operations.",
-    contact: { phone:"+855 715 303 622", email:"hunphanut14@gmail.com", github:"Steven-Hazad", linkedin:"Hun Phanuth", location:"Phnom Penh, Cambodia" },
-    experience: [
-      { period:"2025 – Present", title:"Full-Stack Freelancer", org:"Independent · Phnom Penh",
-        points:["Deliver end-to-end POS and e-commerce platforms for Cambodian businesses.","Architect backend systems, database structures, and API routing for production stability.","Build responsive storefronts with dynamic catalogs and smooth checkout flows.","Translate client operational needs directly into production-ready digital products."] },
-      { period:"2013 – 2019", title:"Operations Assistant", org:"HHH Printer · Takeo",
-        points:["Managed daily print operations, document processing, and digital design.","Designed custom layouts and graphics based on client briefs.","Operated and maintained professional printing equipment.","Provided direct customer service across all accounts."] },
+    greeting: "hey, i'm",
+    name: "Hun Phanuth",
+    role: "full-stack dev + atm student",
+    location: "Phnom Penh, Cambodia",
+    about: "I write code and study airspace. Freelancing on POS systems, e-commerce + agritech apps. Also training in Air Traffic Management at NICA.",
+    note1: "open to work!",
+    note2: "CS + Aviation = me",
+    projectsTitle: "stuff i've built",
+    expTitle: "work history",
+    eduTitle: "school stuff",
+    skillsTitle: "things i know",
+    awardsTitle: "wins ✦",
+    contactTitle: "say hi!",
+    exp: [
+      { period:"Dec 2025 – now", title:"Full-Stack Freelancer", org:"Independent, Phnom Penh", desc:"Building POS + e-commerce platforms for Cambodian businesses end-to-end." },
+      { period:"2013 – 2019", title:"Operations Assistant", org:"HHH Printer, Takeo", desc:"Print ops, digital design, direct client work." },
     ],
-    education: [],
-    skills: [],
-    achievements: [
-      { date:"Jun 2026", title:"3rd Place — UniPreneurCamp Cluster 1", org:"Khmer Enterprise", desc:'Team "Safework" placed 3rd at UniPreneurCamp Cluster 1. June 12–14, 2026.' },
-      { date:"Dec 2025", title:"Big Data Certification", org:"Professional Training Programme", desc:"Completed intensive enterprise big data training. Capstone processed 1.04M+ rows using Hadoop HDFS, PySpark, Spark SQL, Apache Hive, and Parquet." },
-      { date:"Dec 2024", title:"Python Programming Certification", org:"Samsung Innovation Campus × RUPP", desc:"Completed Feb – Dec 2024. Certificate signed by the Vice Director of the Royal University of Phnom Penh." },
+    awards: [
+      { year:"2026", title:"3rd place, UniPreneurCamp Cluster 1", org:"Khmer Enterprise" },
+      { year:"2025", title:"Big Data Certification", org:"Hadoop · PySpark · Spark SQL" },
+      { year:"2024", title:"Python Certification", org:"Samsung × RUPP" },
     ],
-    languages: [{ name:"Khmer", note:"Native" }, { name:"English", note:"Professional working proficiency" }],
-    nav: { experience:"Experience", education:"Education", skills:"Skills", contact:"Contact" },
-    labels: { experience:"Experience", education:"Education", skills:"Technical skills", achievements:"Awards & certifications", languages:"Languages", contact:"Get in touch", print:"Print / PDF" },
-    toggle: "KH",
+    contact: { email:"hunphanut14@gmail.com", github:"Steven-Hazad", linkedin:"Hun Phanuth", location:"Phnom Penh, Cambodia", phone:"+855 715 303 622" },
+    toggle:"KH",
   },
   kh: {
-    first: "ហ៊ុន", rest: " ផានុត",
-    role: "អ្នកអភិវឌ្ឍន៍ Full-Stack",
-    sector: "វិទ្យាសាស្ត្រកុំព្យូទ័រ — គ្រប់គ្រងចរាចរណ៍អាកាស",
-    about: "និស្សិត CS និងអ្នកអភិវឌ្ឍន៍ full-stack ដែលកំពុងសិក្សា ATM នៅ NICA។ ខ្ញុំបង្កើតកម្មវិធី POS, e-commerce, AgriTech — ឆ្ពោះទៅអាជីពភ្ជាប់ CS និង aviation។",
-    contact: { phone:"+855 715 303 622", email:"hunphanut14@gmail.com", github:"Steven-Hazad", linkedin:"Hun Phanuth", location:"ភ្នំពេញ, កម្ពុជា" },
-    experience: [
-      { period:"2025 – បច្ចុប្បន្ន", title:"Full-Stack Freelancer", org:"Freelancer · ភ្នំពេញ",
-        points:["ផ្តល់ប្រព័ន្ធ POS និង e-commerce ពីដើមដល់ចប់។","រៀបចំ backend, ទិន្នន័យ, API សម្រាប់ស្ថិរភាព។","បង្កើតទំព័រឆ្លើយតប។","បំប្លែងតម្រូវការអតិថិជនទៅជាផលិតផល។"] },
-      { period:"2013 – 2019", title:"ជំនួយការប្រតិបត្តិការ", org:"HHH Printer · តាកែវ",
-        points:["គ្រប់គ្រងប្រតិបត្តិការការបោះពុម្ព។","រចនាក្រាហ្វិក។","ផ្តល់សេវាកម្មអតិថិជន។"] },
+    greeting: "សួស្ដី, ខ្ញុំ",
+    name: "ហ៊ុន ផានុត",
+    role: "full-stack dev + និស្សិត ATM",
+    location: "ភ្នំពេញ, កម្ពុជា",
+    about: "ខ្ញុំសរសេរកូដ ហើយសិក្សាចរាចរណ៍អាកាស។ Freelancing — POS, e-commerce, AgriTech។ សិក្សា ATM នៅ NICA ។",
+    note1: "បើកចំហ!",
+    note2: "CS + Aviation = ខ្ញុំ",
+    projectsTitle: "អ្វីដែលខ្ញុំបានបង្កើត",
+    expTitle: "ប្រវត្តិការងារ",
+    eduTitle: "ការសិក្សា",
+    skillsTitle: "ជំនាញ",
+    awardsTitle: "សមិទ្ធផល ✦",
+    contactTitle: "ទំនាក់ទំនង!",
+    exp: [
+      { period:"ធ្នូ 2025 – Now", title:"Full-Stack Freelancer", org:"Freelancer, ភ្នំពេញ", desc:"POS + e-commerce ពីដើមដល់ចប់។" },
+      { period:"2013 – 2019", title:"ជំនួយការប្រតិបត្តិការ", org:"HHH Printer, តាកែវ", desc:"ប្រតិបត្តិការការបោះពុម្ព, រចនា, អតិថិជន។" },
     ],
-    education: [],
-    skills: [],
-    achievements: [
-      { date:"មិថុនា 2026", title:"លេខ ៣ — UniPreneurCamp Cluster 1", org:"Khmer Enterprise", desc:'ក្រុម "Safework" ទទួលបានលេខ ៣ — June 12–14, 2026.' },
-      { date:"ធ្នូ 2025", title:"វិញ្ញាបនបត្រ Big Data", org:"ការបណ្តុះបណ្តាលវិជ្ជាជីវៈ", desc:"ដំណើរការ 1.04M+ ជួររដ្ឋ ដោយប្រើ Hadoop, PySpark, Spark SQL, Hive, Parquet។" },
-      { date:"ធ្នូ 2024", title:"វិញ្ញាបនបត្រ Python", org:"Samsung Innovation Campus × RUPP", desc:"បញ្ចប់ Feb–Dec 2024. RUPP។" },
+    awards: [
+      { year:"2026", title:"លេខ ៣, UniPreneurCamp Cluster 1", org:"Khmer Enterprise" },
+      { year:"2025", title:"វិញ្ញាបនបត្រ Big Data", org:"Hadoop · PySpark · Spark SQL" },
+      { year:"2024", title:"វិញ្ញាបនបត្រ Python", org:"Samsung × RUPP" },
     ],
-    languages: [{ name:"ខ្មែរ", note:"ភាសាមាតុភូមិ" }, { name:"អង់គ្លេស", note:"វិជ្ជាជីវៈ" }],
-    nav: { experience:"បទពិសោធន៍", education:"ការសិក្សា", skills:"ជំនាញ", contact:"ទំនាក់ទំនង" },
-    labels: { experience:"បទពិសោធន៍", education:"ការសិក្សា", skills:"ជំនាញបច្ចេកទេស", achievements:"សមិទ្ធផល", languages:"ភាសា", contact:"ទំនាក់ទំនង", print:"បោះពុម្ព / PDF" },
-    toggle: "EN",
+    contact: { email:"hunphanut14@gmail.com", github:"Steven-Hazad", linkedin:"Hun Phanuth", location:"ភ្នំពេញ, កម្ពុជា", phone:"+855 715 303 622" },
+    toggle:"EN",
   },
 };
 
-const RED   = "#E8000D";
-const INK   = "#111111";
-const SUB   = "#777777";
-const RULE  = "#E2E2E2";
-const BG    = "#FAFAFA";
-
-// Two-column row used throughout the body — layout lives in CSS (.cv-row)
-// so it can respond to breakpoints; only color/type styling stays inline.
-function Row({ label, children }) {
-  return (
-    <div className="cv-row">
-      <div className="cv-row-label" style={{ fontFamily:"'Syne',sans-serif", fontWeight:600, fontSize:11, letterSpacing:"0.12em", textTransform:"uppercase", color:SUB }}>
-        {label}
-      </div>
-      <div>{children}</div>
-    </div>
-  );
-}
-
-// Experience / educadsadsadaation entry
-function Entry({ period, title, org, points, achievement }) {
-  return (
-    <div className="cv-entry" style={{ marginBottom:28 }}>
-      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"baseline", gap:16, flexWrap:"wrap", marginBottom:4 }}>
-        <span style={{ fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:17, color:INK }}>{title}</span>
-        <span style={{ fontFamily:"'Syne',sans-serif", fontSize:12, color:SUB, whiteSpace:"nowrap" }}>{period}</span>
-      </div>
-      <div style={{ fontFamily:"'Syne',sans-serif", fontSize:13, color:SUB, marginBottom:points ? 12 : 0 }}>{org}</div>
-      {points && (
-        <ul style={{ listStyle:"none", paddingLeft:0, display:"flex", flexDirection:"column", gap:5 }}>
-          {points.map((pt, i) => (
-            <li key={i} style={{ fontFamily:"'Syne',sans-serif", fontSize:14, color:"#444", lineHeight:1.65, display:"flex", gap:10 }}>
-              <span style={{ color:RULE, flexShrink:0, userSelect:"none" }}>—</span>{pt}
-            </li>
-          ))}
-        </ul>
-      )}
-      {achievement && <div style={{ marginTop:8, fontFamily:"'Syne',sans-serif", fontSize:13, color:SUB }}>{achievement}</div>}
-    </div>
-  );
-}
-
-export default function FormalCV() {
+export default function Scrapbook() {
   const [lang, setLang] = useState("en");
-  const [apiEdu, setApiEdu] = useState([]);
-  const [apiSkills, setApiSkills] = useState([]);
+  const [apiProjects, setApiProjects] = useState([]);
+  const [apiSkills, setApiSkills]     = useState([]);
+  const [apiEdu, setApiEdu]           = useState([]);
 
   useEffect(() => {
     Promise.all([
-      fetch("/api/admin?type=education").then(r => r.json()).catch(() => []),
-      fetch("/api/admin?type=skill").then(r => r.json()).catch(() => []),
-    ]).then(([e, s]) => {
-      setApiEdu(Array.isArray(e) ? e : []);
-      setApiSkills(Array.isArray(s) ? s : []);
+      fetch("/api/admin?type=project").then(r=>r.json()).catch(()=>[]),
+      fetch("/api/admin?type=skill").then(r=>r.json()).catch(()=>[]),
+      fetch("/api/admin?type=education").then(r=>r.json()).catch(()=>[]),
+    ]).then(([p,s,e])=>{
+      setApiProjects(Array.isArray(p)?p:[]);
+      setApiSkills(Array.isArray(s)?s:[]);
+      setApiEdu(Array.isArray(e)?e:[]);
     });
   }, []);
 
-  const d = CONTENT[lang];
-  const education = apiEdu.length   > 0 ? apiEdu   : DEFAULT_EDU;
-  const skills    = apiSkills.length > 0 ? apiSkills : DEFAULT_SKILLS;
+  const d = T[lang];
+  const projects  = apiProjects.length > 0 ? apiProjects.map((p,i)=>({ ...p, color:DEFAULT_PROJECTS[i]?.color||MINT })) : DEFAULT_PROJECTS;
+  const skills    = apiSkills.length > 0 ? apiSkills.map(s=>s.name) : DEFAULT_SKILLS;
+  const education = apiEdu.length > 0 ? apiEdu : DEFAULT_EDU;
+
+  // Tape colours cycling
+  const tapeColors = ["rgba(212,197,169,0.6)","rgba(126,184,212,0.5)","rgba(255,229,102,0.5)","rgba(181,234,215,0.5)","rgba(255,179,186,0.5)"];
 
   return (
-    <div className={lang === "kh" ? "font-khmer" : ""} style={{ minHeight:"100vh", background:BG, color:INK }}>
+    <div className={lang==="kh"?"font-khmer":""} style={{ minHeight:"100vh", background:`${PAPER} url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Crect width='4' height='4' fill='%23FBF7F0'/%3E%3Ccircle cx='1' cy='1' r='0.5' fill='%23E8DDD0' opacity='0.4'/%3E%3C/svg%3E")`, color:INK }}>
       <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800;900&family=Battambang:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Kalam:wght@300;400;700&family=Battambang:wght@400;700&display=swap');
         * { box-sizing:border-box; margin:0; padding:0; }
-        html { -webkit-text-size-adjust:100%; }
-        body { background:${BG}; overflow-x:hidden; }
+        body { background:${PAPER}; }
         .font-khmer * { font-family:'Battambang',sans-serif!important; }
-
-        /* ---------- structural / responsive layout ---------- */
-        .cv-topbar {
-          display:flex; align-items:center; justify-content:space-between;
-          padding:14px 48px; gap:16px;
-        }
-        .cv-nav { display:flex; gap:32px; overflow-x:auto; scrollbar-width:none; }
-        .cv-nav::-webkit-scrollbar { display:none; }
-        .cv-nav a { white-space:nowrap; }
-
-        .cv-container { max-width:920px; margin:0 auto; padding:0 48px 100px; }
-
-        .cv-hero { padding-top:80px; padding-bottom:56px; }
-        .cv-hero h1 { font-size:clamp(56px,11vw,128px); }
-
-        .cv-row {
-          display:grid; grid-template-columns:160px 1fr; gap:0 48px;
-          border-top:1px solid ${RULE}; padding-top:32px; padding-bottom:32px;
-        }
-        .cv-row-label { padding-top:3px; }
-
-        .cv-contact-grid, .cv-skills-grid {
-          display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:16px 32px;
-        }
-
-        .cv-cta {
-          display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:24px;
-        }
-        .cv-cta h2 { font-size:clamp(28px,5vw,52px); }
-
-        /* ---------- tablet / phone ---------- */
-        @media (max-width:820px) {
-          .cv-container { padding:0 32px 72px; }
-          .cv-topbar { padding:12px 32px; }
-        }
-
-        @media (max-width:640px) {
-          .cv-topbar { padding:12px 20px; gap:10px; }
-          .cv-nav { gap:20px; }
-          .cv-nav a { font-size:11px!important; }
-          .cv-topbar button { padding:6px 12px!important; font-size:11px!important; }
-
-          .cv-container { padding:0 20px 56px; }
-
-          .cv-hero { padding-top:40px; padding-bottom:32px; }
-          .cv-hero h1 { margin-bottom:20px!important; line-height:0.96!important; }
-          .cv-hero .cv-role-line { flex-direction:column; align-items:flex-start!important; gap:6px!important; }
-
-          .cv-row {
-            grid-template-columns:1fr; gap:8px 0;
-            padding-top:22px; padding-bottom:22px;
-          }
-          .cv-row-label { padding-top:0; }
-
-          .cv-contact-grid, .cv-skills-grid { grid-template-columns:1fr 1fr; gap:14px 20px; }
-
-          .cv-entry-header { flex-direction:column; align-items:flex-start!important; gap:4px!important; }
-
-          .cv-cta { flex-direction:column; align-items:flex-start!important; }
-          .cv-cta a { width:100%; text-align:center; }
-        }
-
-        @media (max-width:400px) {
-          .cv-contact-grid, .cv-skills-grid { grid-template-columns:1fr; }
-        }
-
-        /* ---------- print / PDF export ---------- */
-        @media print {
-          @page { size:A4; margin:14mm 16mm; }
-          .no-print { display:none!important; }
-          html, body { background:#fff!important; }
-          body {
-            -webkit-print-color-adjust:exact; print-color-adjust:exact; color-adjust:exact;
-            font-size:12px;
-          }
-          .cv-container { max-width:100%!important; padding:0!important; margin:0!important; }
-          .cv-hero { padding-top:0!important; padding-bottom:28px!important; }
-          .cv-hero h1 { font-size:64px!important; }
-          .cv-row { padding-top:18px!important; padding-bottom:18px!important; break-inside:avoid; }
-          .cv-entry { break-inside:avoid; margin-bottom:18px!important; }
-          .cv-cta { break-inside:avoid; }
-          a[href]:after { content:""!important; } /* suppress browsers' auto URL suffix */
+        .hand { font-family:'Caveat',cursive; }
+        .print { font-family:'Kalam',cursive; }
+        @media(max-width:640px){
+          .hero-grid{grid-template-columns:1fr!important}
+          .proj-grid{grid-template-columns:1fr!important}
+          .skill-grid{grid-template-columns:repeat(3,1fr)!important}
         }
       `}</style>
 
-      {/* ── TOPBAR ── */}
-      <div className="no-print cv-topbar" style={{
-        position:"sticky", top:0, zIndex:50,
-        background:BG, borderBottom:`1px solid ${RULE}`,
-      }}>
-        <span style={{ fontFamily:"'Syne',sans-serif", fontWeight:900, fontSize:14, letterSpacing:"-0.01em", flexShrink:0 }}>
-          <span style={{ color:RED }}>H</span>P
-        </span>
-        <nav className="cv-nav">
-          {Object.entries(d.nav).map(([k, v]) => (
-            <a key={k} href={`#${k}`} style={{ fontFamily:"'Syne',sans-serif", fontSize:12, fontWeight:600, color:SUB, textDecoration:"none", letterSpacing:"0.06em", textTransform:"uppercase" }}>
-              {v}
-            </a>
-          ))}
-        </nav>
-        <div style={{ display:"flex", gap:10, flexShrink:0 }}>
-          <button onClick={() => setLang(l => l === "en" ? "kh" : "en")} style={{ fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:12, background:"transparent", border:`1px solid ${RULE}`, color:SUB, padding:"6px 16px", cursor:"pointer", letterSpacing:"0.08em" }}>
-            {d.toggle}
-          </button>
-          <button onClick={() => window.print()} style={{ fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:12, background:RED, border:"none", color:"#fff", padding:"6px 18px", cursor:"pointer", letterSpacing:"0.06em" }}>
-            {d.labels.print}
-          </button>
-        </div>
+      {/* SVG filter for rough stamp look */}
+      <svg style={{ position:"absolute", width:0, height:0 }}>
+        <defs>
+          <filter id="roughen">
+            <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/>
+            <feDisplacementMap in="SourceGraphic" scale="1.5"/>
+          </filter>
+          <filter id="worn">
+            <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" result="noise"/>
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="2" xChannelSelector="R" yChannelSelector="G"/>
+          </filter>
+        </defs>
+      </svg>
+
+      {/* ── CONTROLS ── */}
+      <div style={{ position:"fixed", top:16, right:16, zIndex:500, display:"flex", gap:8 }}>
+        <button onClick={()=>setLang(l=>l==="en"?"kh":"en")}
+          className="hand"
+          style={{ fontSize:15, background:YELLOW, border:"2px solid rgba(0,0,0,0.15)", color:INK, padding:"4px 14px", cursor:"pointer", transform:"rotate(1deg)", boxShadow:"1px 2px 4px rgba(0,0,0,0.15)" }}>
+          {d.toggle}
+        </button>
       </div>
 
-      <div className="cv-container">
+      <div style={{ maxWidth:960, margin:"0 auto", padding:"48px 24px 80px" }}>
 
         {/* ══ HERO ══ */}
-        <div className="cv-hero">
-          {/* Name — the whole design lives here */}
-          <h1 style={{
-            fontFamily:"'Syne',sans-serif", fontWeight:900,
-            lineHeight:0.92, letterSpacing:"-0.03em",
-            marginBottom:32,
-          }}>
-            <span style={{ color:RED }}>{d.first}</span>{d.rest}
-          </h1>
+        <section style={{ marginBottom:64, position:"relative" }}>
+          <div className="hero-grid" style={{ display:"grid", gridTemplateColumns:"1fr 280px", gap:32, alignItems:"start" }}>
 
-          {/* Role + sector — quiet, below the name */}
-          <div className="cv-role-line" style={{ display:"flex", alignItems:"baseline", gap:24, flexWrap:"wrap" }}>
-            <span style={{ fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:18, color:INK }}>{d.role}</span>
-            <span style={{ fontFamily:"'Syne',sans-serif", fontSize:14, color:SUB }}>{d.sector}</span>
-          </div>
-        </div>
+            {/* Left — main intro card */}
+            <div style={{ position:"relative" }}>
+              <Tape top={-8} left="15%" width="55%" rotate="-1.5deg" color={tapeColors[1]} />
+              <div style={{ background:AGED, padding:"32px 28px 28px", boxShadow:"3px 5px 16px rgba(0,0,0,0.1)", position:"relative" }}>
+                <p className="hand" style={{ fontSize:20, color:"#8B6F5E", marginBottom:4 }}>{d.greeting}</p>
+                <h1 className="hand" style={{ fontSize:"clamp(48px,8vw,80px)", fontWeight:700, lineHeight:1, color:INK, marginBottom:8 }}>
+                  {d.name}
+                </h1>
+                {/* Underline scribble */}
+                <svg viewBox="0 0 300 12" style={{ width:"min(300px,90%)", height:12, marginBottom:16 }}>
+                  <path d="M0,8 Q30,2 60,7 Q90,12 120,6 Q150,1 180,8 Q210,13 240,7 Q270,3 300,8" stroke={RED} strokeWidth="2.5" fill="none" strokeLinecap="round" opacity="0.7"/>
+                </svg>
+                <p className="print" style={{ fontSize:16, color:"#6B4F3A", marginBottom:20 }}>{d.role}</p>
+                <p className="print" style={{ fontSize:14, lineHeight:1.8, color:"#5A3E2B", maxWidth:400 }}>{d.about}</p>
 
-        {/* ── BODY ── */}
-        {/* About */}
-        <Row label="Profile">
-          <p style={{ fontFamily:"'Syne',sans-serif", fontSize:15, lineHeight:1.75, color:"#333", maxWidth:560 }}>{d.about}</p>
-        </Row>
-
-        {/* Contact */}
-        <Row label={d.labels.contact}>
-          <div className="cv-contact-grid">
-            {[
-              { icon:<Phone size={13}/>, v:d.contact.phone },
-              { icon:<Mail size={13}/>, v:d.contact.email },
-              { icon:<Github size={13}/>, v:d.contact.github },
-              { icon:<Linkedin size={13}/>, v:d.contact.linkedin },
-              { icon:<MapPin size={13}/>, v:d.contact.location },
-            ].map((c, i) => (
-              <div key={i} style={{ display:"flex", alignItems:"center", gap:9, fontFamily:"'Syne',sans-serif", fontSize:13, color:"#444", minWidth:0 }}>
-                <span style={{ color:SUB, flexShrink:0 }}>{c.icon}</span>
-                <span style={{ overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{c.v}</span>
+                <div style={{ marginTop:20, display:"flex", gap:12, flexWrap:"wrap" }}>
+                  <a href={`mailto:${d.contact.email}`}
+                    className="hand"
+                    style={{ fontSize:16, background:INK, color:PAPER, padding:"8px 20px", textDecoration:"none", display:"inline-flex", alignItems:"center", gap:6, transform:"rotate(-0.5deg)", boxShadow:"2px 3px 6px rgba(0,0,0,0.2)" }}>
+                    <Mail size={14}/> email me
+                  </a>
+                  <a href={`https://github.com/${d.contact.github}`} target="_blank" rel="noreferrer"
+                    className="hand"
+                    style={{ fontSize:16, background:BLUE, color:INK, padding:"8px 20px", textDecoration:"none", display:"inline-flex", alignItems:"center", gap:6, transform:"rotate(0.8deg)", boxShadow:"2px 3px 6px rgba(0,0,0,0.15)" }}>
+                    <Github size={14}/> github
+                  </a>
+                </div>
               </div>
-            ))}
+              <TornBottom />
+            </div>
+
+            {/* Right — photo + stickies */}
+            <div style={{ display:"flex", flexDirection:"column", gap:20, paddingTop:16 }}>
+              {/* Photo */}
+              <PinnedCard rotate="-2deg">
+                <div style={{ width:"100%", aspectRatio:"3/4", overflow:"hidden", marginBottom:8 }}>
+                  <img src="images/bl-steven.png" alt="Hun Phanuth" style={{ width:"100%", height:"100%", objectFit:"cover", objectPosition:"center top", filter:"sepia(0.15) contrast(1.05)" }} />
+                </div>
+                <p className="hand" style={{ fontSize:13, color:"#8B6F5E", textAlign:"center" }}>{d.location} ✈</p>
+              </PinnedCard>
+
+              {/* Stickies */}
+              <Sticky color={YELLOW} rotate="3deg" style={{ alignSelf:"flex-end", maxWidth:160 }}>
+                <p className="hand" style={{ fontSize:15, color:INK, fontWeight:600 }}>{d.note1}</p>
+                <p className="hand" style={{ fontSize:12, color:"#5A3E2B" }}>{d.contact.phone}</p>
+              </Sticky>
+
+              <Sticky color={MINT} rotate="-2deg" style={{ alignSelf:"flex-start", maxWidth:160 }}>
+                <p className="hand" style={{ fontSize:14, color:INK, fontWeight:600 }}>{d.note2}</p>
+              </Sticky>
+            </div>
           </div>
-        </Row>
+        </section>
 
-        {/* Experience */}
-        <div id="experience">
-          <Row label={d.labels.experience}>
-            <div>
-              {d.experience.map((exp, i) => (
-                <div key={i}>
-                  {i > 0 && <div style={{ height:1, background:RULE, margin:"4px 0 28px" }} />}
-                  <Entry period={exp.period} title={exp.title} org={exp.org} points={exp.points} />
-                </div>
-              ))}
-            </div>
-          </Row>
-        </div>
+        {/* ══ PROJECTS ══ */}
+        <section style={{ marginBottom:64 }}>
+          <div style={{ position:"relative", marginBottom:28, display:"inline-block" }}>
+            <Tape top={-6} left="-8px" width="110%" rotate="1deg" color={tapeColors[0]} />
+            <h2 className="hand" style={{ fontSize:32, fontWeight:700, color:INK, position:"relative", zIndex:1, padding:"4px 8px" }}>
+              {d.projectsTitle}
+            </h2>
+          </div>
 
-        {/* Education */}
-        <div id="education">
-          <Row label={d.labels.education}>
-            <div>
-              {education.map((edu, i) => (
-                <div key={edu.id}>
-                  {i > 0 && <div style={{ height:1, background:RULE, margin:"4px 0 24px" }} />}
-                  <Entry
-                    period={`${edu.startDate} – ${edu.endDate}`}
-                    title={edu.degree}
-                    org={edu.university}
-                    achievement={edu.achievement}
-                  />
-                </div>
-              ))}
-            </div>
-          </Row>
-        </div>
-
-        {/* Skills */}
-        <div id="skills">
-          <Row label={d.labels.skills}>
-            <div className="cv-skills-grid">
-              {skills.map((sk, i) => (
-                <div key={sk.id || i}>
-                  <div style={{ display:"flex", justifyContent:"space-between", marginBottom:7 }}>
-                    <span style={{ fontFamily:"'Syne',sans-serif", fontSize:13, fontWeight:600, color:INK }}>{sk.name}</span>
-                    <span style={{ fontFamily:"'Syne',sans-serif", fontSize:12, color:SUB }}>{sk.level || 70}%</span>
+          <div className="proj-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:28 }}>
+            {projects.map((p,i)=>{
+              const rotations = ["-1.5deg","1.8deg","-0.8deg"];
+              return (
+                <motion.div key={p.id}
+                  initial={{ opacity:0, y:20 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ delay:i*0.1 }}
+                  style={{ position:"relative" }}>
+                  <Tape top={-8} left="10%" width="80%" rotate={`${(i%2===0?-1:1)*1.2}deg`} color={tapeColors[i%tapeColors.length]} />
+                  <div style={{ background:p.color||MINT, padding:"20px 18px 18px", boxShadow:"2px 4px 12px rgba(0,0,0,0.1)", transform:`rotate(${rotations[i%3]})` }}>
+                    <div style={{ display:"flex", justifyContent:"space-between", marginBottom:10 }}>
+                      <span className="hand" style={{ fontSize:13, color:"#5A3E2B", background:"rgba(255,255,255,0.5)", padding:"2px 8px" }}>{p.tag||DEFAULT_PROJECTS[i]?.tag}</span>
+                      <span className="hand" style={{ fontSize:13, color:"#8B6F5E" }}>{p.year||DEFAULT_PROJECTS[i]?.year}</span>
+                    </div>
+                    <h3 className="hand" style={{ fontSize:22, fontWeight:700, color:INK, marginBottom:8 }}>{p.title||p.name}</h3>
+                    <p className="print" style={{ fontSize:13, lineHeight:1.65, color:"#3D2B1A" }}>{p.description||p.desc}</p>
                   </div>
-                  <div style={{ height:2, background:RULE }}>
-                    <div style={{ height:"100%", width:`${sk.level || 70}%`, background:INK }} />
+                </motion.div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* ══ EXPERIENCE ══ */}
+        <section style={{ marginBottom:64 }}>
+          <div style={{ background:AGED, padding:"32px 28px", position:"relative", boxShadow:"2px 4px 14px rgba(0,0,0,0.08)" }}>
+            <Tape top={-8} left="5%" width="40%" rotate="-2deg" color={tapeColors[2]} />
+            <div style={{ display:"flex", gap:16, alignItems:"baseline", marginBottom:28, flexWrap:"wrap" }}>
+              <h2 className="hand" style={{ fontSize:30, fontWeight:700, color:INK }}>{d.expTitle}</h2>
+              <Stamp>{lang==="en"?"verified":"បានផ្ទៀងផ្ទាត់"}</Stamp>
+            </div>
+
+            {d.exp.map((exp,i)=>(
+              <div key={i} style={{ marginBottom:i<d.exp.length-1?24:0, paddingBottom:i<d.exp.length-1?24:0, borderBottom:i<d.exp.length-1?`2px dashed rgba(44,24,16,0.15)`:none }}>
+                <div style={{ display:"flex", gap:16, alignItems:"flex-start", flexWrap:"wrap" }}>
+                  <div style={{ background:YELLOW, padding:"3px 10px", transform:"rotate(-1deg)" }}>
+                    <span className="hand" style={{ fontSize:13, color:INK, fontWeight:600 }}>{exp.period}</span>
+                  </div>
+                </div>
+                <h3 className="hand" style={{ fontSize:22, fontWeight:700, color:INK, margin:"8px 0 4px" }}>{exp.title}</h3>
+                <p className="hand" style={{ fontSize:15, color:"#8B6F5E", marginBottom:6 }}>{exp.org}</p>
+                <p className="print" style={{ fontSize:14, lineHeight:1.7, color:"#5A3E2B" }}>{exp.desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ══ EDUCATION + AWARDS ══ */}
+        <section style={{ marginBottom:64, display:"grid", gridTemplateColumns:"1fr 1fr", gap:32 }}>
+          {/* Education */}
+          <div style={{ position:"relative" }}>
+            <Tape top={-8} left="5%" width="75%" rotate="1.5deg" color={tapeColors[4]} />
+            <div style={{ background:PINK, padding:"24px 20px", boxShadow:"2px 4px 12px rgba(0,0,0,0.1)", transform:"rotate(-0.5deg)" }}>
+              <h2 className="hand" style={{ fontSize:26, fontWeight:700, color:INK, marginBottom:20 }}>{d.eduTitle}</h2>
+              {education.map((edu,i)=>(
+                <div key={edu.id} style={{ marginBottom:16, paddingBottom:16, borderBottom:i<education.length-1?`2px dashed rgba(44,24,16,0.2)`:none }}>
+                  <div className="hand" style={{ fontSize:17, fontWeight:700, color:INK, marginBottom:3 }}>{edu.degree}</div>
+                  <div className="print" style={{ fontSize:13, color:"#5A3E2B", marginBottom:2 }}>{edu.university}</div>
+                  <div style={{ display:"inline-block", background:"rgba(255,255,255,0.5)", padding:"1px 8px" }}>
+                    <span className="hand" style={{ fontSize:13, color:"#8B6F5E" }}>{edu.period||`${edu.startDate} – ${edu.endDate}`}</span>
                   </div>
                 </div>
               ))}
             </div>
-          </Row>
-        </div>
+          </div>
 
-        {/* Achievements */}
-        <Row label={d.labels.achievements}>
-          <div>
-            {d.achievements.map((ach, i) => (
-              <div key={i} className="cv-entry">
-                {i > 0 && <div style={{ height:1, background:RULE, margin:"4px 0 24px" }} />}
-                <div className="cv-entry-header" style={{ display:"flex", justifyContent:"space-between", alignItems:"baseline", gap:16, flexWrap:"wrap", marginBottom:4 }}>
-                  <span style={{ fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:15, color:INK }}>{ach.title}</span>
-                  <span style={{ fontFamily:"'Syne',sans-serif", fontSize:12, color:SUB, whiteSpace:"nowrap" }}>{ach.date}</span>
+          {/* Awards */}
+          <div style={{ position:"relative" }}>
+            <Tape top={-8} left="10%" width="70%" rotate="-1.2deg" color={tapeColors[1]} />
+            <div style={{ background:AGED, padding:"24px 20px", boxShadow:"2px 4px 12px rgba(0,0,0,0.1)", transform:"rotate(0.8deg)" }}>
+              <div style={{ display:"flex", gap:12, alignItems:"baseline", marginBottom:20 }}>
+                <h2 className="hand" style={{ fontSize:26, fontWeight:700, color:INK }}>{d.awardsTitle}</h2>
+              </div>
+              {d.awards.map((ach,i)=>(
+                <div key={i} style={{ marginBottom:14, display:"flex", gap:10, alignItems:"flex-start" }}>
+                  <div style={{ background:RED, color:PAPER, padding:"2px 8px", flexShrink:0, transform:"rotate(-1deg)" }}>
+                    <span className="hand" style={{ fontSize:13, fontWeight:700 }}>{ach.year}</span>
+                  </div>
+                  <div>
+                    <div className="hand" style={{ fontSize:16, fontWeight:700, color:INK, lineHeight:1.2 }}>{ach.title}</div>
+                    <div className="print" style={{ fontSize:12, color:"#8B6F5E" }}>{ach.org}</div>
+                  </div>
                 </div>
-                <div style={{ fontFamily:"'Syne',sans-serif", fontSize:13, color:SUB, marginBottom:6 }}>{ach.org}</div>
-                <p style={{ fontFamily:"'Syne',sans-serif", fontSize:14, color:"#444", lineHeight:1.65 }}>{ach.desc}</p>
-              </div>
-            ))}
-          </div>
-        </Row>
-
-        {/* Languages */}
-        <Row label={d.labels.languages}>
-          <div style={{ display:"flex", gap:48, flexWrap:"wrap" }}>
-            {d.languages.map((lg, i) => (
-              <div key={i}>
-                <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:15, color:INK, marginBottom:3 }}>{lg.name}</div>
-                <div style={{ fontFamily:"'Syne',sans-serif", fontSize:13, color:SUB }}>{lg.note}</div>
-              </div>
-            ))}
-          </div>
-        </Row>
-
-        {/* CTA — dead simple */}
-        <div style={{ borderTop:`1px solid ${RULE}`, paddingTop:48, marginTop:8 }}>
-          <div className="cv-cta">
-            <div>
-              <h2 style={{ fontFamily:"'Syne',sans-serif", fontWeight:900, lineHeight:0.95, letterSpacing:"-0.02em", marginBottom:10 }}>
-                Let's work together.
-              </h2>
-              <p style={{ fontFamily:"'Syne',sans-serif", fontSize:14, color:SUB }}>Open to opportunities and collaboration.</p>
+              ))}
             </div>
-            <a href="mailto:hunphanut14@gmail.com" style={{
-              fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:14, letterSpacing:"0.04em",
-              background:RED, color:"#fff", padding:"14px 32px",
-              textDecoration:"none", flexShrink:0, display:"inline-block",
-            }}>
-              hunphanut14@gmail.com →
-            </a>
           </div>
-        </div>
+        </section>
+
+        {/* ══ SKILLS ══ */}
+        <section style={{ marginBottom:64, position:"relative" }}>
+          <Tape top={-8} left="0%" width="50%" rotate="1deg" color={tapeColors[2]} />
+          <div style={{ background:AGED, padding:"28px 24px", boxShadow:"2px 4px 12px rgba(0,0,0,0.08)" }}>
+            <h2 className="hand" style={{ fontSize:28, fontWeight:700, color:INK, marginBottom:24 }}>{d.skillsTitle}</h2>
+            <div className="skill-grid" style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:10 }}>
+              {skills.map((sk,i)=>{
+                const colors = [YELLOW, MINT, PINK, BLUE, AGED];
+                const rots = ["-2deg","1.5deg","-1deg","2.5deg","-0.5deg","1deg"];
+                return (
+                  <motion.div key={i}
+                    initial={{ opacity:0, scale:0.9 }} whileInView={{ opacity:1, scale:1 }} viewport={{ once:true }} transition={{ delay:i*0.03 }}
+                    style={{ background:colors[i%colors.length], padding:"7px 10px", transform:`rotate(${rots[i%rots.length]})`, boxShadow:"1px 2px 4px rgba(0,0,0,0.1)", textAlign:"center" }}>
+                    <span className="hand" style={{ fontSize:14, color:INK, fontWeight:600 }}>{sk}</span>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* ══ CONTACT ══ */}
+        <section style={{ position:"relative" }}>
+          <Tape top={-8} left="20%" width="60%" rotate="-1.5deg" color={tapeColors[3]} />
+          <div style={{ background:INK, padding:"36px 32px", boxShadow:"4px 6px 20px rgba(0,0,0,0.2)", transform:"rotate(-0.3deg)", position:"relative" }}>
+            {/* Corner doodle star */}
+            <div style={{ position:"absolute", top:16, right:20, fontFamily:"serif", fontSize:28, color:"rgba(255,255,255,0.1)" }}>✦</div>
+
+            <h2 className="hand" style={{ fontSize:36, fontWeight:700, color:PAPER, marginBottom:8 }}>{d.contactTitle}</h2>
+            <div style={{ height:2, width:60, background:YELLOW, marginBottom:24 }} />
+
+            <div style={{ display:"flex", flexDirection:"column", gap:14 }}>
+              {[
+                { icon:<Mail size={14}/>, v:d.contact.email, href:`mailto:${d.contact.email}` },
+                { icon:<Phone size={14}/>, v:d.contact.phone },
+                { icon:<Github size={14}/>, v:`github.com/${d.contact.github}`, href:`https://github.com/${d.contact.github}` },
+                { icon:<Linkedin size={14}/>, v:"linkedin.com/in/Hun-Phanuth", href:"#" },
+                { icon:<MapPin size={14}/>, v:d.contact.location },
+              ].map((c,i)=>(
+                <div key={i} style={{ display:"flex", alignItems:"center", gap:12 }}>
+                  <span style={{ color:YELLOW, flexShrink:0 }}>{c.icon}</span>
+                  {c.href ? (
+                    <a href={c.href} className="print" style={{ fontSize:15, color:"rgba(251,247,240,0.75)", textDecoration:"none", transition:"color 0.15s" }}
+                      onMouseEnter={e=>e.currentTarget.style.color=PAPER}
+                      onMouseLeave={e=>e.currentTarget.style.color="rgba(251,247,240,0.75)"}>
+                      {c.v}
+                    </a>
+                  ) : (
+                    <span className="print" style={{ fontSize:15, color:"rgba(251,247,240,0.55)" }}>{c.v}</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
 
         {/* Footer */}
-        <div style={{ marginTop:48, fontFamily:"'Syne',sans-serif", fontSize:11, color:RULE, letterSpacing:"0.08em" }}>
-          HUN PHANUTH · {new Date().getFullYear()}
+        <div style={{ textAlign:"center", marginTop:48 }}>
+          <span className="hand" style={{ fontSize:15, color:"#8B6F5E", opacity:0.6 }}>
+            made with care ♡ · {d.name} · {new Date().getFullYear()}
+          </span>
         </div>
+
       </div>
     </div>
   );
