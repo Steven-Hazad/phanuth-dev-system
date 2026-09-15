@@ -43,7 +43,7 @@ export default function AdminDashboard() {
           <NavBtn active={tab==="message"} onClick={()=>setTab("message")} icon={<MessageSquare size={20}/>} label="Inbox"/>
         </nav>
         <button onClick={()=>signOut()} className="mt-auto flex items-center gap-2 text-slate-500 hover:text-red-400 font-bold p-4 border-t border-slate-800 transition-colors">
-          <LogOut size={18}/> Logout
+          <LogOut size={18}/> Logout jenh
         </button>
       </aside>
 
