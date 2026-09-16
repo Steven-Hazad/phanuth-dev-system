@@ -344,7 +344,7 @@ export default function Scrapbook() {
             </div>
 
             {d.exp.map((exp,i)=>(
-              <div key={i} style={{ marginBottom:i<d.exp.length-1?24:0, paddingBottom:i<d.exp.length-1?24:0, borderBottom:i<d.exp.length-1?`2px dashed rgba(44,24,16,0.15)`:none }}>
+              <div key={i} style={{ marginBottom:i<d.exp.length-1?24:0, paddingBottom:i<d.exp.length-1?24:0, borderBottom:i<d.exp.length-1?'2px dashed rgba(44,24,16,0.15)':'none' }}>
                 <div style={{ display:"flex", gap:16, alignItems:"flex-start", flexWrap:"wrap" }}>
                   <div style={{ background:YELLOW, padding:"3px 10px", transform:"rotate(-1deg)" }}>
                     <span className="hand" style={{ fontSize:13, color:INK, fontWeight:600 }}>{exp.period}</span>
@@ -366,7 +366,7 @@ export default function Scrapbook() {
             <div style={{ background:PINK, padding:"24px 20px", boxShadow:"2px 4px 12px rgba(0,0,0,0.1)", transform:"rotate(-0.5deg)" }}>
               <h2 className="hand" style={{ fontSize:26, fontWeight:700, color:INK, marginBottom:20 }}>{d.eduTitle}</h2>
               {education.map((edu,i)=>(
-                <div key={edu.id} style={{ marginBottom:16, paddingBottom:16, borderBottom:i<education.length-1?`2px dashed rgba(44,24,16,0.2)`:none }}>
+                <div key={edu.id} style={{ marginBottom:16, paddingBottom:16, borderBottom:i<education.length-1?'2px dashed rgba(44,24,16,0.2)':'none' }}>
                   <div className="hand" style={{ fontSize:17, fontWeight:700, color:INK, marginBottom:3 }}>{edu.degree}</div>
                   <div className="print" style={{ fontSize:13, color:"#5A3E2B", marginBottom:2 }}>{edu.university}</div>
                   <div style={{ display:"inline-block", background:"rgba(255,255,255,0.5)", padding:"1px 8px" }}>
