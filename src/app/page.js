@@ -284,7 +284,7 @@ export default function NJRPro() {
             style={{ position:"relative" }}>
             <div style={{ position:"absolute", bottom:-3, left:-3, right:3, top:3, border:`3px solid ${YELLOW}`, zIndex:0 }} />
             <div style={{ position:"relative", zIndex:1, overflow:"hidden", background:"#1A1A1A" }}>
-              <img src="images/bl-steven.png" alt="Hun Phanuth"
+              <img src="images/Phanuth.png" alt="Hun Phanuth"
                 style={{ width:"100%", aspectRatio:"3/4", objectFit:"cover", objectPosition:"center top", display:"block", filter:"contrast(1.05) brightness(0.92)" }} />
               <div style={{ position:"absolute", bottom:0, left:0, right:0, height:120, background:`linear-gradient(transparent, ${BLACK})` }} />
             </div>
