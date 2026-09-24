@@ -55,7 +55,7 @@ const STATS = [
 
 const T = {
   en: {
-    name: "HUN PHANUTH",
+    name: "STEVEN HAZAD",
     role: "Full-Stack Developer",
     sector: "Computer Science · Air Traffic Management",
     about: "I build production software and I'm cross-training in Air Traffic Management at NICA. POS systems, e-commerce platforms, agritech applications — end to end. Two disciplines, one standard: it has to work.",
