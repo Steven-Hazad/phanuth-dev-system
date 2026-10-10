@@ -44,12 +44,12 @@ const DEFAULT_SKILLS = [
 ];
 const DEFAULT_EDU = [
   { id:1, degree:"Bachelor of Air Traffic Management", university:"National Institute of Civil Aviation (NICA)", period:"2022 – Present" },
-  { id:2, degree:"Bachelor oof Computer Science", university:"Cambodian University for Specialties (CUS)", period:"2022 – Present" },
+  { id:2, degree:"Bachelor of Computer Science", university:"Cambodian University for Specialties (CUS)", period:"2022 – Present" },
 ];
 const STATS = [
   { val:"10+", label:"Projects Shipped" },
   { val:"3+", label:"Years Building" },
-  { val:"1.04M+", label:"Data Rows Processed" },
+  { val:"1.05M+", label:"Data Rows Processed" },
   { val:"3", label:"Certifications" },
 ];
 
