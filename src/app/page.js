@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Mail, Github, Linkedin, MapPin, Phone, ArrowUpRight, ChevronRight } from "lucide-react";
-huhhhhhhh
+
 // ============================================================
 // MESSI.COM LIGHT — White, clean, structured.
 // White bg · sky-blue accent · outlined name behind photo
