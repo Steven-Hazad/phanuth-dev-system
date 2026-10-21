@@ -8,7 +8,7 @@ import { Mail, Github, Linkedin, MapPin, Phone, ArrowUpRight } from "lucide-reac
 // Wired / Fast Company profile feature aesthetic
 // Font: Playfair Display Condensed (headline) + Libre Baskerville
 //       (body/article) + Barlow Condensed (masthead/labels)
-// Ink: #1A1714 print-black · Paper: #F8F6F0 newsprint-white
+
 // Red: #C41A1A — masthead marker + pull-quote mark ONLY
 // Signature: "The developer who reads radar." pull quote at 48px
 // ============================================================
