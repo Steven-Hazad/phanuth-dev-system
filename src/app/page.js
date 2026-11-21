@@ -1,437 +1,564 @@
-"use client";
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { Mail, Github, Linkedin, MapPin, Phone, ArrowUpRight, ChevronRight } from "lucide-react";
+'use client'
+import { useState, useEffect } from 'react'
+import { ArrowUpRight, Menu, X, ChevronDown } from 'lucide-react'
 
-// ============================================================
-// MESSI.COM LIGHT — White, clean, structured.
-// White bg · sky-blue accent · outlined name behind photo
-// Nav: centred logo, links either side
-// Sections: hero · stats strip · about · projects · skills · contact
-// Font: Oswald (condensed display) + Source Sans 3 (body)
-// Signature: "HUN PHANUTH" in huge outlined ghost text behind photo
-// ============================================================
+const YELLOW = '#FDD900'
+const BLACK = '#0D0D0D'
+const WHITE = '#FFFFFF'
+const GREY = '#F5F5F5'
+const BODY = '#555555'
 
-const BLUE   = "#0085C3";
-const LBLUE  = "#E8F4FC";
-const INK    = "#111111";
-const SUB    = "#555555";
-const LGREY  = "#F4F6F8";
-const MGREY  = "#E2E6EA";
-const WHITE  = "#FFFFFF";
-
-const STATS = [
-  { value:"3+",     label:"YEARS BUILDING" },
-  { value:"10+",    label:"PROJECTS SHIPPED" },
-  { value:"1.04M+", label:"DATA ROWS PROCESSED" },
-  { value:"3",      label:"CERTIFICATIONS" },
-  { value:"2",      label:"DEGREES PURSUING" },
-];
-
-const DEFAULT_PROJECTS = [
-  { id:1, name:"SROVCHLART", tag:"AGRITECH · MOBILE", description:"Rice marketplace for Cambodian farmers. React Native + TypeScript with live pricing and farmer-direct sales.", link:"#" },
-  { id:2, name:"SAFEHIRE", tag:"TRUST & SAFETY · APP", description:"Anti-scam job verification platform protecting Cambodian workers. React Native Expo.", link:"#" },
-  { id:3, name:"KOURSROV", tag:"AGRITECH · PLATFORM", description:"Full AgriTech pitch platform for Cambodia's rice industry — market data, supply chain, farmer onboarding.", link:"#" },
-];
-const DEFAULT_SKILLS = [
-  "React / Next.js","Node.js","PostgreSQL","Python","React Native",
-  "TypeScript","Supabase","REST APIs","Tailwind CSS","Expo",
-  "Hadoop HDFS","PySpark","Spark SQL","Apache Hive","Data Analysis",
-];
-const DEFAULT_EDU = [
-  { id:1, degree:"Bachelor of Air Traffic Management", university:"National Institute of Civil Aviation (NICA)", period:"2022 – Present" },
-  { id:2, degree:"Bachelor of Computer Science", university:"Cambodian University for Specialties (CUS)", period:"2022 – Present" },
-];
-
-const T = {
-  en: {
-    logoLine1:"HUN",
-    logoLine2:"PHANUTH",
-    ghostName:"HUN PHANUTH",
-    heroSub:"Full-Stack Developer · Computer Science · Air Traffic Management",
-    heroDesc:"Building production software and studying airspace — based in Phnom Penh, Cambodia.",
-    aboutTitle:"ABOUT",
-    aboutText1:"I'm a full-stack developer and Air Traffic Management student at the National Institute of Civil Aviation (NICA) in Phnom Penh. I build end-to-end digital products — POS systems, e-commerce platforms, agritech applications — and I'm working toward a career that bridges software engineering and aviation.",
-    aboutText2:"My background in two demanding fields means I understand what it means to build things that have to work. Both aviation and software engineering come down to the same standard: precision, reliability, and getting it right the first time.",
-    projectsTitle:"PROJECTS",
-    projectsSub:"Selected work — full portfolio on GitHub",
-    skillsTitle:"TECH STACK",
-    eduTitle:"EDUCATION",
-    awardsTitle:"AWARDS & CERTIFICATIONS",
-    awards:[
-      { date:"JUN 2026", title:"3RD PLACE — UNIPRENEURCAMP CLUSTER 1", org:"Khmer Enterprise · Team \"Safework\"", desc:"Secured 3rd place at UniPreneurCamp Cluster 1 organised by Khmer Enterprise. June 12–14, 2026." },
-      { date:"DEC 2025", title:"BIG DATA COURSE CERTIFICATION", org:"Professional Training Programme", desc:"Capstone processed 1.04M+ rows using Hadoop HDFS, PySpark, Spark SQL, Apache Hive, and Parquet." },
-      { date:"DEC 2024", title:"PYTHON PROGRAMMING CERTIFICATION", org:"Samsung Innovation Campus × RUPP", desc:"Completed Feb–Dec 2024. Certified by the Vice Director of the Royal University of Phnom Penh." },
-    ],
-    expTitle:"EXPERIENCE",
-    exp:[
-      { period:"Dec 2025 – Present", title:"Full-Stack Freelancer", org:"Independent · Phnom Penh", desc:"End-to-end POS systems and e-commerce platforms for Cambodian businesses. Backend architecture, database design, API routing, and responsive client-facing storefronts." },
-      { period:"Jan 2013 – Jan 2019", title:"Operations Assistant", org:"HHH Printer · Takeo", desc:"Managed daily print operations, digital design, and direct client service at a family business." },
-    ],
-    contactTitle:"CONTACT",
-    contactSub:"OPEN TO OPPORTUNITIES AND COLLABORATION",
-    contactBtn:"GET IN TOUCH",
-    contact:{ email:"hunphanut14@gmail.com", github:"Steven-Hazad", linkedin:"Hun Phanuth", location:"Phnom Penh, Cambodia", phone:"+855 715 303 622" },
-    nav:["PROJECTS","SKILLS","CONTACT"],
-    navIds:["projects","skills","contact"],
-    toggle:"KH",
-  },
-  kh: {
-    logoLine1:"ហ៊ុន",
-    logoLine2:"ផានុត",
-    ghostName:"ហ៊ុន ផានុត",
-    heroSub:"អ្នកអភិវឌ្ឍន៍ Full-Stack · CS · គ្រប់គ្រងចរាចរណ៍អាកាស",
-    heroDesc:"បង្កើតកម្មវិធី និងសិក្សាចរាចរណ៍អាកាស — ភ្នំពេញ, កម្ពុជា។",
-    aboutTitle:"អំពីខ្ញុំ",
-    aboutText1:"ខ្ញុំជាអ្នកអភិវឌ្ឍន៍ full-stack និងនិស្សិតគ្រប់គ្រងចរាចរណ៍អាកាសនៅ NICA ភ្នំពេញ។ ខ្ញុំបង្កើតផលិតផលឌីជីថលពីដើមដល់ចប់ — POS, e-commerce, AgriTech — ហើយកំពុងឆ្ពោះទៅអាជីពភ្ជាប់ CS និង aviation។",
-    aboutText2:"ការទទួលបានផ្ទៃខាងក្រោយក្នុងវិស័យពីរដែលតម្រូវការភាពត្រឹមត្រូវ ធ្វើឱ្យខ្ញុំយល់ពីអ្វីដែលន័យ «ត្រឹមត្រូវ» ពិតប្រាកដ។",
-    projectsTitle:"គម្រោង",
-    projectsSub:"ការងារដែលបានជ្រើស",
-    skillsTitle:"ជំនាញ",
-    eduTitle:"ការសិក្សា",
-    awardsTitle:"សមិទ្ធផល",
-    awards:[
-      { date:"មិថុនា 2026", title:"លេខ ៣ — UNIPRENEURCAMP CLUSTER 1", org:"Khmer Enterprise", desc:"UniPreneurCamp Cluster 1 — June 12–14, 2026." },
-      { date:"ធ្នូ 2025", title:"វិញ្ញាបនបត្រ BIG DATA", org:"ការបណ្តុះបណ្តាលវិជ្ជាជីវៈ", desc:"Hadoop, PySpark, Spark SQL, Hive, Parquet — 1.04M+ rows." },
-      { date:"ធ្នូ 2024", title:"វិញ្ញាបនបត្រ PYTHON", org:"Samsung Innovation Campus × RUPP", desc:"Feb–Dec 2024. RUPP." },
-    ],
-    expTitle:"បទពិសោធន៍",
-    exp:[
-      { period:"ធ្នូ 2025 – បច្ចុប្បន្ន", title:"Full-Stack Freelancer", org:"Freelancer · ភ្នំពេញ", desc:"ប្រព័ន្ធ POS និង e-commerce ពីដើមដល់ចប់ — backend, DB, API, storefront។" },
-      { period:"មករា 2013 – មករា 2019", title:"ជំនួយការប្រតិបត្តិការ", org:"HHH Printer · តាកែវ", desc:"ប្រតិបត្តិការការបោះពុម្ព, រចនាក្រាហ្វិក, សេវាកម្មអតិថិជន។" },
-    ],
-    contactTitle:"ទំនាក់ទំនង",
-    contactSub:"បើកចំហសម្រាប់ឱកាស",
-    contactBtn:"ទំនាក់ទំនង",
-    contact:{ email:"hunphanut14@gmail.com", github:"Steven-Hazad", linkedin:"Hun Phanuth", location:"ភ្នំពេញ, កម្ពុជា", phone:"+855 715 303 622" },
-    nav:["គម្រោង","ជំនាញ","ទំនាក់ទំនង"],
-    navIds:["projects","skills","contact"],
-    toggle:"EN",
-  },
-};
-
-// Section heading — matches messi.com's all-caps bold section labels
-function SecHead({ children }) {
+const HP7Logo = ({ size = 40, inverted = false }) => {
+  const bg = inverted ? YELLOW : BLACK
+  const fg = inverted ? BLACK : YELLOW
   return (
-    <div style={{ display:"flex", alignItems:"center", gap:16, marginBottom:32 }}>
-      <div style={{ width:4, height:28, background:BLUE, flexShrink:0 }} />
-      <h2 style={{ fontFamily:"'Oswald',sans-serif", fontWeight:700, fontSize:"clamp(22px,3vw,32px)", letterSpacing:"0.06em", color:INK, textTransform:"uppercase" }}>
-        {children}
-      </h2>
+    <div style={{
+      width: size, height: size, background: bg,
+      display: 'flex', flexDirection: 'column',
+      alignItems: 'center', justifyContent: 'center',
+      fontFamily: "'Montserrat', sans-serif",
+      fontWeight: 900, lineHeight: 1, flexShrink: 0,
+    }}>
+      <span style={{ fontSize: size * 0.32, color: fg, letterSpacing: '-1px' }}>HP</span>
+      <span style={{ fontSize: size * 0.32, color: fg, letterSpacing: '-1px' }}>7</span>
     </div>
-  );
+  )
 }
 
-// Project card — news-style like messi.com news cards
-function ProjectCard({ project, index }) {
-  const [hov, setHov] = useState(false);
-  return (
-    <motion.a
-      href={project.link||"#"} target="_blank" rel="noreferrer"
-      initial={{ opacity:0, y:20 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ delay:index*0.08 }}
-      style={{ textDecoration:"none", display:"flex", flexDirection:"column", background:WHITE, border:`1px solid ${MGREY}`, transition:"box-shadow 0.2s, transform 0.2s", boxShadow: hov ? "0 8px 32px rgba(0,133,195,0.12)" : "0 2px 8px rgba(0,0,0,0.06)", transform: hov ? "translateY(-4px)" : "translateY(0)" }}
-      onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}>
-      {/* Card image area — coloured top */}
-      <div style={{ height:180, background: hov ? BLUE : LGREY, display:"flex", alignItems:"center", justifyContent:"center", overflow:"hidden", transition:"background 0.25s", position:"relative" }}>
-        <span style={{ fontFamily:"'Oswald',sans-serif", fontWeight:700, fontSize:72, color: hov ? "rgba(255,255,255,0.15)" : "rgba(0,133,195,0.1)", letterSpacing:"0.04em", transition:"color 0.25s" }}>
-          {String(index+1).padStart(2,"0")}
-        </span>
-        {/* Tag badge */}
-        <div style={{ position:"absolute", top:12, left:12, background: hov ? WHITE : BLUE, color: hov ? BLUE : WHITE, fontFamily:"'Oswald',sans-serif", fontSize:10, fontWeight:600, letterSpacing:"0.15em", padding:"3px 10px", transition:"all 0.2s" }}>
-          {project.tag || "PROJECT"}
-        </div>
-      </div>
-      {/* Card body */}
-      <div style={{ padding:"18px 18px 22px", flex:1, display:"flex", flexDirection:"column" }}>
-        <h3 style={{ fontFamily:"'Oswald',sans-serif", fontWeight:700, fontSize:18, letterSpacing:"0.05em", color:INK, marginBottom:8, lineHeight:1.2, textTransform:"uppercase" }}>
-          {project.name}
-        </h3>
-        <p style={{ fontFamily:"'Source Sans 3',sans-serif", fontSize:14, lineHeight:1.65, color:SUB, flex:1, margin:0 }}>
-          {project.description}
-        </p>
-        <div style={{ display:"flex", alignItems:"center", gap:4, marginTop:14, fontFamily:"'Oswald',sans-serif", fontWeight:600, fontSize:12, letterSpacing:"0.1em", color:BLUE, textTransform:"uppercase" }}>
-          VIEW PROJECT <ArrowUpRight size={13}/>
-        </div>
-      </div>
-    </motion.a>
-  );
-}
+export default function PageNjrPro({ data = {} }) {
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [lang, setLang] = useState('EN')
+  const [scrolled, setScrolled] = useState(false)
 
-export default function MessiLight() {
-  const [lang, setLang] = useState("en");
-  const [apiProjects, setApiProjects] = useState([]);
-  const [apiSkills, setApiSkills] = useState([]);
-  const [apiEdu, setApiEdu] = useState([]);
+  const {
+    name = 'Hun Phanuth',
+    title = 'Full-Stack Developer',
+    bio = 'I build digital products that perform. Clean code, sharp interfaces, results that matter.',
+    projects = [],
+    skills = [],
+    education = [],
+    experience = [],
+    contact = {}
+  } = data
+
+  const firstName = name.split(' ')[0] || 'Hun'
+  const lastName = name.split(' ').slice(1).join(' ') || 'Phanuth'
 
   useEffect(() => {
-    Promise.all([
-      fetch("/api/admin?type=project").then(r=>r.json()).catch(()=>[]),
-      fetch("/api/admin?type=skill").then(r=>r.json()).catch(()=>[]),
-      fetch("/api/admin?type=education").then(r=>r.json()).catch(()=>[]),
-    ]).then(([p,s,e])=>{
-      setApiProjects(Array.isArray(p)?p:[]);
-      setApiSkills(Array.isArray(s)?s:[]);
-      setApiEdu(Array.isArray(e)?e:[]);
-    });
-  }, []);
+    const onScroll = () => setScrolled(window.scrollY > 60)
+    window.addEventListener('scroll', onScroll)
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
-  const d = T[lang];
-  const projects  = apiProjects.length > 0 ? apiProjects.map((p,i)=>({...p,tag:DEFAULT_PROJECTS[i]?.tag||"PROJECT"})) : DEFAULT_PROJECTS;
-  const skillList = apiSkills.length > 0 ? apiSkills.map(s=>s.name) : DEFAULT_SKILLS;
-  const education = apiEdu.length > 0 ? apiEdu : DEFAULT_EDU;
+  const navLinks = ['Projects', 'Experience', 'Skills', 'Education', 'Contact']
+
+  const stats = [
+    { label: 'Projects Shipped', value: projects.length || '12+' },
+    { label: 'Years Building', value: '3+' },
+    { label: 'Technologies', value: skills.length || '20+' },
+    { label: 'Open Source', value: '100%' },
+  ]
 
   return (
-    <div className={lang==="kh"?"font-khmer":""} style={{ minHeight:"100vh", background:WHITE, color:INK }}>
-      <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Source+Sans+3:wght@300;400;600&family=Battambang:wght@400;700&display=swap');
-        * { box-sizing:border-box; margin:0; padding:0; }
-        html { scroll-behavior:smooth; }
-        body { background:${WHITE}; }
-        .font-khmer * { font-family:'Battambang',sans-serif!important; }
-        @media(max-width:640px){
-          .ghost-name { font-size:18vw!important; }
-          .proj-grid { grid-template-columns:1fr!important; }
-          .skill-grid { grid-template-columns:repeat(2,1fr)!important; }
-          .nav-links { display:none!important; }
-          .stats-strip { grid-template-columns:repeat(3,1fr)!important; }
-          .two-col { grid-template-columns:1fr!important; }
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&display=swap');
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Montserrat', sans-serif; background: ${WHITE}; color: ${BLACK}; }
+        a { text-decoration: none; color: inherit; }
+        ::selection { background: ${YELLOW}; color: ${BLACK}; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: ${BLACK}; }
+        ::-webkit-scrollbar-thumb { background: ${YELLOW}; }
+
+        .nav-link {
+          font-size: 13px; font-weight: 700; letter-spacing: 1.5px;
+          text-transform: uppercase; color: ${WHITE}; opacity: 0.7;
+          transition: opacity 0.2s, color 0.2s; cursor: pointer;
+        }
+        .nav-link:hover { opacity: 1; color: ${YELLOW}; }
+        .nav-scrolled .nav-link { color: ${BLACK}; }
+        .nav-scrolled .nav-link:hover { color: ${YELLOW}; opacity: 1; }
+
+        .hero-name-solid {
+          font-size: clamp(64px, 11vw, 160px);
+          font-weight: 900;
+          line-height: 0.9;
+          letter-spacing: -4px;
+          color: ${BLACK};
+          display: block;
+        }
+        .hero-name-outline {
+          font-size: clamp(64px, 11vw, 160px);
+          font-weight: 900;
+          line-height: 0.9;
+          letter-spacing: -4px;
+          color: transparent;
+          -webkit-text-stroke: 2px ${BLACK};
+          display: block;
+        }
+
+        .project-card {
+          background: ${GREY};
+          border-top: 4px solid transparent;
+          transition: all 0.3s ease;
+          cursor: pointer;
+        }
+        .project-card:hover {
+          background: ${BLACK};
+          border-top-color: ${YELLOW};
+        }
+        .project-card:hover .project-title { color: ${WHITE}; }
+        .project-card:hover .project-desc { color: rgba(255,255,255,0.6); }
+        .project-card:hover .project-tech span {
+          background: rgba(253,217,0,0.15);
+          color: ${YELLOW};
+        }
+        .project-card:hover .project-arrow { color: ${YELLOW}; }
+
+        .skill-tile {
+          background: ${GREY};
+          padding: 20px;
+          font-size: 13px;
+          font-weight: 700;
+          letter-spacing: 0.5px;
+          text-transform: uppercase;
+          color: ${BLACK};
+          transition: all 0.25s ease;
+          cursor: default;
+        }
+        .skill-tile:hover {
+          background: ${BLACK};
+          color: ${YELLOW};
+        }
+
+        .cta-btn-black {
+          display: inline-block;
+          background: ${BLACK};
+          color: ${WHITE};
+          font-family: 'Montserrat', sans-serif;
+          font-weight: 700;
+          font-size: 13px;
+          letter-spacing: 2px;
+          text-transform: uppercase;
+          padding: 18px 40px;
+          border: none;
+          cursor: pointer;
+          transition: background 0.2s, color 0.2s;
+        }
+        .cta-btn-black:hover { background: ${WHITE}; color: ${BLACK}; }
+
+        .cta-btn-yellow {
+          display: inline-block;
+          background: ${YELLOW};
+          color: ${BLACK};
+          font-family: 'Montserrat', sans-serif;
+          font-weight: 700;
+          font-size: 13px;
+          letter-spacing: 2px;
+          text-transform: uppercase;
+          padding: 18px 40px;
+          border: none;
+          cursor: pointer;
+          transition: background 0.2s, color 0.2s;
+        }
+        .cta-btn-yellow:hover { background: ${BLACK}; color: ${WHITE}; }
+
+        .section-label {
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: 4px;
+          text-transform: uppercase;
+          color: ${YELLOW};
+          margin-bottom: 16px;
+        }
+
+        @media (max-width: 768px) {
+          .hero-grid { flex-direction: column !important; }
+          .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .projects-grid { grid-template-columns: 1fr !important; }
+          .skills-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .edu-grid { grid-template-columns: 1fr !important; }
+          .contact-flex { flex-direction: column !important; align-items: flex-start !important; }
         }
       `}</style>
 
-      {/* ══ NAV — centred logo, links either side ══ */}
-      <header style={{ position:"sticky", top:0, zIndex:100, background:"rgba(255,255,255,0.97)", backdropFilter:"blur(8px)", borderBottom:`1px solid ${MGREY}` }}>
-        <div style={{ maxWidth:1200, margin:"0 auto", padding:"0 32px", height:60, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-          {/* Left nav */}
-          <nav className="nav-links" style={{ display:"flex", gap:28 }}>
-            {d.nav.slice(0,2).map((label,i)=>(
-              <a key={i} href={`#${d.navIds[i]}`} style={{ fontFamily:"'Oswald',sans-serif", fontWeight:600, fontSize:13, letterSpacing:"0.12em", color:SUB, textDecoration:"none", transition:"color 0.15s" }}
-                onMouseEnter={e=>e.currentTarget.style.color=BLUE} onMouseLeave={e=>e.currentTarget.style.color=SUB}>
-                {label}
-              </a>
-            ))}
-          </nav>
+      {/* NAV */}
+      <nav style={{
+        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
+        background: scrolled ? WHITE : 'transparent',
+        borderBottom: scrolled ? `1px solid ${GREY}` : 'none',
+        transition: 'background 0.3s, border 0.3s',
+        boxShadow: scrolled ? '0 2px 20px rgba(0,0,0,0.08)' : 'none',
+      }} className={scrolled ? 'nav-scrolled' : ''}>
+        <div style={{
+          maxWidth: 1200, margin: '0 auto',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '20px 24px',
+        }}>
+          <HP7Logo size={36} inverted={scrolled} />
 
-          {/* Centred logo */}
-          <div style={{ fontFamily:"'Oswald',sans-serif", fontWeight:700, fontSize:20, letterSpacing:"0.1em", color:INK, textAlign:"center" }}>
-            {d.logoLine1} {d.logoLine2}
-          </div>
-
-          {/* Right nav */}
-          <div className="nav-links" style={{ display:"flex", gap:28, alignItems:"center" }}>
-            {d.nav.slice(2).map((label,i)=>(
-              <a key={i} href={`#${d.navIds[i+2]}`} style={{ fontFamily:"'Oswald',sans-serif", fontWeight:600, fontSize:13, letterSpacing:"0.12em", color:SUB, textDecoration:"none", transition:"color 0.15s" }}
-                onMouseEnter={e=>e.currentTarget.style.color=BLUE} onMouseLeave={e=>e.currentTarget.style.color=SUB}>
-                {label}
-              </a>
+          <div style={{ display: 'flex', gap: 36, alignItems: 'center' }}>
+            {navLinks.map(l => (
+              <a key={l} href={`#${l.toLowerCase()}`}
+                className="nav-link"
+                style={{ color: scrolled ? BLACK : WHITE }}
+              >{l}</a>
             ))}
-            <button onClick={()=>setLang(l=>l==="en"?"kh":"en")} style={{
-              fontFamily:"'Oswald',sans-serif", fontWeight:600, fontSize:12, letterSpacing:"0.12em",
-              background:BLUE, border:"none", color:WHITE, padding:"5px 14px", cursor:"pointer",
-            }}>{d.toggle}</button>
+            <button
+              onClick={() => setLang(lang === 'EN' ? 'KH' : 'EN')}
+              style={{
+                background: 'none', border: `2px solid ${scrolled ? BLACK : WHITE}`,
+                color: scrolled ? BLACK : WHITE,
+                fontFamily: 'Montserrat', fontWeight: 700, fontSize: 11,
+                letterSpacing: 2, padding: '6px 12px', cursor: 'pointer',
+                transition: 'all 0.2s',
+              }}
+            >{lang === 'EN' ? 'KH' : 'EN'}</button>
           </div>
         </div>
-      </header>
+      </nav>
 
-      {/* ══ HERO ══ */}
-      <section style={{ position:"relative", minHeight:"92vh", background:WHITE, display:"flex", alignItems:"flex-end", overflow:"hidden" }}>
+      {/* HERO */}
+      <section style={{
+        background: WHITE, minHeight: '100vh',
+        display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
+        padding: '0 24px 80px', paddingTop: '120px',
+        maxWidth: 1200, margin: '0 auto',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 60, flexWrap: 'wrap' }}
+          className="hero-grid">
+          {/* Name Block */}
+          <div style={{ flex: '1 1 500px' }}>
+            <div style={{ marginBottom: 24 }}>
+              <span style={{
+                display: 'inline-flex', alignItems: 'center', gap: 8,
+                background: YELLOW, padding: '6px 14px',
+                fontSize: 11, fontWeight: 700, letterSpacing: 2,
+                textTransform: 'uppercase', color: BLACK,
+                marginBottom: 32,
+              }}>
+                <span style={{
+                  width: 8, height: 8, borderRadius: '50%',
+                  background: BLACK, display: 'inline-block',
+                  animation: 'pulse 2s infinite',
+                }}></span>
+                Available for Work
+              </span>
+            </div>
+            <span className="hero-name-solid">{firstName}</span>
+            <span className="hero-name-outline">{lastName}</span>
+            <p style={{
+              marginTop: 32, fontSize: 16, color: BODY, lineHeight: 1.7,
+              maxWidth: 440, fontWeight: 400,
+            }}>{bio}</p>
+            <div style={{ marginTop: 40, display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+              <a href="#projects" className="cta-btn-black">View Projects</a>
+              <a href="#contact" className="cta-btn-yellow">Get in Touch</a>
+            </div>
+          </div>
 
-        {/* Ghost name — outlined behind photo */}
-        <div className="ghost-name" style={{
-          position:"absolute", inset:0,
-          display:"flex", alignItems:"center", justifyContent:"center",
-          zIndex:1, overflow:"hidden", userSelect:"none", pointerEvents:"none",
+          {/* Photo Block */}
+          <div style={{ flex: '0 0 auto', position: 'relative' }}>
+            <div style={{
+              width: 320, height: 400,
+              background: GREY,
+              position: 'relative',
+            }}>
+              {/* Yellow offset border */}
+              <div style={{
+                position: 'absolute', top: -12, right: -12,
+                width: '100%', height: '100%',
+                border: `4px solid ${YELLOW}`,
+                zIndex: 0,
+              }}></div>
+              <div style={{
+                position: 'absolute', inset: 0,
+                background: `linear-gradient(135deg, ${GREY} 0%, #e0e0e0 100%)`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                zIndex: 1,
+              }}>
+                <HP7Logo size={80} />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <a href="#projects" style={{
+          marginTop: 80, display: 'inline-flex', alignItems: 'center', gap: 8,
+          fontSize: 12, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase',
+          color: BODY, transition: 'color 0.2s',
         }}>
-          <span style={{
-            fontFamily:"'Oswald',sans-serif", fontWeight:700,
-            fontSize:"clamp(100px,18vw,280px)",
-            lineHeight:0.9, letterSpacing:"0.04em",
-            color:"transparent",
-            WebkitTextStroke:`2px ${MGREY}`,
-            whiteSpace:"nowrap",
-          }}>
-            {d.ghostName}
+          <ChevronDown size={16} />
+          Scroll
+        </a>
+      </section>
+
+      {/* STATS STRIP */}
+      <section style={{ background: YELLOW, padding: '48px 24px' }}>
+        <div style={{
+          maxWidth: 1200, margin: '0 auto',
+          display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)',
+          gap: 0,
+        }} className="stats-grid">
+          {stats.map((s, i) => (
+            <div key={i} style={{
+              textAlign: 'center', padding: '24px 16px',
+              borderRight: i < stats.length - 1 ? `1px solid rgba(0,0,0,0.15)` : 'none',
+            }}>
+              <div style={{
+                fontSize: 'clamp(36px, 5vw, 56px)', fontWeight: 900,
+                color: BLACK, lineHeight: 1, letterSpacing: -2,
+              }}>{s.value}</div>
+              <div style={{
+                fontSize: 11, fontWeight: 700, letterSpacing: 2,
+                textTransform: 'uppercase', color: 'rgba(0,0,0,0.6)',
+                marginTop: 8,
+              }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* PROJECTS */}
+      <section id="projects" style={{ padding: '100px 24px', background: WHITE }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 60, flexWrap: 'wrap', gap: 16 }}>
+            <div>
+              <div className="section-label">Selected Work</div>
+              <h2 style={{ fontSize: 'clamp(32px,5vw,56px)', fontWeight: 900, letterSpacing: -2, lineHeight: 1 }}>
+                Projects
+              </h2>
+            </div>
+            <a href="https://github.com" target="_blank" rel="noreferrer"
+              style={{ fontSize: 13, fontWeight: 700, letterSpacing: 1, color: BODY, display: 'flex', alignItems: 'center', gap: 4 }}>
+              All on GitHub <ArrowUpRight size={14} />
+            </a>
+          </div>
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
+            gap: 2,
+          }} className="projects-grid">
+            {(projects.length > 0 ? projects : [
+              { title: 'Portfolio System', description: 'Full-stack portfolio with admin dashboard, project management, and bilingual support.', techStack: ['Next.js', 'Prisma', 'MySQL'], liveLink: '#', githubLink: '#' },
+              { title: 'E-Commerce Platform', description: 'Multi-vendor marketplace with real-time inventory and payment integration.', techStack: ['React', 'Node.js', 'Stripe'], liveLink: '#', githubLink: '#' },
+              { title: 'Dashboard Analytics', description: 'Real-time data visualization platform with customizable widgets.', techStack: ['TypeScript', 'D3.js', 'WebSocket'], liveLink: '#', githubLink: '#' },
+              { title: 'Mobile App', description: 'Cross-platform mobile application with offline-first architecture.', techStack: ['React Native', 'SQLite', 'Redux'], liveLink: '#', githubLink: '#' },
+            ]).map((p, i) => (
+              <div key={i} className="project-card" style={{ padding: '36px 32px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+                  <span style={{
+                    fontSize: 11, fontWeight: 700, letterSpacing: 3,
+                    textTransform: 'uppercase', color: BODY,
+                  }}>{String(i + 1).padStart(2, '0')}</span>
+                  <a href={p.liveLink || p.githubLink || '#'}
+                    target="_blank" rel="noreferrer"
+                    className="project-arrow"
+                    style={{ color: BLACK, transition: 'color 0.3s' }}>
+                    <ArrowUpRight size={20} />
+                  </a>
+                </div>
+                <h3 className="project-title" style={{
+                  fontSize: 22, fontWeight: 900, letterSpacing: -0.5,
+                  marginBottom: 12, color: BLACK, transition: 'color 0.3s',
+                }}>{p.title}</h3>
+                <p className="project-desc" style={{
+                  fontSize: 14, color: BODY, lineHeight: 1.6, marginBottom: 24,
+                  transition: 'color 0.3s',
+                }}>{p.description}</p>
+                <div className="project-tech" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  {(p.techStack || []).map((t, j) => (
+                    <span key={j} style={{
+                      fontSize: 11, fontWeight: 700, letterSpacing: 1,
+                      textTransform: 'uppercase', background: 'rgba(0,0,0,0.06)',
+                      color: BLACK, padding: '4px 10px', transition: 'all 0.3s',
+                    }}>{t}</span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* EXPERIENCE */}
+      <section id="experience" style={{ background: GREY, padding: '100px 24px' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <div className="section-label">Career</div>
+          <h2 style={{ fontSize: 'clamp(32px,5vw,56px)', fontWeight: 900, letterSpacing: -2, marginBottom: 60 }}>
+            Experience
+          </h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {(experience.length > 0 ? experience : [
+              { role: 'Senior Developer', org: 'Tech Company', period: '2023 — Present', desc: 'Led development of core product features, mentored junior developers, and improved system performance by 40%.' },
+              { role: 'Full-Stack Developer', org: 'Startup', period: '2022 — 2023', desc: 'Built scalable web applications from scratch using modern frameworks and cloud infrastructure.' },
+            ]).map((e, i) => (
+              <div key={i} style={{
+                background: WHITE, padding: '36px 40px',
+                display: 'grid', gridTemplateColumns: '1fr auto',
+                gap: 24, alignItems: 'start',
+              }}>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 12 }}>
+                    <span style={{
+                      width: 12, height: 12, background: YELLOW, flexShrink: 0,
+                    }}></span>
+                    <h3 style={{ fontSize: 20, fontWeight: 900, letterSpacing: -0.5 }}>{e.role}</h3>
+                    <span style={{
+                      fontSize: 11, fontWeight: 700, letterSpacing: 1,
+                      textTransform: 'uppercase', background: BLACK,
+                      color: YELLOW, padding: '3px 10px',
+                    }}>{e.org || e.organization}</span>
+                  </div>
+                  <p style={{ fontSize: 14, color: BODY, lineHeight: 1.7, paddingLeft: 28 }}>{e.desc || e.description}</p>
+                </div>
+                <span style={{ fontSize: 13, fontWeight: 700, color: BODY, whiteSpace: 'nowrap' }}>{e.period || e.duration}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* EDUCATION */}
+      <section id="education" style={{ background: BLACK, padding: '100px 24px' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <div className="section-label">Background</div>
+          <h2 style={{ fontSize: 'clamp(32px,5vw,56px)', fontWeight: 900, letterSpacing: -2, color: WHITE, marginBottom: 60 }}>
+            Education
+          </h2>
+          <div style={{
+            display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+            gap: 2,
+          }} className="edu-grid">
+            {(education.length > 0 ? education : [
+              { institution: 'University of Technology', degree: 'B.Sc. Computer Science', year: '2020 — 2024', gpa: '3.8 GPA' },
+            ]).map((e, i) => (
+              <div key={i} style={{
+                background: i === 0 ? '#1a1a1a' : '#111',
+                borderTop: i === 0 ? `4px solid ${YELLOW}` : '4px solid #333',
+                padding: '36px 32px',
+              }}>
+                <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 3, color: YELLOW, textTransform: 'uppercase', marginBottom: 16 }}>
+                  {e.year || e.duration}
+                </div>
+                <h3 style={{ fontSize: 20, fontWeight: 900, color: WHITE, marginBottom: 8, letterSpacing: -0.5 }}>
+                  {e.institution}
+                </h3>
+                <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.6)', marginBottom: 12 }}>{e.degree}</p>
+                {e.gpa && <span style={{
+                  fontSize: 11, fontWeight: 700, letterSpacing: 1,
+                  textTransform: 'uppercase', color: YELLOW,
+                }}>{e.gpa}</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SKILLS */}
+      <section id="skills" style={{ background: WHITE, padding: '100px 24px' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <div className="section-label">Tech Stack</div>
+          <h2 style={{ fontSize: 'clamp(32px,5vw,56px)', fontWeight: 900, letterSpacing: -2, marginBottom: 60 }}>
+            Skills
+          </h2>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
+            gap: 2,
+          }} className="skills-grid">
+            {(skills.length > 0 ? skills : [
+              'Next.js', 'React', 'TypeScript', 'Node.js', 'Prisma', 'MySQL',
+              'Tailwind CSS', 'Framer Motion', 'Git', 'Docker', 'AWS', 'Figma',
+            ]).map((s, i) => (
+              <div key={i} className="skill-tile">
+                {typeof s === 'string' ? s : s.name}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CONTACT */}
+      <section id="contact" style={{ background: YELLOW, padding: '100px 24px' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            flexWrap: 'wrap', gap: 48,
+          }} className="contact-flex">
+            <div>
+              <div style={{
+                fontSize: 11, fontWeight: 700, letterSpacing: 4,
+                textTransform: 'uppercase', color: 'rgba(0,0,0,0.5)', marginBottom: 16,
+              }}>Let's Work Together</div>
+              <h2 style={{
+                fontSize: 'clamp(40px, 7vw, 96px)', fontWeight: 900,
+                letterSpacing: -3, color: BLACK, lineHeight: 0.9, marginBottom: 32,
+              }}>
+                Get in<br />
+                <span style={{
+                  color: 'transparent',
+                  WebkitTextStroke: `3px ${BLACK}`,
+                }}>Touch</span>
+              </h2>
+              <p style={{ fontSize: 16, color: 'rgba(0,0,0,0.65)', maxWidth: 400, lineHeight: 1.7 }}>
+                Available for freelance projects, full-time roles, and collaborations. Let's build something great.
+              </p>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {contact.email && (
+                <a href={`mailto:${contact.email}`} style={{
+                  fontSize: 20, fontWeight: 900, color: BLACK,
+                  display: 'flex', alignItems: 'center', gap: 8,
+                }}>
+                  {contact.email} <ArrowUpRight size={20} />
+                </a>
+              )}
+              {contact.github && (
+                <a href={contact.github} target="_blank" rel="noreferrer"
+                  style={{ fontSize: 15, fontWeight: 700, color: 'rgba(0,0,0,0.65)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  GitHub <ArrowUpRight size={14} />
+                </a>
+              )}
+              <div style={{ marginTop: 16 }}>
+                <a href={`mailto:${contact.email || 'hello@example.com'}`}
+                  className="cta-btn-black">
+                  Send Message
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer style={{ background: BLACK, padding: '32px 24px' }}>
+        <div style={{
+          maxWidth: 1200, margin: '0 auto',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          flexWrap: 'wrap', gap: 16,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <HP7Logo size={32} />
+            <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>
+              {name}
+            </span>
+          </div>
+          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', fontWeight: 600 }}>
+            {new Date().getFullYear()} — All rights reserved
           </span>
         </div>
-
-        {/* Photo — centre */}
-        <div style={{ position:"absolute", inset:0, zIndex:2, display:"flex", alignItems:"flex-end", justifyContent:"center" }}>
-          <img src="images/bl-steven.png" alt="Hun Phanuth" style={{ height:"88vh", width:"auto", objectFit:"cover", objectPosition:"center top", display:"block" }} />
-        </div>
-
-        {/* Left info panel */}
-        <motion.div initial={{ opacity:0, x:-24 }} animate={{ opacity:1, x:0 }} transition={{ duration:0.8, delay:0.2 }}
-          style={{ position:"relative", zIndex:3, padding:"0 0 64px 48px", maxWidth:320 }}>
-          <div style={{ background:"rgba(255,255,255,0.95)", padding:"24px 24px", border:`1px solid ${MGREY}`, boxShadow:"0 4px 24px rgba(0,0,0,0.08)" }}>
-            <div style={{ fontFamily:"'Oswald',sans-serif", fontWeight:700, fontSize:"clamp(28px,4vw,44px)", lineHeight:1, letterSpacing:"0.04em", color:INK, marginBottom:8, textTransform:"uppercase" }}>
-              {d.logoLine1}<br/><span style={{ color:BLUE }}>{d.logoLine2}</span>
-            </div>
-            <div style={{ height:3, width:48, background:BLUE, margin:"12px 0 14px" }} />
-            <p style={{ fontFamily:"'Source Sans 3',sans-serif", fontSize:13, color:SUB, lineHeight:1.6, marginBottom:16 }}>{d.heroDesc}</p>
-            <a href={`mailto:${d.contact.email}`} style={{
-              display:"inline-flex", alignItems:"center", gap:6,
-              fontFamily:"'Oswald',sans-serif", fontWeight:600, fontSize:12, letterSpacing:"0.1em", textTransform:"uppercase",
-              background:BLUE, color:WHITE, padding:"10px 20px", textDecoration:"none",
-            }}>{d.contactBtn} <ChevronRight size={14}/></a>
-          </div>
-        </motion.div>
-
-        {/* Right sub-role */}
-        <motion.div initial={{ opacity:0, x:24 }} animate={{ opacity:1, x:0 }} transition={{ duration:0.8, delay:0.3 }}
-          style={{ position:"absolute", right:48, bottom:64, zIndex:3 }}>
-          <div style={{ writingMode:"vertical-rl", textOrientation:"mixed", transform:"rotate(180deg)", fontFamily:"'Oswald',sans-serif", fontWeight:500, fontSize:11, letterSpacing:"0.2em", textTransform:"uppercase", color:SUB }}>
-            {d.heroSub}
-          </div>
-        </motion.div>
-      </section>
-
-      {/* ══ STATS STRIP ══ */}
-      <div className="stats-strip" style={{ background:BLUE, display:"grid", gridTemplateColumns:`repeat(${STATS.length},1fr)` }}>
-        {STATS.map((s,i)=>(
-          <motion.div key={i} initial={{ opacity:0 }} whileInView={{ opacity:1 }} viewport={{ once:true }} transition={{ delay:i*0.08 }}
-            style={{ textAlign:"center", padding:"28px 16px", borderRight: i<STATS.length-1 ? "1px solid rgba(255,255,255,0.2)" : "none" }}>
-            <div style={{ fontFamily:"'Oswald',sans-serif", fontWeight:700, fontSize:"clamp(28px,3vw,44px)", color:WHITE, letterSpacing:"0.04em", lineHeight:1 }}>{s.value}</div>
-            <div style={{ fontFamily:"'Oswald',sans-serif", fontWeight:500, fontSize:10, color:"rgba(255,255,255,0.7)", letterSpacing:"0.18em", marginTop:6, textTransform:"uppercase" }}>{s.label}</div>
-          </motion.div>
-        ))}
-      </div>
-
-      {/* ══ ABOUT ══ */}
-      <section style={{ background:WHITE, padding:"80px 32px" }}>
-        <div style={{ maxWidth:1100, margin:"0 auto" }}>
-          <div className="two-col" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"48px 64px", alignItems:"start" }}>
-            <div>
-              <SecHead>{d.aboutTitle}</SecHead>
-              <p style={{ fontFamily:"'Source Sans 3',sans-serif", fontSize:16, lineHeight:1.8, color:SUB, marginBottom:20 }}>{d.aboutText1}</p>
-              <p style={{ fontFamily:"'Source Sans 3',sans-serif", fontSize:16, lineHeight:1.8, color:SUB }}>{d.aboutText2}</p>
-            </div>
-            {/* Experience */}
-            <div>
-              <SecHead>{d.expTitle}</SecHead>
-              {d.exp.map((exp,i)=>(
-                <div key={i} style={{ marginBottom:24, paddingBottom:24, borderBottom: i<d.exp.length-1 ? `1px solid ${MGREY}` : "none" }}>
-                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"baseline", gap:12, flexWrap:"wrap", marginBottom:4 }}>
-                    <span style={{ fontFamily:"'Oswald',sans-serif", fontWeight:700, fontSize:17, color:INK }}>{exp.title}</span>
-                    <span style={{ fontFamily:"'Source Sans 3',sans-serif", fontSize:12, color:SUB }}>{exp.period}</span>
-                  </div>
-                  <div style={{ fontFamily:"'Oswald',sans-serif", fontSize:13, fontWeight:500, color:BLUE, letterSpacing:"0.06em", marginBottom:8 }}>{exp.org}</div>
-                  <p style={{ fontFamily:"'Source Sans 3',sans-serif", fontSize:14, color:SUB, lineHeight:1.65 }}>{exp.desc}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ══ PROJECTS ══ */}
-      <section id="projects" style={{ background:LGREY, padding:"80px 32px" }}>
-        <div style={{ maxWidth:1100, margin:"0 auto" }}>
-          <SecHead>{d.projectsTitle}</SecHead>
-          <p style={{ fontFamily:"'Source Sans 3',sans-serif", fontSize:14, color:SUB, marginBottom:36, marginTop:-16 }}>{d.projectsSub}</p>
-          <div className="proj-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:20 }}>
-            {projects.map((p,i)=><ProjectCard key={p.id} project={p} index={i} />)}
-          </div>
-        </div>
-      </section>
-
-      {/* ══ SKILLS ══ */}
-      <section id="skills" style={{ background:WHITE, padding:"80px 32px" }}>
-        <div style={{ maxWidth:1100, margin:"0 auto" }}>
-          <SecHead>{d.skillsTitle}</SecHead>
-          <div className="skill-grid" style={{ display:"grid", gridTemplateColumns:"repeat(5,1fr)", gap:2 }}>
-            {skillList.map((sk,i)=>(
-              <motion.div key={i} initial={{ opacity:0 }} whileInView={{ opacity:1 }} viewport={{ once:true }} transition={{ delay:i*0.03 }}
-                style={{ padding:"14px 16px", border:`1px solid ${MGREY}`, textAlign:"center", cursor:"default", transition:"all 0.15s", background:WHITE }}
-                onMouseEnter={e=>{ e.currentTarget.style.background=BLUE; e.currentTarget.style.borderColor=BLUE; e.currentTarget.querySelector("span").style.color=WHITE; }}
-                onMouseLeave={e=>{ e.currentTarget.style.background=WHITE; e.currentTarget.style.borderColor=MGREY; e.currentTarget.querySelector("span").style.color=INK; }}>
-                <span style={{ fontFamily:"'Oswald',sans-serif", fontWeight:500, fontSize:13, letterSpacing:"0.06em", color:INK, transition:"color 0.15s", textTransform:"uppercase" }}>{sk}</span>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ══ EDUCATION + AWARDS ══ */}
-      <section style={{ background:LGREY, padding:"80px 32px" }}>
-        <div style={{ maxWidth:1100, margin:"0 auto" }}>
-          <div className="two-col" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"48px 64px" }}>
-            <div>
-              <SecHead>{d.eduTitle}</SecHead>
-              {education.map((edu,i)=>(
-                <div key={edu.id} style={{ display:"flex", gap:16, marginBottom:24, paddingBottom:24, borderBottom: i<education.length-1 ? `1px solid ${MGREY}` : "none" }}>
-                  <div style={{ width:4, height:"auto", background:BLUE, flexShrink:0, alignSelf:"stretch" }} />
-                  <div>
-                    <div style={{ fontFamily:"'Oswald',sans-serif", fontWeight:700, fontSize:16, color:INK, marginBottom:4 }}>{edu.degree}</div>
-                    <div style={{ fontFamily:"'Source Sans 3',sans-serif", fontSize:13, color:BLUE, fontWeight:600, marginBottom:3 }}>{edu.university}</div>
-                    <div style={{ fontFamily:"'Source Sans 3',sans-serif", fontSize:12, color:SUB }}>{edu.period || `${edu.startDate} – ${edu.endDate}`}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div>
-              <SecHead>{d.awardsTitle}</SecHead>
-              {d.awards.map((ach,i)=>(
-                <div key={i} style={{ marginBottom:24, paddingBottom:24, borderBottom: i<d.awards.length-1 ? `1px solid ${MGREY}` : "none" }}>
-                  <div style={{ fontFamily:"'Source Sans 3',sans-serif", fontSize:11, fontWeight:600, color:BLUE, letterSpacing:"0.1em", textTransform:"uppercase", marginBottom:5 }}>{ach.date}</div>
-                  <div style={{ fontFamily:"'Oswald',sans-serif", fontWeight:700, fontSize:15, color:INK, marginBottom:3, lineHeight:1.2 }}>{ach.title}</div>
-                  <div style={{ fontFamily:"'Source Sans 3',sans-serif", fontSize:12, color:SUB, marginBottom:6 }}>{ach.org}</div>
-                  <p style={{ fontFamily:"'Source Sans 3',sans-serif", fontSize:13, color:SUB, lineHeight:1.6 }}>{ach.desc}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ══ CONTACT ══ */}
-      <section id="contact" style={{ background:INK, padding:"80px 32px" }}>
-        <div style={{ maxWidth:1100, margin:"0 auto" }}>
-          <div className="two-col" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"48px 64px", alignItems:"center" }}>
-            <div>
-              <div style={{ fontFamily:"'Oswald',sans-serif", fontWeight:500, fontSize:12, letterSpacing:"0.2em", color:BLUE, textTransform:"uppercase", marginBottom:12 }}>{d.contactSub}</div>
-              <h2 style={{ fontFamily:"'Oswald',sans-serif", fontWeight:700, fontSize:"clamp(36px,5vw,64px)", letterSpacing:"0.04em", color:WHITE, lineHeight:0.95, marginBottom:28, textTransform:"uppercase" }}>
-                {d.contactTitle}
-              </h2>
-              <a href={`mailto:${d.contact.email}`} style={{
-                display:"inline-flex", alignItems:"center", gap:8,
-                fontFamily:"'Oswald',sans-serif", fontWeight:600, fontSize:14, letterSpacing:"0.12em", textTransform:"uppercase",
-                background:BLUE, color:WHITE, padding:"14px 32px", textDecoration:"none",
-                transition:"opacity 0.15s",
-              }}
-                onMouseEnter={e=>e.currentTarget.style.opacity="0.85"}
-                onMouseLeave={e=>e.currentTarget.style.opacity="1"}>
-                {d.contactBtn} <ChevronRight size={16}/>
-              </a>
-            </div>
-            <div style={{ display:"flex", flexDirection:"column", gap:14 }}>
-              {[
-                { icon:<Mail size={15}/>, v:d.contact.email, href:`mailto:${d.contact.email}` },
-                { icon:<Phone size={15}/>, v:d.contact.phone, href:`tel:${d.contact.phone}` },
-                { icon:<Github size={15}/>, v:`github.com/${d.contact.github}`, href:`https://github.com/${d.contact.github}` },
-                { icon:<Linkedin size={15}/>, v:"linkedin.com/in/Hun-Phanuth", href:"#" },
-                { icon:<MapPin size={15}/>, v:d.contact.location, href:null },
-              ].map((c,i)=>(
-                <div key={i} style={{ display:"flex", alignItems:"center", gap:12, paddingBottom:14, borderBottom:`1px solid #222` }}>
-                  <span style={{ color:BLUE, flexShrink:0 }}>{c.icon}</span>
-                  {c.href ? (
-                    <a href={c.href} style={{ fontFamily:"'Source Sans 3',sans-serif", fontSize:14, color:"rgba(255,255,255,0.7)", textDecoration:"none", transition:"color 0.15s" }}
-                      onMouseEnter={e=>e.currentTarget.style.color=WHITE} onMouseLeave={e=>e.currentTarget.style.color="rgba(255,255,255,0.7)"}>
-                      {c.v}
-                    </a>
-                  ) : (
-                    <span style={{ fontFamily:"'Source Sans 3',sans-serif", fontSize:14, color:"rgba(255,255,255,0.4)" }}>{c.v}</span>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── FOOTER ── */}
-      <footer style={{ background:"#0A0A0A", borderTop:"1px solid #1A1A1A", padding:"20px 32px", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:12 }}>
-        <span style={{ fontFamily:"'Oswald',sans-serif", fontWeight:700, fontSize:16, letterSpacing:"0.1em", color:WHITE }}>{d.logoLine1} <span style={{ color:BLUE }}>{d.logoLine2}</span></span>
-        <span style={{ fontFamily:"'Source Sans 3',sans-serif", fontSize:12, color:"#555", letterSpacing:"0.06em" }}>© {new Date().getFullYear()} · PHNOM PENH, CAMBODIA</span>
       </footer>
-    </div>
-  );
+
+      <style>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.5; transform: scale(0.8); }
+        }
+      `}</style>
+    </>
+  )
 }
