@@ -1,13 +1,15 @@
 "use client"
 import { useState, useEffect, useMemo } from "react";
 import { signOut } from "next-auth/react";
-import { FolderKanban, GraduationCap, Cpu, MessageSquare, LogOut, Plus, Search, Trophy, Globe } from "lucide-react";
+import { FolderKanban, GraduationCap, Cpu, MessageSquare, LogOut, Plus, Search, Trophy, Globe, Eye, ExternalLink, X, Image } from "lucide-react";
 
 export default function AdminDashboard() {
   const [tab, setTab] = useState("project");
   const [items, setItems] = useState([]);
   const [editingItem, setEditingItem] = useState(null);
   const [search, setSearch] = useState("");
+  const [preview, setPreview] = useState(null); // { imageUrl, liveLink, title }
+  const [imagePreviewUrl, setImagePreviewUrl] = useState("");
 
   const refreshData = async () => {
     const res = await fetch(`/api/admin?type=${tab}`);
@@ -15,9 +17,15 @@ export default function AdminDashboard() {
     setItems(Array.isArray(data) ? data : []);
   };
 
-  useEffect(() => { refreshData(); setEditingItem(null); }, [tab]);
+  useEffect(() => { refreshData(); setEditingItem(null); setImagePreviewUrl(""); }, [tab]);
 
-  const filteredItems = useMemo(() => items.filter(i => 
+  // When editing an item, pre-fill image preview
+  useEffect(() => {
+    if (editingItem?.imageUrl) setImagePreviewUrl(editingItem.imageUrl);
+    else setImagePreviewUrl("");
+  }, [editingItem]);
+
+  const filteredItems = useMemo(() => items.filter(i =>
     (i.title || i.degree || i.name || "").toLowerCase().includes(search.toLowerCase())
   ), [items, search]);
 
@@ -29,13 +37,15 @@ export default function AdminDashboard() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ type: tab, id: editingItem?.id, data }),
     });
-    if (res.ok) { e.target.reset(); setEditingItem(null); refreshData(); }
+    if (res.ok) { e.target.reset(); setEditingItem(null); setImagePreviewUrl(""); refreshData(); }
   };
 
   return (
     <div className="min-h-screen bg-slate-50 flex text-slate-900 font-sans">
-      <aside className="w-72 bg-slate-900 text-white p-8 fixed h-full flex flex-col shadow-2xl">
-        <h1 className="text-2xl font-black italic text-blue-500 mb-10">PHANUTH.ADMIN STEAVE KOB LU</h1>
+
+      {/* SIDEBAR */}
+      <aside className="w-72 bg-slate-900 text-white p-8 fixed h-full flex flex-col shadow-2xl z-20">
+        <h1 className="text-2xl font-black italic text-blue-500 mb-10">PHANUTH.ADMIN</h1>
         <nav className="flex-1 space-y-2">
           <NavBtn active={tab==="project"} onClick={()=>setTab("project")} icon={<FolderKanban size={20}/>} label="Projects"/>
           <NavBtn active={tab==="education"} onClick={()=>setTab("education")} icon={<GraduationCap size={20}/>} label="Education"/>
@@ -43,10 +53,11 @@ export default function AdminDashboard() {
           <NavBtn active={tab==="message"} onClick={()=>setTab("message")} icon={<MessageSquare size={20}/>} label="Inbox"/>
         </nav>
         <button onClick={()=>signOut()} className="mt-auto flex items-center gap-2 text-slate-500 hover:text-red-400 font-bold p-4 border-t border-slate-800 transition-colors">
-          <LogOut size={18}/> Logout jenh
+          <LogOut size={18}/> Logout
         </button>
       </aside>
 
+      {/* MAIN */}
       <main className="ml-72 flex-1 p-12">
         <header className="flex justify-between items-center mb-10">
           <h2 className="text-4xl font-black capitalize italic tracking-tight">{tab}s</h2>
@@ -57,19 +68,21 @@ export default function AdminDashboard() {
         </header>
 
         <div className="grid lg:grid-cols-12 gap-10">
+          {/* FORM */}
           {tab !== "message" && (
             <div className="lg:col-span-4">
               <form onSubmit={handleSubmit} key={editingItem?.id || "new"} className="bg-white p-8 rounded-[2.5rem] shadow-xl border border-slate-100 sticky top-10 space-y-4">
                 <h3 className="text-xl font-black mb-4 flex items-center gap-2">
-                   {editingItem ? <Trophy className="text-orange-500"/> : <Plus className="text-blue-500"/>}
-                   {editingItem ? "Update Item" : "New Entry"}
+                  {editingItem ? <Trophy className="text-orange-500"/> : <Plus className="text-blue-500"/>}
+                  {editingItem ? "Update Item" : "New Entry"}
                 </h3>
-                
+
+                {/* EDUCATION FIELDS */}
                 {tab === "education" && (
                   <>
                     <input name="degree" defaultValue={editingItem?.degree} placeholder="Degree Name" required className="form-input" />
                     <input name="university" defaultValue={editingItem?.university} placeholder="University Name" className="form-input" />
-                    <input name="logoUrl" defaultValue={editingItem?.logoUrl} placeholder="Logo URL (Clearbit etc.)" className="form-input" />
+                    <input name="logoUrl" defaultValue={editingItem?.logoUrl} placeholder="Logo URL" className="form-input" />
                     <div className="grid grid-cols-2 gap-2">
                       <input name="startDate" defaultValue={editingItem?.startDate} placeholder="Start Year" className="form-input" />
                       <input name="endDate" defaultValue={editingItem?.endDate} placeholder="End Year" className="form-input" />
@@ -79,67 +92,265 @@ export default function AdminDashboard() {
                   </>
                 )}
 
+                {/* PROJECT FIELDS */}
                 {tab === "project" && (
                   <>
-                    <input name="title" defaultValue={editingItem?.title} placeholder="ProjectTitle" required className="form-input" />
+                    <input name="title" defaultValue={editingItem?.title} placeholder="Project Title" required className="form-input" />
                     <input name="category" defaultValue={editingItem?.category} placeholder="Category" className="form-input" />
-                    <input name="imageUrl" defaultValue={editingItem?.imageUrl} placeholder="Image URL" className="form-input" />
+
+                    {/* IMAGE URL with live preview */}
+                    <div>
+                      <input
+                        name="imageUrl"
+                        defaultValue={editingItem?.imageUrl}
+                        placeholder="Image URL (thumbnail)"
+                        className="form-input"
+                        onChange={(e) => setImagePreviewUrl(e.target.value)}
+                      />
+                      {imagePreviewUrl && (
+                        <div className="mt-2 rounded-xl overflow-hidden border border-slate-100 bg-slate-50" style={{height: 120}}>
+                          <img
+                            src={imagePreviewUrl}
+                            alt="Preview"
+                            className="w-full h-full object-cover"
+                            onError={(e) => { e.target.style.display='none'; }}
+                          />
+                        </div>
+                      )}
+                      {!imagePreviewUrl && (
+                        <div className="mt-2 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 flex items-center justify-center gap-2 text-slate-300" style={{height: 80}}>
+                          <Image size={18}/> <span className="text-xs font-bold">Image preview</span>
+                        </div>
+                      )}
+                    </div>
+
                     <textarea name="description" defaultValue={editingItem?.description} placeholder="Description" className="form-input h-24" />
                     <input name="techStack" defaultValue={editingItem?.techStack} placeholder="Tech Stack (React, MySQL...)" className="form-input" />
-                    <input name="liveLink" defaultValue={editingItem?.liveLink} placeholder="Live Link" className="form-input" />
+
+                    {/* LIVE LINK with open button */}
+                    <div>
+                      <div className="flex gap-2">
+                        <input
+                          name="liveLink"
+                          defaultValue={editingItem?.liveLink}
+                          placeholder="Live Demo URL"
+                          className="form-input"
+                          style={{flex: 1}}
+                        />
+                        {editingItem?.liveLink && (
+                          <a
+                            href={editingItem.liveLink}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex items-center justify-center px-3 bg-green-50 text-green-600 rounded-xl border-2 border-green-100 hover:bg-green-500 hover:text-white transition-colors"
+                            title="Open current demo"
+                          >
+                            <ExternalLink size={16}/>
+                          </a>
+                        )}
+                      </div>
+                      {editingItem?.liveLink && (
+                        <p className="text-xs text-green-500 font-bold mt-1 pl-1">Demo link set</p>
+                      )}
+                    </div>
+
+                    <input name="githubLink" defaultValue={editingItem?.githubLink} placeholder="GitHub URL" className="form-input" />
                   </>
                 )}
 
+                {/* SKILL FIELDS */}
                 {tab === "skill" && (
-  <>
-    <input name="name" defaultValue={editingItem?.name} placeholder="Skill Name (e.g., React)" required className="form-input" />
-    <input name="category" defaultValue={editingItem?.category} placeholder="Category (e.g., Frontend)" className="form-input" />
-    
-    {/* NEW ICON FIELD */}
-    <input 
-      name="iconUrl" 
-      defaultValue={editingItem?.iconUrl} 
-      placeholder="Icon URL (e.g., https://skillicons.dev/icons?i=react)" 
-      className="form-input" 
-    />
+                  <>
+                    <input name="name" defaultValue={editingItem?.name} placeholder="Skill Name (e.g., React)" required className="form-input" />
+                    <input name="category" defaultValue={editingItem?.category} placeholder="Category (e.g., Frontend)" className="form-input" />
+                    <input name="iconUrl" defaultValue={editingItem?.iconUrl} placeholder="Icon URL (e.g., https://skillicons.dev/icons?i=react)" className="form-input" />
+                    <input name="level" type="number" defaultValue={editingItem?.level} placeholder="Level %" className="form-input" />
+                  </>
+                )}
 
-    <input name="level" type="number" defaultValue={editingItem?.level} placeholder="Level %" className="form-input" />
-  </>
-)}
-                <button type="submit" className={`w-full py-4 rounded-2xl font-black text-white shadow-lg transition-all active:scale-95 ${editingItem ? 'bg-orange-500 shadow-orange-200' : 'bg-blue-600 shadow-blue-200'}`}>
-                  {editingItem ? "SAVE CHANGES" : "CREATE ENTRY"}
-                </button>
+                <div className="flex gap-2">
+                  <button type="submit" className={`flex-1 py-4 rounded-2xl font-black text-white shadow-lg transition-all active:scale-95 ${editingItem ? 'bg-orange-500 shadow-orange-200' : 'bg-blue-600 shadow-blue-200'}`}>
+                    {editingItem ? "SAVE CHANGES" : "CREATE ENTRY"}
+                  </button>
+                  {editingItem && (
+                    <button type="button" onClick={() => { setEditingItem(null); setImagePreviewUrl(""); }}
+                      className="px-4 py-4 rounded-2xl font-black text-slate-500 bg-slate-100 hover:bg-slate-200 transition-all">
+                      <X size={18}/>
+                    </button>
+                  )}
+                </div>
               </form>
             </div>
           )}
 
-          <div className={`${tab === "message" ? "lg:col-span-12" : "lg:col-span-8"} space-y-4`}>
+          {/* LIST */}
+          <div className={`${tab === "message" ? "lg:col-span-12" : "lg:col-span-8"} space-y-3`}>
             {filteredItems.map(item => (
-              <div key={item.id} className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 flex items-center justify-between group hover:border-blue-200 transition-all">
-                <div className="flex items-center gap-5">
-                  <div className="w-16 h-16 bg-slate-50 rounded-2xl overflow-hidden flex items-center justify-center p-2 border">
-                    {(item.logoUrl || item.imageUrl) ? (
-                      <img src={item.logoUrl || item.imageUrl} className="w-full h-full object-contain" />
-                    ) : <Globe className="text-slate-300"/>}
+              <div key={item.id} className="bg-white rounded-[2rem] shadow-sm border border-slate-100 hover:border-blue-200 transition-all overflow-hidden group">
+                <div className="p-5 flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-4 flex-1 min-w-0">
+
+                    {/* THUMBNAIL — project: 80×64, others: 64×64 icon */}
+                    {tab === "project" ? (
+                      <div className="flex-shrink-0 rounded-xl overflow-hidden bg-slate-100 border border-slate-100" style={{width: 80, height: 64}}>
+                        {item.imageUrl ? (
+                          <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover"/>
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <Globe className="text-slate-300" size={24}/>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="w-16 h-16 bg-slate-50 rounded-2xl overflow-hidden flex items-center justify-center p-2 border flex-shrink-0">
+                        {(item.logoUrl || item.imageUrl || item.iconUrl) ? (
+                          <img src={item.logoUrl || item.imageUrl || item.iconUrl} className="w-full h-full object-contain" alt=""/>
+                        ) : <Globe className="text-slate-300"/>}
+                      </div>
+                    )}
+
+                    <div className="min-w-0">
+                      <h4 className="font-black text-lg text-slate-800 truncate">{item.title || item.degree || item.name}</h4>
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-widest truncate">
+                        {item.university || item.category || item.level && `Level ${item.level}%`}
+                      </p>
+                      {/* Tech stack tags */}
+                      {tab === "project" && item.techStack && (
+                        <div className="flex gap-1 mt-1 flex-wrap">
+                          {String(item.techStack).split(',').slice(0, 3).map((t, i) => (
+                            <span key={i} className="text-xs font-bold bg-slate-100 text-slate-500 px-2 py-0.5 rounded-lg">{t.trim()}</span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="font-black text-lg text-slate-800">{item.title || item.degree || item.name}</h4>
-                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">{item.university || item.category}</p>
+
+                  {/* ACTION BUTTONS */}
+                  <div className="flex gap-2 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-all">
+                    {/* DEMO BUTTON — only for projects with liveLink */}
+                    {tab === "project" && item.liveLink && (
+                      <a
+                        href={item.liveLink}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center gap-1.5 px-3 py-2 bg-green-50 text-green-600 rounded-xl hover:bg-green-500 hover:text-white font-bold text-xs uppercase transition-colors"
+                        title="Open Demo"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <ExternalLink size={14}/> Demo
+                      </a>
+                    )}
+
+                    {/* PREVIEW BUTTON — projects with imageUrl */}
+                    {tab === "project" && (item.imageUrl || item.liveLink) && (
+                      <button
+                        onClick={() => setPreview({ imageUrl: item.imageUrl, liveLink: item.liveLink, title: item.title })}
+                        className="flex items-center gap-1.5 px-3 py-2 bg-purple-50 text-purple-600 rounded-xl hover:bg-purple-500 hover:text-white font-bold text-xs uppercase transition-colors"
+                        title="Preview"
+                      >
+                        <Eye size={14}/> View
+                      </button>
+                    )}
+
+                    <button
+                      onClick={() => setEditingItem(item)}
+                      className="p-2 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white font-bold text-xs uppercase transition-colors"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={async () => {
+                        if (confirm(`Delete "${item.title || item.name || item.degree}"?`)) {
+                          await fetch(`/api/admin?type=${tab}&id=${item.id}`, { method: 'DELETE' });
+                          refreshData();
+                        }
+                      }}
+                      className="p-2 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white font-bold text-xs uppercase transition-colors"
+                    >
+                      Del
+                    </button>
                   </div>
                 </div>
-                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all">
-                  <button onClick={() => setEditingItem(item)} className="p-3 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white font-bold text-xs uppercase transition-colors">Edit</button>
-                  <button onClick={async () => { if(confirm("Delete?")) { await fetch(`/api/admin?type=${tab}&id=${item.id}`, {method: 'DELETE'}); refreshData(); } }} className="p-3 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white font-bold text-xs uppercase transition-colors">Delete</button>
-                </div>
+
+                {/* HOVER IMAGE STRIP — project only */}
+                {tab === "project" && item.imageUrl && (
+                  <div className="max-h-0 group-hover:max-h-48 overflow-hidden transition-all duration-500 ease-in-out">
+                    <img src={item.imageUrl} alt={item.title} className="w-full object-cover" style={{height: 160, objectPosition: 'top'}}/>
+                  </div>
+                )}
               </div>
             ))}
+
+            {filteredItems.length === 0 && (
+              <div className="bg-white rounded-[2rem] p-16 text-center border border-slate-100">
+                <div className="text-slate-200 mb-4"><FolderKanban size={48} className="mx-auto"/></div>
+                <p className="font-black text-slate-400 text-lg">No items yet</p>
+                <p className="text-slate-300 font-bold text-sm mt-1">Use the form to add your first entry.</p>
+              </div>
+            )}
           </div>
         </div>
       </main>
 
+      {/* PREVIEW MODAL */}
+      {preview && (
+        <div
+          className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-6"
+          onClick={() => setPreview(null)}
+        >
+          <div
+            className="bg-white rounded-[2rem] overflow-hidden shadow-2xl max-w-2xl w-full"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+              <h3 className="font-black text-lg text-slate-800">{preview.title}</h3>
+              <button
+                onClick={() => setPreview(null)}
+                className="p-2 hover:bg-slate-100 rounded-xl transition-colors text-slate-400"
+              >
+                <X size={20}/>
+              </button>
+            </div>
+
+            {/* Image */}
+            {preview.imageUrl ? (
+              <div style={{height: 340}} className="bg-slate-100 overflow-hidden">
+                <img src={preview.imageUrl} alt={preview.title} className="w-full h-full object-cover object-top"/>
+              </div>
+            ) : (
+              <div style={{height: 200}} className="bg-slate-50 flex items-center justify-center">
+                <div className="text-center text-slate-300">
+                  <Image size={40} className="mx-auto mb-2"/>
+                  <p className="font-bold text-sm">No image set</p>
+                </div>
+              </div>
+            )}
+
+            {/* Footer */}
+            <div className="px-6 py-4 flex items-center justify-between gap-4 border-t border-slate-100">
+              <span className="text-sm font-bold text-slate-400 truncate">{preview.liveLink || "No demo link"}</span>
+              {preview.liveLink ? (
+                <a
+                  href={preview.liveLink}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-2 px-5 py-3 bg-green-500 text-white rounded-2xl font-black text-sm hover:bg-green-600 transition-colors flex-shrink-0"
+                >
+                  <ExternalLink size={16}/> Open Demo
+                </a>
+              ) : (
+                <span className="text-xs font-bold text-slate-300 bg-slate-50 px-4 py-3 rounded-2xl">No live link</span>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       <style jsx>{`
-        .form-input { width: 100%; padding: 1rem; background: #f8fafc; border: 2px solid #f1f5f9; border-radius: 1.25rem; font-weight: 700; outline: none; transition: 0.2s; font-size: 0.85rem; }
+        .form-input { width: 100%; padding: 1rem; background: #f8fafc; border: 2px solid #f1f5f9; border-radius: 1.25rem; font-weight: 700; outline: none; transition: 0.2s; font-size: 0.85rem; font-family: inherit; }
         .form-input:focus { border-color: #3b82f6; background: white; }
+        textarea.form-input { resize: vertical; }
       `}</style>
     </div>
   );
