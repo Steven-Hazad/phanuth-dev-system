@@ -1,564 +1,537 @@
-'use client'
-import { useState, useEffect } from 'react'
-import { ArrowUpRight, Menu, X, ChevronDown } from 'lucide-react'
+"use client";
+import { useState, useEffect } from "react";
+import { Phone, Mail, Github, Linkedin, MapPin, ExternalLink, Eye, X, Image } from "lucide-react";
 
-const YELLOW = '#FDD900'
-const BLACK = '#0D0D0D'
-const WHITE = '#FFFFFF'
-const GREY = '#F5F5F5'
-const BODY = '#555555'
+// ============================================================
+// FORMAL — weight contrast + negative space. One red. That's it.
+// Font: Syne 900 display / Syne 400–600 body (one family)
+// Colour: #FAFAFA bg · #111111 ink · #E8000D ONE accent (name H + CTA)
+// + Project demo button + image preview modal
+// ============================================================
 
-const HP7Logo = ({ size = 40, inverted = false }) => {
-  const bg = inverted ? YELLOW : BLACK
-  const fg = inverted ? BLACK : YELLOW
+const DEFAULT_EDU = [
+  { id:1, degree:"Bachelor of Air Traffic Management", university:"National Institute of Civil Aviation (NICA)", startDate:"2022", endDate:"Present" },
+  { id:2, degree:"Bachelor of Computer Science", university:"Cambodian University for Specialties (CUS)", startDate:"2022", endDate:"Present" },
+];
+const DEFAULT_SKILLS = [
+  { id:1, name:"Frontend", level:80 }, { id:2, name:"Backend", level:70 },
+  { id:3, name:"Data Analysis", level:70 }, { id:4, name:"Aviation Safety", level:70 },
+  { id:5, name:"Law of Aviation", level:70 }, { id:6, name:"Quality Management", level:60 },
+];
+const DEFAULT_PROJECTS = [
+  { id:1, title:"Portfolio System", description:"Full-stack portfolio with admin dashboard, bilingual support, and project management.", techStack:"Next.js, Prisma, MySQL", liveLink:"#", imageUrl:"" },
+  { id:2, title:"E-Commerce Platform", description:"Multi-vendor marketplace with real-time inventory and payment integration.", techStack:"React, Node.js, Stripe", liveLink:"#", imageUrl:"" },
+  { id:3, title:"AgriTech App", description:"Rice marketplace connecting farmers and buyers across Cambodia.", techStack:"React Native, Expo, Supabase", liveLink:"#", imageUrl:"" },
+];
+
+const CONTENT = {
+  en: {
+    first: "H", rest: "UN PHANUTH",
+    role: "Full-Stack Developer",
+    sector: "Computer Science — Air Traffic Management",
+    about: "CS student and full-stack developer, cross-training in Air Traffic Management at NICA. I build production software — POS systems, e-commerce platforms, agritech apps — and I'm working toward a career that bridges engineering and aviation operations.",
+    contact: { phone:"+855 715 303 622", email:"hunphanut14@gmail.com", github:"Steven-Hazad", linkedin:"Hun Phanuth", location:"Phnom Penh, Cambodia" },
+    experience: [
+      { period:"2025 – Present", title:"Full-Stack Freelancer", org:"Independent · Phnom Penh",
+        points:["Deliver end-to-end POS and e-commerce platforms for Cambodian businesses.","Architect backend systems, database structures, and API routing for production stability.","Build responsive storefronts with dynamic catalogs and smooth checkout flows.","Translate client operational needs directly into production-ready digital products."] },
+      { period:"2013 – 2019", title:"Operations Assistant", org:"HHH Printer · Takeo",
+        points:["Managed daily print operations, document processing, and digital design.","Designed custom layouts and graphics based on client briefs.","Operated and maintained professional printing equipment.","Provided direct customer service across all accounts."] },
+    ],
+    education: [],
+    skills: [],
+    achievements: [
+      { date:"Jun 2026", title:"3rd Place — UniPreneurCamp Cluster 1", org:"Khmer Enterprise", desc:'Team "Safework" placed 3rd at UniPreneurCamp Cluster 1. June 12–14, 2026.' },
+      { date:"Dec 2025", title:"Big Data Certification", org:"Professional Training Programme", desc:"Completed intensive enterprise big data training. Capstone processed 1.04M+ rows using Hadoop HDFS, PySpark, Spark SQL, Apache Hive, and Parquet." },
+      { date:"Dec 2024", title:"Python Programming Certification", org:"Samsung Innovation Campus × RUPP", desc:"Completed Feb – Dec 2024. Certificate signed by the Vice Director of the Royal University of Phnom Penh." },
+    ],
+    languages: [{ name:"Khmer", note:"Native" }, { name:"English", note:"Professional working proficiency" }],
+    nav: { experience:"Experience", education:"Education", skills:"Skills", projects:"Projects", contact:"Contact" },
+    labels: { experience:"Experience", education:"Education", skills:"Technical skills", achievements:"Awards & certifications", languages:"Languages", projects:"Projects", contact:"Get in touch", print:"Print / PDF" },
+    toggle: "KH",
+  },
+  kh: {
+    first: "ហ៊ុន", rest: " ផានុត",
+    role: "អ្នកអភិវឌ្ឍន៍ Full-Stack",
+    sector: "វិទ្យាសាស្ត្រកុំព្យូទ័រ — គ្រប់គ្រងចរាចរណ៍អាកាស",
+    about: "និស្សិត CS និងអ្នកអភិវឌ្ឍន៍ full-stack ដែលកំពុងសិក្សា ATM នៅ NICA។ ខ្ញុំបង្កើតកម្មវិធី POS, e-commerce, AgriTech — ឆ្ពោះទៅអាជីពភ្ជាប់ CS និង aviation។",
+    contact: { phone:"+855 715 303 622", email:"hunphanut14@gmail.com", github:"Steven-Hazad", linkedin:"Hun Phanuth", location:"ភ្នំពេញ, កម្ពុជា" },
+    experience: [
+      { period:"2025 – បច្ចុប្បន្ន", title:"Full-Stack Freelancer", org:"Freelancer · ភ្នំពេញ",
+        points:["ផ្តល់ប្រព័ន្ធ POS និង e-commerce ពីដើមដល់ចប់។","រៀបចំ backend, ទិន្នន័យ, API សម្រាប់ស្ថិរភាព។","បង្កើតទំព័រឆ្លើយតប។","បំប្លែងតម្រូវការអតិថិជនទៅជាផលិតផល។"] },
+      { period:"2013 – 2019", title:"ជំនួយការប្រតិបត្តិការ", org:"HHH Printer · តាកែវ",
+        points:["គ្រប់គ្រងប្រតិបត្តិការការបោះពុម្ព។","រចនាក្រាហ្វិក។","ផ្តល់សេវាកម្មអតិថិជន។"] },
+    ],
+    education: [],
+    skills: [],
+    achievements: [
+      { date:"មិថុនា 2026", title:"លេខ ៣ — UniPreneurCamp Cluster 1", org:"Khmer Enterprise", desc:'ក្រុម "Safework" ទទួលបានលេខ ៣ — June 12–14, 2026.' },
+      { date:"ធ្នូ 2025", title:"វិញ្ញាបនបត្រ Big Data", org:"ការបណ្តុះបណ្តាលវិជ្ជាជីវៈ", desc:"ដំណើរការ 1.04M+ ជួររដ្ឋ ដោយប្រើ Hadoop, PySpark, Spark SQL, Hive, Parquet។" },
+      { date:"ធ្នូ 2024", title:"វិញ្ញាបនបត្រ Python", org:"Samsung Innovation Campus × RUPP", desc:"បញ្ចប់ Feb–Dec 2024. RUPP។" },
+    ],
+    languages: [{ name:"ខ្មែរ", note:"ភាសាមាតុភូមិ" }, { name:"អង់គ្លេស", note:"វិជ្ជាជីវៈ" }],
+    nav: { experience:"បទពិសោធន៍", education:"ការសិក្សា", skills:"ជំនាញ", projects:"គម្រោង", contact:"ទំនាក់ទំនង" },
+    labels: { experience:"បទពិសោធន៍", education:"ការសិក្សា", skills:"ជំនាញបច្ចេកទេស", achievements:"សមិទ្ធផល", languages:"ភាសា", projects:"គម្រោង", contact:"ទំនាក់ទំនង", print:"បោះពុម្ព / PDF" },
+    toggle: "EN",
+  },
+};
+
+const RED  = "#E8000D";
+const INK  = "#111111";
+const SUB  = "#777777";
+const RULE = "#E2E2E2";
+const BG   = "#FAFAFA";
+
+function Row({ label, children }) {
   return (
-    <div style={{
-      width: size, height: size, background: bg,
-      display: 'flex', flexDirection: 'column',
-      alignItems: 'center', justifyContent: 'center',
-      fontFamily: "'Montserrat', sans-serif",
-      fontWeight: 900, lineHeight: 1, flexShrink: 0,
-    }}>
-      <span style={{ fontSize: size * 0.32, color: fg, letterSpacing: '-1px' }}>HP</span>
-      <span style={{ fontSize: size * 0.32, color: fg, letterSpacing: '-1px' }}>7</span>
+    <div className="cv-row">
+      <div className="cv-row-label" style={{ fontFamily:"'Syne',sans-serif", fontWeight:600, fontSize:11, letterSpacing:"0.12em", textTransform:"uppercase", color:SUB }}>
+        {label}
+      </div>
+      <div>{children}</div>
     </div>
-  )
+  );
 }
 
-export default function PageNjrPro({ data = {} }) {
-  const [menuOpen, setMenuOpen] = useState(false)
-  const [lang, setLang] = useState('EN')
-  const [scrolled, setScrolled] = useState(false)
+function Entry({ period, title, org, points, achievement }) {
+  return (
+    <div className="cv-entry" style={{ marginBottom:28 }}>
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"baseline", gap:16, flexWrap:"wrap", marginBottom:4 }}>
+        <span style={{ fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:17, color:INK }}>{title}</span>
+        <span style={{ fontFamily:"'Syne',sans-serif", fontSize:12, color:SUB, whiteSpace:"nowrap" }}>{period}</span>
+      </div>
+      <div style={{ fontFamily:"'Syne',sans-serif", fontSize:13, color:SUB, marginBottom:points ? 12 : 0 }}>{org}</div>
+      {points && (
+        <ul style={{ listStyle:"none", paddingLeft:0, display:"flex", flexDirection:"column", gap:5 }}>
+          {points.map((pt, i) => (
+            <li key={i} style={{ fontFamily:"'Syne',sans-serif", fontSize:14, color:"#444", lineHeight:1.65, display:"flex", gap:10 }}>
+              <span style={{ color:RULE, flexShrink:0, userSelect:"none" }}>—</span>{pt}
+            </li>
+          ))}
+        </ul>
+      )}
+      {achievement && <div style={{ marginTop:8, fontFamily:"'Syne',sans-serif", fontSize:13, color:SUB }}>{achievement}</div>}
+    </div>
+  );
+}
 
-  const {
-    name = 'Hun Phanuth',
-    title = 'Full-Stack Developer',
-    bio = 'I build digital products that perform. Clean code, sharp interfaces, results that matter.',
-    projects = [],
-    skills = [],
-    education = [],
-    experience = [],
-    contact = {}
-  } = data
+// Project card — shows title, tech, description + Demo + Preview buttons
+function ProjectCard({ project, onPreview }) {
+  const tags = project.techStack ? String(project.techStack).split(',').map(t => t.trim()) : [];
+  return (
+    <div className="cv-project-card" style={{
+      borderTop: `1px solid ${RULE}`,
+      paddingTop: 20,
+      paddingBottom: 20,
+    }}>
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", gap:16, flexWrap:"wrap" }}>
+        <div style={{ flex:1, minWidth:0 }}>
+          <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:6, flexWrap:"wrap" }}>
+            <span style={{ fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:16, color:INK }}>{project.title}</span>
+            {tags.map((t, i) => (
+              <span key={i} style={{
+                fontFamily:"'Syne',sans-serif", fontSize:11, fontWeight:600,
+                color:SUB, background:"#F0F0F0", padding:"2px 8px", letterSpacing:"0.04em",
+              }}>{t}</span>
+            ))}
+          </div>
+          {project.description && (
+            <p style={{ fontFamily:"'Syne',sans-serif", fontSize:14, color:"#444", lineHeight:1.65, maxWidth:520 }}>{project.description}</p>
+          )}
+        </div>
 
-  const firstName = name.split(' ')[0] || 'Hun'
-  const lastName = name.split(' ').slice(1).join(' ') || 'Phanuth'
+        {/* Action buttons */}
+        <div style={{ display:"flex", gap:8, flexShrink:0, alignItems:"flex-start", flexWrap:"wrap" }} className="no-print">
+          {project.liveLink && project.liveLink !== "#" && (
+            <a
+              href={project.liveLink}
+              target="_blank"
+              rel="noreferrer"
+              style={{
+                display:"inline-flex", alignItems:"center", gap:5,
+                fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:12,
+                background:RED, color:"#fff", padding:"7px 14px",
+                textDecoration:"none", letterSpacing:"0.04em",
+                whiteSpace:"nowrap",
+              }}
+            >
+              <ExternalLink size={13}/> Demo
+            </a>
+          )}
+          {(project.imageUrl || project.liveLink) && (
+            <button
+              onClick={() => onPreview(project)}
+              style={{
+                display:"inline-flex", alignItems:"center", gap:5,
+                fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:12,
+                background:"transparent", border:`1px solid ${RULE}`,
+                color:SUB, padding:"7px 14px", cursor:"pointer",
+                letterSpacing:"0.04em", whiteSpace:"nowrap",
+              }}
+            >
+              <Eye size={13}/> Preview
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function FormalCV() {
+  const [lang, setLang] = useState("en");
+  const [apiEdu, setApiEdu] = useState([]);
+  const [apiSkills, setApiSkills] = useState([]);
+  const [apiProjects, setApiProjects] = useState([]);
+  const [preview, setPreview] = useState(null); // { title, imageUrl, liveLink }
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 60)
-    window.addEventListener('scroll', onScroll)
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
+    Promise.all([
+      fetch("/api/admin?type=education").then(r => r.json()).catch(() => []),
+      fetch("/api/admin?type=skill").then(r => r.json()).catch(() => []),
+      fetch("/api/admin?type=project").then(r => r.json()).catch(() => []),
+    ]).then(([e, s, p]) => {
+      setApiEdu(Array.isArray(e) ? e : []);
+      setApiSkills(Array.isArray(s) ? s : []);
+      setApiProjects(Array.isArray(p) ? p : []);
+    });
+  }, []);
 
-  const navLinks = ['Projects', 'Experience', 'Skills', 'Education', 'Contact']
-
-  const stats = [
-    { label: 'Projects Shipped', value: projects.length || '12+' },
-    { label: 'Years Building', value: '3+' },
-    { label: 'Technologies', value: skills.length || '20+' },
-    { label: 'Open Source', value: '100%' },
-  ]
+  const d        = CONTENT[lang];
+  const education = apiEdu.length     > 0 ? apiEdu     : DEFAULT_EDU;
+  const skills    = apiSkills.length  > 0 ? apiSkills  : DEFAULT_SKILLS;
+  const projects  = apiProjects.length > 0 ? apiProjects : DEFAULT_PROJECTS;
 
   return (
-    <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&display=swap');
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        html { scroll-behavior: smooth; }
-        body { font-family: 'Montserrat', sans-serif; background: ${WHITE}; color: ${BLACK}; }
-        a { text-decoration: none; color: inherit; }
-        ::selection { background: ${YELLOW}; color: ${BLACK}; }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: ${BLACK}; }
-        ::-webkit-scrollbar-thumb { background: ${YELLOW}; }
+    <div className={lang === "kh" ? "font-khmer" : ""} style={{ minHeight:"100vh", background:BG, color:INK }}>
+      <style jsx global>{`
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800;900&family=Battambang:wght@400;700&display=swap');
+        * { box-sizing:border-box; margin:0; padding:0; }
+        html { -webkit-text-size-adjust:100%; }
+        body { background:${BG}; overflow-x:hidden; }
+        .font-khmer * { font-family:'Battambang',sans-serif!important; }
 
-        .nav-link {
-          font-size: 13px; font-weight: 700; letter-spacing: 1.5px;
-          text-transform: uppercase; color: ${WHITE}; opacity: 0.7;
-          transition: opacity 0.2s, color 0.2s; cursor: pointer;
+        .cv-topbar {
+          display:flex; align-items:center; justify-content:space-between;
+          padding:14px 48px; gap:16px;
         }
-        .nav-link:hover { opacity: 1; color: ${YELLOW}; }
-        .nav-scrolled .nav-link { color: ${BLACK}; }
-        .nav-scrolled .nav-link:hover { color: ${YELLOW}; opacity: 1; }
+        .cv-nav { display:flex; gap:32px; overflow-x:auto; scrollbar-width:none; }
+        .cv-nav::-webkit-scrollbar { display:none; }
+        .cv-nav a { white-space:nowrap; }
 
-        .hero-name-solid {
-          font-size: clamp(64px, 11vw, 160px);
-          font-weight: 900;
-          line-height: 0.9;
-          letter-spacing: -4px;
-          color: ${BLACK};
-          display: block;
+        .cv-container { max-width:920px; margin:0 auto; padding:0 48px 100px; }
+        .cv-hero { padding-top:80px; padding-bottom:56px; }
+        .cv-hero h1 { font-size:clamp(56px,11vw,128px); }
+
+        .cv-row {
+          display:grid; grid-template-columns:160px 1fr; gap:0 48px;
+          border-top:1px solid ${RULE}; padding-top:32px; padding-bottom:32px;
         }
-        .hero-name-outline {
-          font-size: clamp(64px, 11vw, 160px);
-          font-weight: 900;
-          line-height: 0.9;
-          letter-spacing: -4px;
-          color: transparent;
-          -webkit-text-stroke: 2px ${BLACK};
-          display: block;
+        .cv-row-label { padding-top:3px; }
+
+        .cv-contact-grid, .cv-skills-grid {
+          display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:16px 32px;
         }
 
-        .project-card {
-          background: ${GREY};
-          border-top: 4px solid transparent;
-          transition: all 0.3s ease;
-          cursor: pointer;
+        .cv-cta {
+          display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:24px;
         }
-        .project-card:hover {
-          background: ${BLACK};
-          border-top-color: ${YELLOW};
-        }
-        .project-card:hover .project-title { color: ${WHITE}; }
-        .project-card:hover .project-desc { color: rgba(255,255,255,0.6); }
-        .project-card:hover .project-tech span {
-          background: rgba(253,217,0,0.15);
-          color: ${YELLOW};
-        }
-        .project-card:hover .project-arrow { color: ${YELLOW}; }
+        .cv-cta h2 { font-size:clamp(28px,5vw,52px); }
 
-        .skill-tile {
-          background: ${GREY};
-          padding: 20px;
-          font-size: 13px;
-          font-weight: 700;
-          letter-spacing: 0.5px;
-          text-transform: uppercase;
-          color: ${BLACK};
-          transition: all 0.25s ease;
-          cursor: default;
-        }
-        .skill-tile:hover {
-          background: ${BLACK};
-          color: ${YELLOW};
-        }
+        .cv-project-card:first-child { border-top:none!important; }
 
-        .cta-btn-black {
-          display: inline-block;
-          background: ${BLACK};
-          color: ${WHITE};
-          font-family: 'Montserrat', sans-serif;
-          font-weight: 700;
-          font-size: 13px;
-          letter-spacing: 2px;
-          text-transform: uppercase;
-          padding: 18px 40px;
-          border: none;
-          cursor: pointer;
-          transition: background 0.2s, color 0.2s;
+        @media (max-width:820px) {
+          .cv-container { padding:0 32px 72px; }
+          .cv-topbar { padding:12px 32px; }
         }
-        .cta-btn-black:hover { background: ${WHITE}; color: ${BLACK}; }
-
-        .cta-btn-yellow {
-          display: inline-block;
-          background: ${YELLOW};
-          color: ${BLACK};
-          font-family: 'Montserrat', sans-serif;
-          font-weight: 700;
-          font-size: 13px;
-          letter-spacing: 2px;
-          text-transform: uppercase;
-          padding: 18px 40px;
-          border: none;
-          cursor: pointer;
-          transition: background 0.2s, color 0.2s;
+        @media (max-width:640px) {
+          .cv-topbar { padding:12px 20px; gap:10px; }
+          .cv-nav { gap:20px; }
+          .cv-nav a { font-size:11px!important; }
+          .cv-topbar button { padding:6px 12px!important; font-size:11px!important; }
+          .cv-container { padding:0 20px 56px; }
+          .cv-hero { padding-top:40px; padding-bottom:32px; }
+          .cv-hero h1 { margin-bottom:20px!important; line-height:0.96!important; }
+          .cv-hero .cv-role-line { flex-direction:column; align-items:flex-start!important; gap:6px!important; }
+          .cv-row { grid-template-columns:1fr; gap:8px 0; padding-top:22px; padding-bottom:22px; }
+          .cv-row-label { padding-top:0; }
+          .cv-contact-grid, .cv-skills-grid { grid-template-columns:1fr 1fr; gap:14px 20px; }
+          .cv-entry-header { flex-direction:column; align-items:flex-start!important; gap:4px!important; }
+          .cv-cta { flex-direction:column; align-items:flex-start!important; }
+          .cv-cta a { width:100%; text-align:center; }
         }
-        .cta-btn-yellow:hover { background: ${BLACK}; color: ${WHITE}; }
-
-        .section-label {
-          font-size: 11px;
-          font-weight: 700;
-          letter-spacing: 4px;
-          text-transform: uppercase;
-          color: ${YELLOW};
-          margin-bottom: 16px;
+        @media (max-width:400px) {
+          .cv-contact-grid, .cv-skills-grid { grid-template-columns:1fr; }
         }
-
-        @media (max-width: 768px) {
-          .hero-grid { flex-direction: column !important; }
-          .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
-          .projects-grid { grid-template-columns: 1fr !important; }
-          .skills-grid { grid-template-columns: repeat(2, 1fr) !important; }
-          .edu-grid { grid-template-columns: 1fr !important; }
-          .contact-flex { flex-direction: column !important; align-items: flex-start !important; }
+        @media print {
+          @page { size:A4; margin:14mm 16mm; }
+          .no-print { display:none!important; }
+          html, body { background:#fff!important; }
+          body { -webkit-print-color-adjust:exact; print-color-adjust:exact; color-adjust:exact; font-size:12px; }
+          .cv-container { max-width:100%!important; padding:0!important; margin:0!important; }
+          .cv-hero { padding-top:0!important; padding-bottom:28px!important; }
+          .cv-hero h1 { font-size:64px!important; }
+          .cv-row { padding-top:18px!important; padding-bottom:18px!important; break-inside:avoid; }
+          .cv-entry { break-inside:avoid; margin-bottom:18px!important; }
+          .cv-cta { break-inside:avoid; }
+          a[href]:after { content:""!important; }
         }
       `}</style>
 
-      {/* NAV */}
-      <nav style={{
-        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-        background: scrolled ? WHITE : 'transparent',
-        borderBottom: scrolled ? `1px solid ${GREY}` : 'none',
-        transition: 'background 0.3s, border 0.3s',
-        boxShadow: scrolled ? '0 2px 20px rgba(0,0,0,0.08)' : 'none',
-      }} className={scrolled ? 'nav-scrolled' : ''}>
-        <div style={{
-          maxWidth: 1200, margin: '0 auto',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '20px 24px',
-        }}>
-          <HP7Logo size={36} inverted={scrolled} />
-
-          <div style={{ display: 'flex', gap: 36, alignItems: 'center' }}>
-            {navLinks.map(l => (
-              <a key={l} href={`#${l.toLowerCase()}`}
-                className="nav-link"
-                style={{ color: scrolled ? BLACK : WHITE }}
-              >{l}</a>
-            ))}
-            <button
-              onClick={() => setLang(lang === 'EN' ? 'KH' : 'EN')}
-              style={{
-                background: 'none', border: `2px solid ${scrolled ? BLACK : WHITE}`,
-                color: scrolled ? BLACK : WHITE,
-                fontFamily: 'Montserrat', fontWeight: 700, fontSize: 11,
-                letterSpacing: 2, padding: '6px 12px', cursor: 'pointer',
-                transition: 'all 0.2s',
-              }}
-            >{lang === 'EN' ? 'KH' : 'EN'}</button>
-          </div>
-        </div>
-      </nav>
-
-      {/* HERO */}
-      <section style={{
-        background: WHITE, minHeight: '100vh',
-        display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
-        padding: '0 24px 80px', paddingTop: '120px',
-        maxWidth: 1200, margin: '0 auto',
+      {/* TOPBAR */}
+      <div className="no-print cv-topbar" style={{
+        position:"sticky", top:0, zIndex:50,
+        background:BG, borderBottom:`1px solid ${RULE}`,
       }}>
-        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 60, flexWrap: 'wrap' }}
-          className="hero-grid">
-          {/* Name Block */}
-          <div style={{ flex: '1 1 500px' }}>
-            <div style={{ marginBottom: 24 }}>
-              <span style={{
-                display: 'inline-flex', alignItems: 'center', gap: 8,
-                background: YELLOW, padding: '6px 14px',
-                fontSize: 11, fontWeight: 700, letterSpacing: 2,
-                textTransform: 'uppercase', color: BLACK,
-                marginBottom: 32,
-              }}>
-                <span style={{
-                  width: 8, height: 8, borderRadius: '50%',
-                  background: BLACK, display: 'inline-block',
-                  animation: 'pulse 2s infinite',
-                }}></span>
-                Available for Work
-              </span>
-            </div>
-            <span className="hero-name-solid">{firstName}</span>
-            <span className="hero-name-outline">{lastName}</span>
-            <p style={{
-              marginTop: 32, fontSize: 16, color: BODY, lineHeight: 1.7,
-              maxWidth: 440, fontWeight: 400,
-            }}>{bio}</p>
-            <div style={{ marginTop: 40, display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-              <a href="#projects" className="cta-btn-black">View Projects</a>
-              <a href="#contact" className="cta-btn-yellow">Get in Touch</a>
-            </div>
-          </div>
-
-          {/* Photo Block */}
-          <div style={{ flex: '0 0 auto', position: 'relative' }}>
-            <div style={{
-              width: 320, height: 400,
-              background: GREY,
-              position: 'relative',
-            }}>
-              {/* Yellow offset border */}
-              <div style={{
-                position: 'absolute', top: -12, right: -12,
-                width: '100%', height: '100%',
-                border: `4px solid ${YELLOW}`,
-                zIndex: 0,
-              }}></div>
-              <div style={{
-                position: 'absolute', inset: 0,
-                background: `linear-gradient(135deg, ${GREY} 0%, #e0e0e0 100%)`,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                zIndex: 1,
-              }}>
-                <HP7Logo size={80} />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <a href="#projects" style={{
-          marginTop: 80, display: 'inline-flex', alignItems: 'center', gap: 8,
-          fontSize: 12, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase',
-          color: BODY, transition: 'color 0.2s',
-        }}>
-          <ChevronDown size={16} />
-          Scroll
-        </a>
-      </section>
-
-      {/* STATS STRIP */}
-      <section style={{ background: YELLOW, padding: '48px 24px' }}>
-        <div style={{
-          maxWidth: 1200, margin: '0 auto',
-          display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)',
-          gap: 0,
-        }} className="stats-grid">
-          {stats.map((s, i) => (
-            <div key={i} style={{
-              textAlign: 'center', padding: '24px 16px',
-              borderRight: i < stats.length - 1 ? `1px solid rgba(0,0,0,0.15)` : 'none',
-            }}>
-              <div style={{
-                fontSize: 'clamp(36px, 5vw, 56px)', fontWeight: 900,
-                color: BLACK, lineHeight: 1, letterSpacing: -2,
-              }}>{s.value}</div>
-              <div style={{
-                fontSize: 11, fontWeight: 700, letterSpacing: 2,
-                textTransform: 'uppercase', color: 'rgba(0,0,0,0.6)',
-                marginTop: 8,
-              }}>{s.label}</div>
-            </div>
+        <span style={{ fontFamily:"'Syne',sans-serif", fontWeight:900, fontSize:14, letterSpacing:"-0.01em", flexShrink:0 }}>
+          <span style={{ color:RED }}>H</span>P
+        </span>
+        <nav className="cv-nav">
+          {Object.entries(d.nav).map(([k, v]) => (
+            <a key={k} href={`#${k}`} style={{ fontFamily:"'Syne',sans-serif", fontSize:12, fontWeight:600, color:SUB, textDecoration:"none", letterSpacing:"0.06em", textTransform:"uppercase" }}>
+              {v}
+            </a>
           ))}
+        </nav>
+        <div style={{ display:"flex", gap:10, flexShrink:0 }}>
+          <button onClick={() => setLang(l => l === "en" ? "kh" : "en")} style={{ fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:12, background:"transparent", border:`1px solid ${RULE}`, color:SUB, padding:"6px 16px", cursor:"pointer", letterSpacing:"0.08em" }}>
+            {d.toggle}
+          </button>
+          <button onClick={() => window.print()} style={{ fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:12, background:RED, border:"none", color:"#fff", padding:"6px 18px", cursor:"pointer", letterSpacing:"0.06em" }}>
+            {d.labels.print}
+          </button>
         </div>
-      </section>
+      </div>
 
-      {/* PROJECTS */}
-      <section id="projects" style={{ padding: '100px 24px', background: WHITE }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 60, flexWrap: 'wrap', gap: 16 }}>
+      <div className="cv-container">
+
+        {/* HERO */}
+        <div className="cv-hero">
+          <h1 style={{ fontFamily:"'Syne',sans-serif", fontWeight:900, lineHeight:0.92, letterSpacing:"-0.03em", marginBottom:32 }}>
+            <span style={{ color:RED }}>{d.first}</span>{d.rest}
+          </h1>
+          <div className="cv-role-line" style={{ display:"flex", alignItems:"baseline", gap:24, flexWrap:"wrap" }}>
+            <span style={{ fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:18, color:INK }}>{d.role}</span>
+            <span style={{ fontFamily:"'Syne',sans-serif", fontSize:14, color:SUB }}>{d.sector}</span>
+          </div>
+        </div>
+
+        {/* Profile */}
+        <Row label="Profile">
+          <p style={{ fontFamily:"'Syne',sans-serif", fontSize:15, lineHeight:1.75, color:"#333", maxWidth:560 }}>{d.about}</p>
+        </Row>
+
+        {/* Contact */}
+        <Row label={d.labels.contact}>
+          <div className="cv-contact-grid">
+            {[
+              { icon:<Phone size={13}/>, v:d.contact.phone },
+              { icon:<Mail size={13}/>, v:d.contact.email },
+              { icon:<Github size={13}/>, v:d.contact.github },
+              { icon:<Linkedin size={13}/>, v:d.contact.linkedin },
+              { icon:<MapPin size={13}/>, v:d.contact.location },
+            ].map((c, i) => (
+              <div key={i} style={{ display:"flex", alignItems:"center", gap:9, fontFamily:"'Syne',sans-serif", fontSize:13, color:"#444", minWidth:0 }}>
+                <span style={{ color:SUB, flexShrink:0 }}>{c.icon}</span>
+                <span style={{ overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{c.v}</span>
+              </div>
+            ))}
+          </div>
+        </Row>
+
+        {/* Experience */}
+        <div id="experience">
+          <Row label={d.labels.experience}>
             <div>
-              <div className="section-label">Selected Work</div>
-              <h2 style={{ fontSize: 'clamp(32px,5vw,56px)', fontWeight: 900, letterSpacing: -2, lineHeight: 1 }}>
-                Projects
-              </h2>
+              {d.experience.map((exp, i) => (
+                <div key={i}>
+                  {i > 0 && <div style={{ height:1, background:RULE, margin:"4px 0 28px" }} />}
+                  <Entry period={exp.period} title={exp.title} org={exp.org} points={exp.points} />
+                </div>
+              ))}
             </div>
-            <a href="https://github.com" target="_blank" rel="noreferrer"
-              style={{ fontSize: 13, fontWeight: 700, letterSpacing: 1, color: BODY, display: 'flex', alignItems: 'center', gap: 4 }}>
-              All on GitHub <ArrowUpRight size={14} />
+          </Row>
+        </div>
+
+        {/* Education */}
+        <div id="education">
+          <Row label={d.labels.education}>
+            <div>
+              {education.map((edu, i) => (
+                <div key={edu.id}>
+                  {i > 0 && <div style={{ height:1, background:RULE, margin:"4px 0 24px" }} />}
+                  <Entry
+                    period={`${edu.startDate} – ${edu.endDate}`}
+                    title={edu.degree}
+                    org={edu.university}
+                    achievement={edu.achievement}
+                  />
+                </div>
+              ))}
+            </div>
+          </Row>
+        </div>
+
+        {/* Skills */}
+        <div id="skills">
+          <Row label={d.labels.skills}>
+            <div className="cv-skills-grid">
+              {skills.map((sk, i) => (
+                <div key={sk.id || i}>
+                  <div style={{ display:"flex", justifyContent:"space-between", marginBottom:7 }}>
+                    <span style={{ fontFamily:"'Syne',sans-serif", fontSize:13, fontWeight:600, color:INK }}>{sk.name}</span>
+                    <span style={{ fontFamily:"'Syne',sans-serif", fontSize:12, color:SUB }}>{sk.level || 70}%</span>
+                  </div>
+                  <div style={{ height:2, background:RULE }}>
+                    <div style={{ height:"100%", width:`${sk.level || 70}%`, background:INK }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Row>
+        </div>
+
+        {/* PROJECTS — with Demo + Preview */}
+        <div id="projects">
+          <Row label={d.labels.projects}>
+            <div>
+              {projects.map((p, i) => (
+                <ProjectCard key={p.id || i} project={p} onPreview={setPreview} />
+              ))}
+            </div>
+          </Row>
+        </div>
+
+        {/* Achievements */}
+        <Row label={d.labels.achievements}>
+          <div>
+            {d.achievements.map((ach, i) => (
+              <div key={i} className="cv-entry">
+                {i > 0 && <div style={{ height:1, background:RULE, margin:"4px 0 24px" }} />}
+                <div className="cv-entry-header" style={{ display:"flex", justifyContent:"space-between", alignItems:"baseline", gap:16, flexWrap:"wrap", marginBottom:4 }}>
+                  <span style={{ fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:15, color:INK }}>{ach.title}</span>
+                  <span style={{ fontFamily:"'Syne',sans-serif", fontSize:12, color:SUB, whiteSpace:"nowrap" }}>{ach.date}</span>
+                </div>
+                <div style={{ fontFamily:"'Syne',sans-serif", fontSize:13, color:SUB, marginBottom:6 }}>{ach.org}</div>
+                <p style={{ fontFamily:"'Syne',sans-serif", fontSize:14, color:"#444", lineHeight:1.65 }}>{ach.desc}</p>
+              </div>
+            ))}
+          </div>
+        </Row>
+
+        {/* Languages */}
+        <Row label={d.labels.languages}>
+          <div style={{ display:"flex", gap:48, flexWrap:"wrap" }}>
+            {d.languages.map((lg, i) => (
+              <div key={i}>
+                <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:15, color:INK, marginBottom:3 }}>{lg.name}</div>
+                <div style={{ fontFamily:"'Syne',sans-serif", fontSize:13, color:SUB }}>{lg.note}</div>
+              </div>
+            ))}
+          </div>
+        </Row>
+
+        {/* CTA */}
+        <div style={{ borderTop:`1px solid ${RULE}`, paddingTop:48, marginTop:8 }}>
+          <div className="cv-cta">
+            <div>
+              <h2 style={{ fontFamily:"'Syne',sans-serif", fontWeight:900, lineHeight:0.95, letterSpacing:"-0.02em", marginBottom:10 }}>
+                Let's work together.
+              </h2>
+              <p style={{ fontFamily:"'Syne',sans-serif", fontSize:14, color:SUB }}>Open to opportunities and collaboration.</p>
+            </div>
+            <a href="mailto:hunphanut14@gmail.com" style={{
+              fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:14, letterSpacing:"0.04em",
+              background:RED, color:"#fff", padding:"14px 32px",
+              textDecoration:"none", flexShrink:0, display:"inline-block",
+            }}>
+              hunphanut14@gmail.com →
             </a>
           </div>
-
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
-            gap: 2,
-          }} className="projects-grid">
-            {(projects.length > 0 ? projects : [
-              { title: 'Portfolio System', description: 'Full-stack portfolio with admin dashboard, project management, and bilingual support.', techStack: ['Next.js', 'Prisma', 'MySQL'], liveLink: '#', githubLink: '#' },
-              { title: 'E-Commerce Platform', description: 'Multi-vendor marketplace with real-time inventory and payment integration.', techStack: ['React', 'Node.js', 'Stripe'], liveLink: '#', githubLink: '#' },
-              { title: 'Dashboard Analytics', description: 'Real-time data visualization platform with customizable widgets.', techStack: ['TypeScript', 'D3.js', 'WebSocket'], liveLink: '#', githubLink: '#' },
-              { title: 'Mobile App', description: 'Cross-platform mobile application with offline-first architecture.', techStack: ['React Native', 'SQLite', 'Redux'], liveLink: '#', githubLink: '#' },
-            ]).map((p, i) => (
-              <div key={i} className="project-card" style={{ padding: '36px 32px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
-                  <span style={{
-                    fontSize: 11, fontWeight: 700, letterSpacing: 3,
-                    textTransform: 'uppercase', color: BODY,
-                  }}>{String(i + 1).padStart(2, '0')}</span>
-                  <a href={p.liveLink || p.githubLink || '#'}
-                    target="_blank" rel="noreferrer"
-                    className="project-arrow"
-                    style={{ color: BLACK, transition: 'color 0.3s' }}>
-                    <ArrowUpRight size={20} />
-                  </a>
-                </div>
-                <h3 className="project-title" style={{
-                  fontSize: 22, fontWeight: 900, letterSpacing: -0.5,
-                  marginBottom: 12, color: BLACK, transition: 'color 0.3s',
-                }}>{p.title}</h3>
-                <p className="project-desc" style={{
-                  fontSize: 14, color: BODY, lineHeight: 1.6, marginBottom: 24,
-                  transition: 'color 0.3s',
-                }}>{p.description}</p>
-                <div className="project-tech" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                  {(p.techStack || []).map((t, j) => (
-                    <span key={j} style={{
-                      fontSize: 11, fontWeight: 700, letterSpacing: 1,
-                      textTransform: 'uppercase', background: 'rgba(0,0,0,0.06)',
-                      color: BLACK, padding: '4px 10px', transition: 'all 0.3s',
-                    }}>{t}</span>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
-      </section>
 
-      {/* EXPERIENCE */}
-      <section id="experience" style={{ background: GREY, padding: '100px 24px' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <div className="section-label">Career</div>
-          <h2 style={{ fontSize: 'clamp(32px,5vw,56px)', fontWeight: 900, letterSpacing: -2, marginBottom: 60 }}>
-            Experience
-          </h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            {(experience.length > 0 ? experience : [
-              { role: 'Senior Developer', org: 'Tech Company', period: '2023 — Present', desc: 'Led development of core product features, mentored junior developers, and improved system performance by 40%.' },
-              { role: 'Full-Stack Developer', org: 'Startup', period: '2022 — 2023', desc: 'Built scalable web applications from scratch using modern frameworks and cloud infrastructure.' },
-            ]).map((e, i) => (
-              <div key={i} style={{
-                background: WHITE, padding: '36px 40px',
-                display: 'grid', gridTemplateColumns: '1fr auto',
-                gap: 24, alignItems: 'start',
-              }}>
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 12 }}>
-                    <span style={{
-                      width: 12, height: 12, background: YELLOW, flexShrink: 0,
-                    }}></span>
-                    <h3 style={{ fontSize: 20, fontWeight: 900, letterSpacing: -0.5 }}>{e.role}</h3>
-                    <span style={{
-                      fontSize: 11, fontWeight: 700, letterSpacing: 1,
-                      textTransform: 'uppercase', background: BLACK,
-                      color: YELLOW, padding: '3px 10px',
-                    }}>{e.org || e.organization}</span>
-                  </div>
-                  <p style={{ fontSize: 14, color: BODY, lineHeight: 1.7, paddingLeft: 28 }}>{e.desc || e.description}</p>
-                </div>
-                <span style={{ fontSize: 13, fontWeight: 700, color: BODY, whiteSpace: 'nowrap' }}>{e.period || e.duration}</span>
-              </div>
-            ))}
-          </div>
+        {/* Footer */}
+        <div style={{ marginTop:48, fontFamily:"'Syne',sans-serif", fontSize:11, color:RULE, letterSpacing:"0.08em" }}>
+          HUN PHANUTH · {new Date().getFullYear()}
         </div>
-      </section>
+      </div>
 
-      {/* EDUCATION */}
-      <section id="education" style={{ background: BLACK, padding: '100px 24px' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <div className="section-label">Background</div>
-          <h2 style={{ fontSize: 'clamp(32px,5vw,56px)', fontWeight: 900, letterSpacing: -2, color: WHITE, marginBottom: 60 }}>
-            Education
-          </h2>
-          <div style={{
-            display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-            gap: 2,
-          }} className="edu-grid">
-            {(education.length > 0 ? education : [
-              { institution: 'University of Technology', degree: 'B.Sc. Computer Science', year: '2020 — 2024', gpa: '3.8 GPA' },
-            ]).map((e, i) => (
-              <div key={i} style={{
-                background: i === 0 ? '#1a1a1a' : '#111',
-                borderTop: i === 0 ? `4px solid ${YELLOW}` : '4px solid #333',
-                padding: '36px 32px',
-              }}>
-                <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 3, color: YELLOW, textTransform: 'uppercase', marginBottom: 16 }}>
-                  {e.year || e.duration}
-                </div>
-                <h3 style={{ fontSize: 20, fontWeight: 900, color: WHITE, marginBottom: 8, letterSpacing: -0.5 }}>
-                  {e.institution}
-                </h3>
-                <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.6)', marginBottom: 12 }}>{e.degree}</p>
-                {e.gpa && <span style={{
-                  fontSize: 11, fontWeight: 700, letterSpacing: 1,
-                  textTransform: 'uppercase', color: YELLOW,
-                }}>{e.gpa}</span>}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* SKILLS */}
-      <section id="skills" style={{ background: WHITE, padding: '100px 24px' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <div className="section-label">Tech Stack</div>
-          <h2 style={{ fontSize: 'clamp(32px,5vw,56px)', fontWeight: 900, letterSpacing: -2, marginBottom: 60 }}>
-            Skills
-          </h2>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
-            gap: 2,
-          }} className="skills-grid">
-            {(skills.length > 0 ? skills : [
-              'Next.js', 'React', 'TypeScript', 'Node.js', 'Prisma', 'MySQL',
-              'Tailwind CSS', 'Framer Motion', 'Git', 'Docker', 'AWS', 'Figma',
-            ]).map((s, i) => (
-              <div key={i} className="skill-tile">
-                {typeof s === 'string' ? s : s.name}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CONTACT */}
-      <section id="contact" style={{ background: YELLOW, padding: '100px 24px' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <div style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            flexWrap: 'wrap', gap: 48,
-          }} className="contact-flex">
-            <div>
-              <div style={{
-                fontSize: 11, fontWeight: 700, letterSpacing: 4,
-                textTransform: 'uppercase', color: 'rgba(0,0,0,0.5)', marginBottom: 16,
-              }}>Let's Work Together</div>
-              <h2 style={{
-                fontSize: 'clamp(40px, 7vw, 96px)', fontWeight: 900,
-                letterSpacing: -3, color: BLACK, lineHeight: 0.9, marginBottom: 32,
-              }}>
-                Get in<br />
-                <span style={{
-                  color: 'transparent',
-                  WebkitTextStroke: `3px ${BLACK}`,
-                }}>Touch</span>
-              </h2>
-              <p style={{ fontSize: 16, color: 'rgba(0,0,0,0.65)', maxWidth: 400, lineHeight: 1.7 }}>
-                Available for freelance projects, full-time roles, and collaborations. Let's build something great.
-              </p>
+      {/* PREVIEW MODAL */}
+      {preview && (
+        <div
+          className="no-print"
+          onClick={() => setPreview(null)}
+          style={{
+            position:"fixed", inset:0, zIndex:200,
+            background:"rgba(0,0,0,0.65)",
+            display:"flex", alignItems:"center", justifyContent:"center",
+            padding:24,
+          }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              background:"#fff", maxWidth:680, width:"100%",
+              boxShadow:"0 24px 80px rgba(0,0,0,0.25)",
+              overflow:"hidden",
+            }}
+          >
+            {/* Modal header */}
+            <div style={{
+              display:"flex", alignItems:"center", justifyContent:"space-between",
+              padding:"16px 24px", borderBottom:`1px solid ${RULE}`,
+            }}>
+              <span style={{ fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:16, color:INK }}>
+                {preview.title}
+              </span>
+              <button
+                onClick={() => setPreview(null)}
+                style={{ background:"none", border:"none", cursor:"pointer", color:SUB, padding:4 }}
+              >
+                <X size={20}/>
+              </button>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              {contact.email && (
-                <a href={`mailto:${contact.email}`} style={{
-                  fontSize: 20, fontWeight: 900, color: BLACK,
-                  display: 'flex', alignItems: 'center', gap: 8,
-                }}>
-                  {contact.email} <ArrowUpRight size={20} />
-                </a>
-              )}
-              {contact.github && (
-                <a href={contact.github} target="_blank" rel="noreferrer"
-                  style={{ fontSize: 15, fontWeight: 700, color: 'rgba(0,0,0,0.65)', display: 'flex', alignItems: 'center', gap: 6 }}>
-                  GitHub <ArrowUpRight size={14} />
-                </a>
-              )}
-              <div style={{ marginTop: 16 }}>
-                <a href={`mailto:${contact.email || 'hello@example.com'}`}
-                  className="cta-btn-black">
-                  Send Message
-                </a>
+
+            {/* Image */}
+            {preview.imageUrl ? (
+              <div style={{ height:320, background:"#f0f0f0", overflow:"hidden" }}>
+                <img src={preview.imageUrl} alt={preview.title} style={{ width:"100%", height:"100%", objectFit:"cover", objectPosition:"top" }}/>
               </div>
+            ) : (
+              <div style={{ height:200, background:"#f8f8f8", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:10 }}>
+                <Image size={36} color={RULE}/>
+                <span style={{ fontFamily:"'Syne',sans-serif", fontSize:13, color:SUB, fontWeight:600 }}>No image set</span>
+              </div>
+            )}
+
+            {/* Footer */}
+            <div style={{
+              display:"flex", alignItems:"center", justifyContent:"space-between",
+              padding:"16px 24px", borderTop:`1px solid ${RULE}`, gap:16,
+            }}>
+              <span style={{ fontFamily:"'Syne',sans-serif", fontSize:12, color:SUB, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
+                {preview.liveLink && preview.liveLink !== "#" ? preview.liveLink : "No live link set"}
+              </span>
+              {preview.liveLink && preview.liveLink !== "#" ? (
+                <a
+                  href={preview.liveLink}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{
+                    display:"inline-flex", alignItems:"center", gap:6,
+                    fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:13,
+                    background:RED, color:"#fff", padding:"10px 20px",
+                    textDecoration:"none", flexShrink:0, letterSpacing:"0.04em",
+                  }}
+                >
+                  <ExternalLink size={14}/> Open Demo
+                </a>
+              ) : (
+                <span style={{ fontFamily:"'Syne',sans-serif", fontSize:12, color:RULE, fontWeight:600, flexShrink:0 }}>No demo link</span>
+              )}
             </div>
           </div>
         </div>
-      </section>
-
-      {/* FOOTER */}
-      <footer style={{ background: BLACK, padding: '32px 24px' }}>
-        <div style={{
-          maxWidth: 1200, margin: '0 auto',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          flexWrap: 'wrap', gap: 16,
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <HP7Logo size={32} />
-            <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>
-              {name}
-            </span>
-          </div>
-          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', fontWeight: 600 }}>
-            {new Date().getFullYear()} — All rights reserved
-          </span>
-        </div>
-      </footer>
-
-      <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.5; transform: scale(0.8); }
-        }
-      `}</style>
-    </>
-  )
+      )}
+    </div>
+  );
 }
